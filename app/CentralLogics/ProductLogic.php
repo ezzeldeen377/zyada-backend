@@ -568,7 +568,7 @@ class ProductLogic
         }
       
 
-        $query = Item::with('store')
+        $query = Item::select(['items.*'])->with('store')
             ->withAvg('reviews', 'quality_rating')
             ->withAvg('reviews', 'value_rating')
             ->withAvg('reviews', 'packaging_rating')
@@ -580,7 +580,6 @@ class ProductLogic
             ->when(config('module.current_module_data'), function($query){
                     $query->where('module_id', config('module.current_module_data')['id']);
                 })
-            ->select(['items.*'])
             ->selectSub(function ($subQuery) {
                 $subQuery->selectRaw('active as temp_available')
                     ->from('stores')
