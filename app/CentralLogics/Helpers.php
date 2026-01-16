@@ -224,11 +224,17 @@ class Helpers
         $data['schedule_order'] = $data->store->schedule_order;
         $data['rating_count'] = (int)($data->rating ? array_sum(json_decode($data->rating, true)) : 0);
         $data['avg_rating'] = (float)($data->avg_rating ? $data->avg_rating : 0);
-        $data['avg_quality_rating'] = $avg_quality = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('quality_rating'), 1) : 0);
-        $data['avg_value_rating'] = $avg_value = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('value_rating'), 1) : 0);
-        $data['avg_packaging_rating'] = $avg_pack = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('packaging_rating'), 1) : 0);
-        $data['avg_service_rating'] = $avg_service = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('service_rating'), 1) : 0);
-        $data['avg_usability_rating'] = $avg_use = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('usability_rating'), 1) : 0);
+        $avg_quality = $data->reviews_avg_quality_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('quality_rating') : 0);
+        $avg_value = $data->reviews_avg_value_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('value_rating') : 0);
+        $avg_pack = $data->reviews_avg_packaging_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('packaging_rating') : 0);
+        $avg_service = $data->reviews_avg_service_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('service_rating') : 0);
+        $avg_use = $data->reviews_avg_usability_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('usability_rating') : 0);
+
+        $data['avg_quality_rating'] = $avg_quality = (float) round($avg_quality, 1);
+        $data['avg_value_rating'] = $avg_value = (float) round($avg_value, 1);
+        $data['avg_packaging_rating'] = $avg_pack = (float) round($avg_pack, 1);
+        $data['avg_service_rating'] = $avg_service = (float) round($avg_service, 1);
+        $data['avg_usability_rating'] = $avg_use = (float) round($avg_use, 1);
         $data['rate'] = round(($avg_quality + $avg_value + $avg_pack + $avg_service + $avg_use) / 5, 1);
         $data['min_delivery_time'] = (int)explode('-', $data->store->delivery_time)[0] ?? 0;
         $data['max_delivery_time'] = (int)explode('-', $data->store->delivery_time)[1] ?? 0;
@@ -279,12 +285,12 @@ class Helpers
                 'discount_type' => $discount['original_discount_type'],
                 'rating_count' => (int)($item->rating ? array_sum(json_decode($item->rating, true)) : 0),
                 'avg_rating' => (float)($item->avg_rating ?? 0),
-                'avg_quality_rating' => (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('quality_rating'), 1) : 0),
-                'avg_value_rating' => (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('value_rating'), 1) : 0),
-                'avg_packaging_rating' => (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('packaging_rating'), 1) : 0),
-                'avg_service_rating' => (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('service_rating'), 1) : 0),
-                'avg_usability_rating' => (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('usability_rating'), 1) : 0),
-                'rate' => (float)($item->relationLoaded('reviews') ? round(($item->reviews->avg('quality_rating') + $item->reviews->avg('value_rating') + $item->reviews->avg('packaging_rating') + $item->reviews->avg('service_rating') + $item->reviews->avg('usability_rating'))/5, 1) : 0),
+                'avg_quality_rating' => (float) round($item->reviews_avg_quality_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('quality_rating') : 0), 1),
+                'avg_value_rating' => (float) round($item->reviews_avg_value_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('value_rating') : 0), 1),
+                'avg_packaging_rating' => (float) round($item->reviews_avg_packaging_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('packaging_rating') : 0), 1),
+                'avg_service_rating' => (float) round($item->reviews_avg_service_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('service_rating') : 0), 1),
+                'avg_usability_rating' => (float) round($item->reviews_avg_usability_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('usability_rating') : 0), 1),
+                'rate' => (float) round((($item->reviews_avg_quality_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('quality_rating') : 0)) + ($item->reviews_avg_value_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('value_rating') : 0)) + ($item->reviews_avg_packaging_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('packaging_rating') : 0)) + ($item->reviews_avg_service_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('service_rating') : 0)) + ($item->reviews_avg_usability_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('usability_rating') : 0))) / 5, 1),
 
                 'has_variant' => (int)$has_variant,
                 'available_time_starts' => ($item->start_time instanceof \Carbon\Carbon) ? $item->start_time->format('H:i') : ($item->available_time_starts ?? null),
@@ -369,11 +375,17 @@ class Helpers
                 $item['unit'] = $item->unit;
                 $item['rating_count'] = (int)($item->rating ? array_sum(json_decode($item->rating, true)) : 0);
                 $item['avg_rating'] = (float)($item->avg_rating ? $item->avg_rating : 0);
-                $item['avg_quality_rating'] = $avg_quality = (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('quality_rating'), 1) : 0);
-                $item['avg_value_rating'] = $avg_value = (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('value_rating'), 1) : 0);
-                $item['avg_packaging_rating'] = $avg_pack = (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('packaging_rating'), 1) : 0);
-                $item['avg_service_rating'] = $avg_service = (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('service_rating'), 1) : 0);
-                $item['avg_usability_rating'] = $avg_use = (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('usability_rating'), 1) : 0);
+                $avg_quality = $item->reviews_avg_quality_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('quality_rating') : 0);
+                $avg_value = $item->reviews_avg_value_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('value_rating') : 0);
+                $avg_pack = $item->reviews_avg_packaging_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('packaging_rating') : 0);
+                $avg_service = $item->reviews_avg_service_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('service_rating') : 0);
+                $avg_use = $item->reviews_avg_usability_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('usability_rating') : 0);
+
+                $item['avg_quality_rating'] = $avg_quality = (float) round($avg_quality, 1);
+                $item['avg_value_rating'] = $avg_value = (float) round($avg_value, 1);
+                $item['avg_packaging_rating'] = $avg_pack = (float) round($avg_pack, 1);
+                $item['avg_service_rating'] = $avg_service = (float) round($avg_service, 1);
+                $item['avg_usability_rating'] = $avg_use = (float) round($avg_use, 1);
                 $item['rate'] = round(($avg_quality + $avg_value + $avg_pack + $avg_service + $avg_use) / 5, 1);
                 $item['recommended'] = (int)$item->recommended;
                 $item['min_delivery_time'] = (int)explode('-', $item?->store?->delivery_time)[0] ?? 0;
@@ -470,11 +482,18 @@ class Helpers
             $data['schedule_order'] = $data->store->schedule_order;
             $data['rating_count'] = (int)($data->rating ? array_sum(json_decode($data->rating, true)) : 0);
             $data['avg_rating'] = (float)($data->avg_rating ? $data->avg_rating : 0);
-            $data['avg_quality_rating'] = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('quality_rating'), 1) : 0);
-            $data['avg_value_rating'] = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('value_rating'), 1) : 0);
-            $data['avg_packaging_rating'] = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('packaging_rating'), 1) : 0);
-            $data['avg_service_rating'] = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('service_rating'), 1) : 0);
-            $data['avg_usability_rating'] = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('usability_rating'), 1) : 0);
+            $avg_quality = $data->reviews_avg_quality_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('quality_rating') : 0);
+            $avg_value = $data->reviews_avg_value_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('value_rating') : 0);
+            $avg_pack = $data->reviews_avg_packaging_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('packaging_rating') : 0);
+            $avg_service = $data->reviews_avg_service_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('service_rating') : 0);
+            $avg_use = $data->reviews_avg_usability_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('usability_rating') : 0);
+
+            $data['avg_quality_rating'] = $avg_quality = (float) round($avg_quality, 1);
+            $data['avg_value_rating'] = $avg_value = (float) round($avg_value, 1);
+            $data['avg_packaging_rating'] = $avg_pack = (float) round($avg_pack, 1);
+            $data['avg_service_rating'] = $avg_service = (float) round($avg_service, 1);
+            $data['avg_usability_rating'] = $avg_use = (float) round($avg_use, 1);
+            $data['rate'] = round(($avg_quality + $avg_value + $avg_pack + $avg_service + $avg_use) / 5, 1);
             $data['min_delivery_time'] = (int)explode('-', $data->store->delivery_time)[0] ?? 0;
             $data['max_delivery_time'] = (int)explode('-', $data->store->delivery_time)[1] ?? 0;
             $data['common_condition_id'] = (int)$data->pharmacy_item_details?->common_condition_id ?? 0;
@@ -574,11 +593,18 @@ class Helpers
                 $item['tax'] = 0;
                 $item['rating_count'] = (int)($item->rating ? array_sum(json_decode($item->rating, true)) : 0);
                 $item['avg_rating'] = (float)($item->avg_rating ? $item->avg_rating : 0);
-                $item['avg_quality_rating'] = (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('quality_rating'), 1) : 0);
-                $item['avg_value_rating'] = (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('value_rating'), 1) : 0);
-                $item['avg_packaging_rating'] = (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('packaging_rating'), 1) : 0);
-                $item['avg_service_rating'] = (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('service_rating'), 1) : 0);
-                $item['avg_usability_rating'] = (float)($item->relationLoaded('reviews') ? round($item->reviews->avg('usability_rating'), 1) : 0);
+                $avg_quality = $item->reviews_avg_quality_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('quality_rating') : 0);
+                $avg_value = $item->reviews_avg_value_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('value_rating') : 0);
+                $avg_pack = $item->reviews_avg_packaging_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('packaging_rating') : 0);
+                $avg_service = $item->reviews_avg_service_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('service_rating') : 0);
+                $avg_use = $item->reviews_avg_usability_rating ?? ($item->relationLoaded('reviews') ? $item->reviews->avg('usability_rating') : 0);
+
+                $item['avg_quality_rating'] = $avg_quality = (float) round($avg_quality, 1);
+                $item['avg_value_rating'] = $avg_value = (float) round($avg_value, 1);
+                $item['avg_packaging_rating'] = $avg_pack = (float) round($avg_pack, 1);
+                $item['avg_service_rating'] = $avg_service = (float) round($avg_service, 1);
+                $item['avg_usability_rating'] = $avg_use = (float) round($avg_use, 1);
+                $item['rate'] = round(($avg_quality + $avg_value + $avg_pack + $avg_service + $avg_use) / 5, 1);
                 $item['recommended'] = (int)$item->recommended;
 
                 $item['common_condition_id'] = (int)$item->pharmacy_item_details?->common_condition_id ?? 0;
@@ -698,11 +724,17 @@ class Helpers
             $data['schedule_order'] = $data->store->schedule_order;
             $data['rating_count'] = (int)($data->rating ? array_sum(json_decode($data->rating, true)) : 0);
             $data['avg_rating'] = (float)($data->avg_rating ? $data->avg_rating : 0);
-            $data['avg_quality_rating'] = $avg_quality = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('quality_rating'), 1) : 0);
-            $data['avg_value_rating'] = $avg_value = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('value_rating'), 1) : 0);
-            $data['avg_packaging_rating'] = $avg_pack = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('packaging_rating'), 1) : 0);
-            $data['avg_service_rating'] = $avg_service = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('service_rating'), 1) : 0);
-            $data['avg_usability_rating'] = $avg_use = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('usability_rating'), 1) : 0);
+            $avg_quality = $data->reviews_avg_quality_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('quality_rating') : 0);
+            $avg_value = $data->reviews_avg_value_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('value_rating') : 0);
+            $avg_pack = $data->reviews_avg_packaging_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('packaging_rating') : 0);
+            $avg_service = $data->reviews_avg_service_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('service_rating') : 0);
+            $avg_use = $data->reviews_avg_usability_rating ?? ($data->relationLoaded('reviews') ? $data->reviews->avg('usability_rating') : 0);
+
+            $data['avg_quality_rating'] = $avg_quality = (float) round($avg_quality, 1);
+            $data['avg_value_rating'] = $avg_value = (float) round($avg_value, 1);
+            $data['avg_packaging_rating'] = $avg_pack = (float) round($avg_pack, 1);
+            $data['avg_service_rating'] = $avg_service = (float) round($avg_service, 1);
+            $data['avg_usability_rating'] = $avg_use = (float) round($avg_use, 1);
             $data['rate'] = round(($avg_quality + $avg_value + $avg_pack + $avg_service + $avg_use) / 5, 1);
 
             $data['common_condition_id'] = (int)$data->pharmacy_item_details?->common_condition_id ?? 0;

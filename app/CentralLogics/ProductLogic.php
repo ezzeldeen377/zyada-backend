@@ -568,8 +568,13 @@ class ProductLogic
         }
       
 
-        $query = Item::with('store')->
-            whereHas('store', function($query)use($zone_id){
+        $query = Item::with('store')
+            ->withAvg('reviews', 'quality_rating')
+            ->withAvg('reviews', 'value_rating')
+            ->withAvg('reviews', 'packaging_rating')
+            ->withAvg('reviews', 'service_rating')
+            ->withAvg('reviews', 'usability_rating')
+            ->whereHas('store', function($query)use($zone_id){
                 $query->whereIn('zone_id', json_decode($zone_id, true));
             })
             ->when(config('module.current_module_data'), function($query){
