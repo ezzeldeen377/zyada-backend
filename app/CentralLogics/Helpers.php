@@ -698,11 +698,12 @@ class Helpers
             $data['schedule_order'] = $data->store->schedule_order;
             $data['rating_count'] = (int)($data->rating ? array_sum(json_decode($data->rating, true)) : 0);
             $data['avg_rating'] = (float)($data->avg_rating ? $data->avg_rating : 0);
-            $data['avg_quality_rating'] = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('quality_rating'), 1) : 0);
-            $data['avg_value_rating'] = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('value_rating'), 1) : 0);
-            $data['avg_packaging_rating'] = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('packaging_rating'), 1) : 0);
-            $data['avg_service_rating'] = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('service_rating'), 1) : 0);
-            $data['avg_usability_rating'] = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('usability_rating'), 1) : 0);
+            $data['avg_quality_rating'] = $avg_quality = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('quality_rating'), 1) : 0);
+            $data['avg_value_rating'] = $avg_value = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('value_rating'), 1) : 0);
+            $data['avg_packaging_rating'] = $avg_pack = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('packaging_rating'), 1) : 0);
+            $data['avg_service_rating'] = $avg_service = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('service_rating'), 1) : 0);
+            $data['avg_usability_rating'] = $avg_use = (float)($data->relationLoaded('reviews') ? round($data->reviews->avg('usability_rating'), 1) : 0);
+            $data['rate'] = round(($avg_quality + $avg_value + $avg_pack + $avg_service + $avg_use) / 5, 1);
 
             $data['common_condition_id'] = (int)$data->pharmacy_item_details?->common_condition_id ?? 0;
             $data['brand_id'] = (int)$data->ecommerce_item_details?->brand_id ?? 0;
