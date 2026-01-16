@@ -617,7 +617,11 @@ class ItemController extends Controller
         $validator = Validator::make($request->all(), [
             'item_id' => 'required',
             'order_id' => 'required',
-            'rating' => 'required|numeric|max:5',
+            'quality_rating' => 'required|numeric|max:5',
+            'value_rating' => 'required|numeric|max:5',
+            'packaging_rating' => 'required|numeric|max:5',
+            'service_rating' => 'required|numeric|max:5',
+            'usability_rating' => 'required|numeric|max:5',
         ]);
 
         $order = Order::find($request->order_id);
@@ -666,18 +670,26 @@ class ItemController extends Controller
         $review->order_id = $request->order_id;
         $review->module_id = $order->module_id;
         $review->comment = $request?->comment;
-        $review->rating = $request->rating;
+        
+        $avg_rating = ($request->quality_rating + $request->value_rating + $request->packaging_rating + $request->service_rating + $request->usability_rating) / 5;
+        $review->rating = round($avg_rating);
+        $review->quality_rating = $request->quality_rating;
+        $review->value_rating = $request->value_rating;
+        $review->packaging_rating = $request->packaging_rating;
+        $review->service_rating = $request->service_rating;
+        $review->usability_rating = $request->usability_rating;
+
         $review->attachment = json_encode($image_array);
         $review->save();
 
         if($item->store)
         {
-            $store_rating = StoreLogic::update_store_rating($item->store->rating, (int)$request->rating);
+            $store_rating = StoreLogic::update_store_rating($item->store->rating, (int)$review->rating);
             $item->store->rating = $store_rating;
             $item->store->save();
         }
 
-        $item->rating = ProductLogic::update_rating($item->rating, (int)$request->rating);
+        $item->rating = ProductLogic::update_rating($item->rating, (int)$review->rating);
         $item->avg_rating = ProductLogic::get_avg_rating(json_decode($item->rating, true));
         $item->save();
         $item->increment('rating_count');

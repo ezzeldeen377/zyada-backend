@@ -16,7 +16,12 @@ class Review extends Model
         'rating' => 'integer',
         'store_id' => 'integer',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
+        'quality_rating' => 'integer',
+        'value_rating' => 'integer',
+        'packaging_rating' => 'integer',
+        'service_rating' => 'integer',
+        'usability_rating' => 'integer',
     ];
 
     public function scopeModule($query, $module_id)
