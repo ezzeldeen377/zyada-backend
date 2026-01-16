@@ -118,7 +118,6 @@
                             </div>
                         </div>
 
-                        @if (Config::get('module.current_module_type') != 'food')
                             <div class="col-sm-6 col-lg-3" id="stock_input">
                                 <div class="form-group mb-0 error-wrapper">
                                     <label class="input-label"
@@ -127,7 +126,6 @@
                                         value="{{ isset($product) ? $product->stock : '' }}" id="quantity">
                                 </div>
                             </div>
-                        @endif
 
 
                     </div>

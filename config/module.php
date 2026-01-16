@@ -35,7 +35,7 @@ return [
         'order_status'=>['accepted'=>true],
         'order_place_to_schedule_interval'=>false,
         'add_on'=>true,
-        'stock'=>false,
+        'stock'=>true,
         'veg_non_veg'=>true,
         'unit'=>false,
         'order_attachment'=>false,
