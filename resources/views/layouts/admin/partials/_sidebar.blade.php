@@ -552,6 +552,14 @@
                     </ul>
                 </li>
                 @endif
+                @if (\App\CentralLogics\Helpers::module_permission_check('item'))
+                <li class="navbar-vertical-aside-has-menu {{ Request::is('admin/box*') ? 'active' : '' }}">
+                    <a class="nav-link " href="{{ route('admin.box.add-new') }}" title="{{ translate('messages.mystery_box') }}">
+                        <i class="tio-archive nav-icon"></i>
+                        <span class="text-truncate text-capitalize">{{ translate('messages.mystery_box') }}</span>
+                    </a>
+                </li>
+                @endif
                 <!-- End AddOn -->
                 <!-- Food -->
                 @if (\App\CentralLogics\Helpers::module_permission_check('item'))
@@ -607,12 +615,7 @@
                                 <span class="text-truncate text-capitalize">{{ translate('messages.bulk_export') }}</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ Request::is('admin/box*') ? 'active' : '' }}">
-                            <a class="nav-link " href="{{ route('admin.box.add-new') }}" title="{{ translate('messages.mystery_box') }}">
-                                <span class="tio-circle nav-indicator-icon"></span>
-                                <span class="text-truncate text-capitalize">{{ translate('messages.mystery_box') }}</span>
-                            </a>
-                        </li>
+
                     </ul>
                 </li>
                 @endif
