@@ -63,16 +63,22 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="input-label" for="price">{{ translate('messages.price') }}</label>
-                                        <input type="number" step="0.01" name="price" class="form-control" placeholder="{{ translate('messages.price') }}" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="input-label" for="available_count">{{ translate('messages.available_count') }}</label>
                                         <input type="number" name="available_count" class="form-control" placeholder="{{ translate('messages.available_count') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="input-label" for="item_count">{{ translate('messages.item_count') }}</label>
+                                        <input type="number" name="item_count" class="form-control" placeholder="{{ translate('messages.item_count') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="input-label" for="price">{{ translate('messages.price') }}</label>
+                                        <input type="number" step="0.01" name="price" class="form-control" placeholder="{{ translate('messages.price') }}" required>
                                     </div>
                                 </div>
                             </div>
@@ -154,6 +160,7 @@
                         <th>{{ translate('messages.store') }}</th>
                         <th>{{ translate('messages.price') }}</th>
                         <th>{{ translate('messages.available') }}</th>
+                        <th>{{ translate('messages.item_count') }}</th>
                         <th>{{ translate('messages.status') }}</th>
                         <th class="text-center">{{ translate('messages.action') }}</th>
                     </tr>
@@ -174,6 +181,7 @@
                             <td>{{ $box->store ? $box->store->name : translate('messages.store_deleted') }}</td>
                             <td>{{ \App\CentralLogics\Helpers::format_currency($box->price) }}</td>
                             <td>{{ $box->available_count }}</td>
+                            <td>{{ $box->item_count }}</td>
                             <td>
                                 <label class="toggle-switch toggle-switch-sm" for="statusCheckbox{{ $box->id }}">
                                     <input type="checkbox" data-url="{{ route('admin.box.status', [$box['id'], $box->status ? 0 : 1]) }}" class="toggle-switch-input redirect-url" id="statusCheckbox{{ $box->id }}" {{ $box->status ? 'checked' : '' }}>

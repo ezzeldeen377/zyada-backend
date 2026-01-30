@@ -26,6 +26,7 @@ class ItemCampaign extends Model
         'maximum_cart_quantity' => 'integer',
         'veg' => 'integer',
         'stock'=>'integer',
+        'item_count'=>'integer',
         'created_at'=>'datetime',
         'updated_at'=>'datetime',
         'start_date'=>'datetime',

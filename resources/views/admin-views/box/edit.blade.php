@@ -77,16 +77,22 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="input-label" for="price">{{ translate('messages.price') }}</label>
-                                        <input type="number" step="0.01" name="price" class="form-control" value="{{ $box->price }}" placeholder="{{ translate('messages.price') }}" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="input-label" for="available_count">{{ translate('messages.available_count') }}</label>
                                         <input type="number" name="available_count" class="form-control" value="{{ $box->available_count }}" placeholder="{{ translate('messages.available_count') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="input-label" for="item_count">{{ translate('messages.item_count') }}</label>
+                                        <input type="number" name="item_count" class="form-control" value="{{ $box->item_count }}" placeholder="{{ translate('messages.item_count') }}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="input-label" for="price">{{ translate('messages.price') }}</label>
+                                        <input type="number" step="0.01" name="price" class="form-control" value="{{ $box->price }}" placeholder="{{ translate('messages.price') }}" required>
                                     </div>
                                 </div>
                             </div>

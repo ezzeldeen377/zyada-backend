@@ -182,6 +182,13 @@
                                         <input type="number" class="form-control" name="maximum_cart_quantity" value="{{$campaign->maximum_cart_quantity}}" min="0" id="cart_quantity">
                                     </div>
                                 </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <div class="form-group mb-0 error-wrapper">
+                                        <label class="input-label"
+                                            for="item_count">{{ translate('messages.item_count') }}</label>
+                                        <input type="number" class="form-control" name="item_count" value="{{$campaign->item_count}}" min="0" id="item_count">
+                                    </div>
+                                </div>
                                 <div class="col-md-3 col-sm-6" id="addon_input">
                                     <div class="form-group mb-0 error-wrapper">
                                         <label class="input-label" for="exampleFormControlSelect1">{{translate('messages.addon')}}<span

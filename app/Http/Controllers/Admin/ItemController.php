@@ -69,6 +69,7 @@ class ItemController extends Controller
             'description.*' => 'max:1000',
             'name.0' => 'required',
             'description.0' => 'required',
+            'item_count' => 'nullable|integer|min:0',
         ], [
             'description.*.max' => translate('messages.description_length_warning'),
             'name.0.required' => translate('messages.item_name_required'),
@@ -347,6 +348,7 @@ class ItemController extends Controller
         $item->stock = $request->current_stock ?? 0;
         $item->images = $images;
         $item->is_halal =  $request->is_halal ?? 0;
+        $item->item_count = $request->item_count ?? 0;
         $item->save();
         $item->tags()->sync($tag_ids);
         $item->nutritions()->sync($nutrition_ids);
@@ -453,6 +455,7 @@ class ItemController extends Controller
             'discount' => 'required|numeric|min:0',
             'name.0' => 'required',
             'description.0' => 'required',
+            'item_count' => 'nullable|integer|min:0',
         ], [
             'description.*.max' => translate('messages.description_length_warning'),
             'category_id.required' => translate('messages.category_required'),
@@ -676,6 +679,7 @@ class ItemController extends Controller
         $item->organic = $request->organic ?? 0;
         $item->veg = $request->veg ?? 0;
         $item->images = $images;
+        $item->item_count = $request->item_count ?? 0;
         if (Helpers::get_mail_status('product_approval') && $request?->temp_product) {
 
 

@@ -127,6 +127,15 @@
                                 </div>
                             </div>
 
+                            <div class="col-sm-6 col-lg-3">
+                                <div class="form-group mb-0 error-wrapper">
+                                    <label class="input-label"
+                                        for="item_count">{{ translate('messages.item_count') }}</label>
+                                    <input type="number" class="form-control" name="item_count" min="0"
+                                        value="{{ isset($product) ? $product->item_count : '' }}" id="item_count">
+                                </div>
+                            </div>
+
 
                     </div>
                 </div>

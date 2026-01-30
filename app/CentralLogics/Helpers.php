@@ -301,6 +301,7 @@ class Helpers
                 'organic' => $item->organic,
                 'is_halal' => (int)$item->is_halal ?? 0,
                 'stock' => (int)$item->stock ?? 0,
+                'item_count' => (int)$item->item_count ?? 0,
                 'maximum_cart_quantity' => (int)$item->maximum_cart_quantity ?? 0,
                 'discount' => $discount['discount_percentage'],
                 'discount_type' => $discount['original_discount_type'],
@@ -382,6 +383,7 @@ class Helpers
                 })
                     ->where(['item_id' => $item['id']])->first();
                 $item['flash_sale'] = (int)((($running_flash_sale && ($running_flash_sale->available_stock > 0)) ? 1 : 0));
+                $item['item_count'] = (int)$item->item_count;
                 $item['stock'] = ($running_flash_sale && ($running_flash_sale->available_stock > 0)) ? $running_flash_sale->available_stock : $item['stock'];
                 $discount_data = self::product_discount_calculate($item, $item['price'], $item->store, true);
 
@@ -515,6 +517,7 @@ class Helpers
             $data['avg_service_rating'] = $avg_service = (float) round($avg_service, 1);
             $data['avg_usability_rating'] = $avg_use = (float) round($avg_use, 1);
             $data['rate'] = round(($avg_quality + $avg_value + $avg_pack + $avg_service + $avg_use) / 5, 1);
+            $data['item_count'] = (int)$data->item_count;
             $data['min_delivery_time'] = (int)explode('-', $data->store->delivery_time)[0] ?? 0;
             $data['max_delivery_time'] = (int)explode('-', $data->store->delivery_time)[1] ?? 0;
             $data['common_condition_id'] = (int)$data->pharmacy_item_details?->common_condition_id ?? 0;

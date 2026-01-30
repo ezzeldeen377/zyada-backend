@@ -8895,4 +8895,5 @@ Smartly or Earn. ',
   'box_not_found' => 'Box not found',
   'box_quantity_unavailable' => 'Box quantity unavailable',
   'item_not_found' => 'Item not found',
+  'item_count' => 'Item Count',
 );

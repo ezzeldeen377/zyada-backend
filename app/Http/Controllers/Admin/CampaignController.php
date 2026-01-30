@@ -247,8 +247,8 @@ class CampaignController extends Controller
             'description'=>'max:1000',
             'title.0' => 'required',
             'description.0' => 'required',
+            'item_count' => 'nullable|integer|min:0',
         ], [
-            'category_id.required' => translate('messages.select_category'),
             'title.0.required'=>translate('default_title_is_required'),
             'description.0.required'=>translate('default_description_is_required'),
         ]);
@@ -433,6 +433,7 @@ class CampaignController extends Controller
         $campaign->maximum_cart_quantity = $request->maximum_cart_quantity;
         $campaign->stock= $request->current_stock;
         $campaign->unit_id = $request->unit;
+        $campaign->item_count = $request->item_count ?? 0;
         $campaign->save();
         $campaign->nutritions()->sync($nutrition_ids);
         $campaign->allergies()->sync($allergy_ids);
@@ -521,7 +522,9 @@ class CampaignController extends Controller
             'description.*'=>'max:1000',
             'title.0' => 'required',
             'description.0' => 'required',
+            'item_count' => 'nullable|integer|min:0',
         ],[
+            'category_id.required' => translate('messages.select_category'),
             'title.0.required'=>translate('default_title_is_required'),
             'description.0.required'=>translate('default_description_is_required'),
         ]);
@@ -699,6 +702,7 @@ class CampaignController extends Controller
         $campaign->unit_id = $request->unit;
         $campaign->maximum_cart_quantity = $request->maximum_cart_quantity;
         $campaign->stock= $request->current_stock;
+        $campaign->item_count = $request->item_count ?? 0;
         $campaign->save();
         $campaign->nutritions()->sync($nutrition_ids);
         $campaign->allergies()->sync($allergy_ids);

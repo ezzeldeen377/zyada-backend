@@ -29,6 +29,7 @@ class BoxController extends Controller
             'store_id' => 'required',
             'price' => 'required|numeric|min:0',
             'available_count' => 'required|numeric|min:1',
+            'item_count' => 'required|numeric|min:1',
             'image' => 'required',
         ], [
             'name.0.required' => translate('messages.Name is required!'),
@@ -46,6 +47,7 @@ class BoxController extends Controller
         $box->description = $request->description[array_search('en', $request->lang)];
         $box->price = $request->price;
         $box->available_count = $request->available_count;
+        $box->item_count = $request->item_count;
         $box->store_id = $request->store_id;
         $box->module_id = $store->module_id;
         $box->start_date = $request->start_date;
@@ -103,6 +105,7 @@ class BoxController extends Controller
             'store_id' => 'required',
             'price' => 'required|numeric|min:0',
             'available_count' => 'required|numeric|min:0',
+            'item_count' => 'required|numeric|min:1',
         ]);
 
         if ($validator->fails()) {
@@ -116,6 +119,7 @@ class BoxController extends Controller
         $box->description = $request->description[array_search('en', $request->lang)];
         $box->price = $request->price;
         $box->available_count = $request->available_count;
+        $box->item_count = $request->item_count;
         $box->store_id = $request->store_id;
         $box->module_id = $store->module_id;
         $box->start_date = $request->start_date;
