@@ -530,7 +530,7 @@
                     <!-- End AddOn -->
                     <!-- Food -->
                     @if (\App\CentralLogics\Helpers::module_permission_check('item'))
-                        <li class="navbar-vertical-aside-has-menu  @yield('low_stock_list') {{ Request::is('admin/item*')  ? 'active' : '' }}">
+                        <li class="navbar-vertical-aside-has-menu  @yield('low_stock_list') {{ Request::is('admin/item*') || Request::is('admin/box*') ? 'active' : '' }}">
                             <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle" href="javascript:"
                                title="{{ translate('Product Setup') }}">
                                 <i class="tio-premium-outlined nav-icon"></i>
@@ -538,7 +538,13 @@
                                     class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate text-capitalize">{{ translate('Product Setup') }}</span>
                             </a>
                             <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
-                                style="display:{{ Request::is('admin/item*') ||  Request::is('admin/report/stock-report*') ? 'block' : 'none' }}">
+                                style="display:{{ Request::is('admin/item*') || Request::is('admin/box*') ||  Request::is('admin/report/stock-report*') ? 'block' : 'none' }}">
+                                <li class="nav-item {{ Request::is('admin/box*') ? 'active' : '' }}">
+                                    <a class="nav-link " href="{{ route('admin.box.add-new') }}" title="{{ translate('messages.mystery_box') }}">
+                                        <span class="tio-circle nav-indicator-icon"></span>
+                                        <span class="text-truncate text-capitalize">{{ translate('messages.mystery_box') }}</span>
+                                    </a>
+                                </li>
                                 <li class="nav-item {{ Request::is('admin/item/add-new') || (Request::is('admin/item/edit/*') && strpos(request()->fullUrl(), 'product_gellary=1') !== false  )  ? 'active' : '' }}">
                                     <a class="nav-link " href="{{ route('admin.item.add-new') }}"
                                        title="{{ translate('messages.add_new') }}">
