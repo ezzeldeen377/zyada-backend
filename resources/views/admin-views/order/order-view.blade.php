@@ -804,7 +804,59 @@
 
                                             @php($store_discount_amount += $detail['discount_on_item'] *  ( $detail['discount_on_product_by'] == 'store_discount' ?  1:$detail['quantity'] ))
                                             <!-- End Media -->
+                                        @elseif(isset($detail->box_id) && $detail->status)
+                                                <?php
+                                                if (!$editing) {
+                                                    $detail->box = json_decode($detail->item_details, true);
+                                                }
+                                                $box = \App\Models\Box::where(['id' => $detail->box['id']])->first();
+                                                ?>
+                                            <tr>
+                                                <td>
+                                                    <!-- Static Count Number -->
+                                                    <div>
+                                                        {{ $key + 1 }}
+                                                    </div>
+                                                    <!-- Static Count Number -->
+                                                </td>
+                                                <td>
+                                                    <div class="media media--sm">
+                                                        <a class="avatar avatar-xl mr-3"
+                                                            href="#">
+                                                            <img class="img-fluid rounded onerror-image"
+                                                                src="{{ $box?->image_full_url ?? asset('public/assets/admin/img/900x400/img1.jpg') }}"
+                                                                data-onerror-image="{{ asset('public/assets/admin/img/160x160/img2.jpg') }}"
+                                                                alt="Image Description">
+                                                        </a>
 
+                                                        <div class="media-body">
+                                                            <div>
+                                                                <strong
+                                                                    class="line--limit-1">{{ Str::limit($detail->box['name'] ?? '', 20, '...') }}</strong>
+
+                                                                <h6>
+                                                                    {{ $detail['quantity'] }} x
+                                                                    {{ \App\CentralLogics\Helpers::format_currency($detail['price']) }}
+                                                                </h6>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                @if ($order->store && $order->store->module->module_type == 'food')
+                                                    <td></td>
+                                                @endif
+                                                <td class="text-right">
+                                                    <div>
+                                                        @php($amount = $detail['price'] * $detail['quantity'])
+                                                        <h5>{{ \App\CentralLogics\Helpers::format_currency($amount) }}
+                                                        </h5>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            @php($product_price += $amount)
+
+                                            @php($store_discount_amount += $detail['discount_on_item'] *  ( $detail['discount_on_product_by'] == 'store_discount' ?  1:$detail['quantity'] ))
                                         @endif
                                     @endforeach
                                     </tbody>

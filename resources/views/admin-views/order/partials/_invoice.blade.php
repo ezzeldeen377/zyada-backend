@@ -205,7 +205,7 @@
                                                     @php($add_ons_cost += $addon['price'] * $addon['quantity'])
                                                 @endforeach
                                             </div>
-                                            @if (count(json_decode($detail['variation'], true)) <= 0)
+                                            @if (count(json_decode($detail['variation'], true)) <= 0 && !$detail->box_id)
                                                 <div class="price">
                                                     {{ \App\CentralLogics\Helpers::format_currency($detail->price) }}
                                                 </div>

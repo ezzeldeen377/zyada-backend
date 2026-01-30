@@ -290,6 +290,16 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
             Route::get('stock-limit-list', 'ItemController@stock_limit_list');
         });
 
+        // Box (Mystery Box)
+        Route::group(['prefix'=>'box'], function(){
+            Route::get('/', 'BoxController@list');
+            Route::post('store', 'BoxController@store');
+            Route::put('update', 'BoxController@update');
+            Route::delete('delete', 'BoxController@delete');
+            Route::get('status', 'BoxController@status');
+            Route::get('details/{id}', 'BoxController@get_box');
+        });
+
         // POS
         Route::group(['prefix'=>'pos'], function(){
             Route::get('orders', 'POSController@order_list');
@@ -443,6 +453,11 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
             Route::post('reviews/submit', 'ItemController@submit_product_review')->middleware('auth:api');
             Route::get('common-conditions', 'ItemController@get_store_condition_products');
             Route::get('get-products', 'ItemController@get_products');
+        });
+
+        Route::group(['prefix' => 'boxes'], function () {
+            Route::get('/', 'BoxController@index');
+            Route::get('/{id}', 'BoxController@show');
         });
 
         Route::group(['prefix' => 'stores'], function () {

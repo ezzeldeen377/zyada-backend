@@ -29,6 +29,7 @@ use MatanYadaev\EloquentSpatial\Objects\Point;
 use App\Mail\CustomerRegistration;
 use App\Mail\PlaceOrder;
 use App\Models\AddOn;
+use App\Models\Box;
 use App\Models\SurgePrice;
 use Carbon\Carbon;
 
@@ -1006,6 +1007,72 @@ trait PlaceNewOrder
         foreach ($carts as $c) {
             $variations = [];
             $isCampaign = false;
+            $isBox = false;
+
+            // Handle Box items
+            if ($c['item_type'] === 'App\Models\Box' || $c['item_type'] === 'AppModelsBox') {
+                $box = Box::with('module')->active()->available()->find($c['item_id']);
+                if (!$box) {
+                    return [
+                        'status_code' => 403,
+                        'code' => 'not_found',
+                        'message' => translate('messages.box_not_found'),
+                    ];
+                }
+                if ($box->store_id != $order->store_id) {
+                    return [
+                        'status_code' => 403,
+                        'code' => 'different_stores',
+                        'message' => translate('messages.Please_select_items_from_the_same_store'),
+                    ];
+                }
+                if ($c['quantity'] > $box->available_count) {
+                    return [
+                        'status_code' => 403,
+                        'code' => 'stock',
+                        'message' => translate('messages.box_quantity_unavailable'),
+                    ];
+                }
+
+                $price = $box->price;
+                $or_d = [
+                    'item_id' => null,
+                    'item_campaign_id' => null,
+                    'box_id' => $box->id,
+                    'item_details' => json_encode([
+                        'id' => $box->id,
+                        'name' => $box->name,
+                        'description' => $box->description,
+                        'image' => $box->image,
+                        'price' => $box->price,
+                        'item_count' => $box->item_count,
+                    ]),
+                    'quantity' => $c['quantity'],
+                    'price' => round($price, config('round_up_to_digit')),
+                    'category_id' => null,
+                    'tax_amount' => 0,
+                    'tax_status' => null,
+                    'discount_on_product_by' => 'vendor',
+                    'discount_type' => null,
+                    'discount_on_item' => 0,
+                    'discount_percentage' => 0,
+                    'variant' => json_encode([]),
+                    'variation' => json_encode([]),
+                    'add_ons' => json_encode([]),
+                    'total_add_on_price' => 0,
+                    'addon_discount' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+
+                // Decrement box available count
+                $box->decrement('available_count', $c['quantity']);
+
+                $product_price += $price * $or_d['quantity'];
+                $order_details[] = $or_d;
+                continue; // Skip to next cart item
+            }
+
             if ($c['item_type'] === 'App\Models\ItemCampaign' || $c['item_type'] === 'AppModelsItemCampaign') {
                 $product = ItemCampaign::with('module')->active()->find($c['item_id']);
                 $isCampaign = true;
@@ -1179,8 +1246,70 @@ trait PlaceNewOrder
         foreach ($carts as $c) {
             $variations = [];
             if (is_array($c)) {
-                //                dd($c);
                 $isCampaign = false;
+                $isBox = false;
+
+                // Handle Box items
+                if (isset($c['item_type']) && ($c['item_type'] === 'App\Models\Box' || $c['item_type'] === 'AppModelsBox')) {
+                    $box = Box::active()->available()->find($c['item_id'] ?? $c['id']);
+                    if (!$box) {
+                        return [
+                            'status_code' => 403,
+                            'code' => 'not_found',
+                            'message' => translate('messages.box_not_found'),
+                        ];
+                    }
+                    if ($box->store_id != $store->id) {
+                        return [
+                            'status_code' => 403,
+                            'code' => 'different_stores',
+                            'message' => translate('messages.Please_select_items_from_the_same_store'),
+                        ];
+                    }
+                    if ($c['quantity'] > $box->available_count) {
+                        return [
+                            'status_code' => 403,
+                            'code' => 'stock',
+                            'message' => translate('messages.box_quantity_unavailable'),
+                        ];
+                    }
+
+                    $price = $box->price;
+                    $or_d = [
+                        'item_id' => null,
+                        'item_campaign_id' => null,
+                        'box_id' => $box->id,
+                        'item_details' => json_encode([
+                            'id' => $box->id,
+                            'name' => $box->name,
+                            'description' => $box->description,
+                            'image' => $box->image,
+                            'price' => $box->price,
+                            'item_count' => $box->item_count,
+                        ]),
+                        'quantity' => $c['quantity'],
+                        'price' => round($price, config('round_up_to_digit')),
+                        'category_id' => null,
+                        'tax_amount' => 0,
+                        'tax_status' => null,
+                        'discount_on_product_by' => 'vendor',
+                        'discount_type' => null,
+                        'discount_on_item' => 0,
+                        'discount_percentage' => 0,
+                        'variant' => json_encode([]),
+                        'variation' => json_encode([]),
+                        'add_ons' => json_encode([]),
+                        'total_add_on_price' => 0,
+                        'addon_discount' => 0,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+
+                    $product_price += $price * $or_d['quantity'];
+                    $order_details[] = $or_d;
+                    continue; // Skip to next cart item
+                }
+
                 if (isset($c['item_type']) && ($c['item_type'] === 'App\Models\ItemCampaign' || $c['item_type'] === 'AppModelsItemCampaign')) {
                     $product = ItemCampaign::with('module')->active()->find($c['item_id']);
                     $isCampaign = true;
@@ -1356,6 +1485,69 @@ trait PlaceNewOrder
 
             if (!isset($c['status']) || $c['status'] !== false) {
                 $isCampaign = false;
+                $isBox = false;
+
+                // Handle Box items
+                if (isset($c['item_type']) && ($c['item_type'] === 'App\Models\Box' || $c['item_type'] === 'AppModelsBox')) {
+                    $box = Box::active()->available()->find($c['item_id'] ?? $c['id']);
+                    if (!$box) {
+                        return [
+                            'status_code' => 403,
+                            'code' => 'not_found',
+                            'message' => translate('messages.box_not_found'),
+                        ];
+                    }
+                    if ($box->store_id != $store->id) {
+                        return [
+                            'status_code' => 403,
+                            'code' => 'different_stores',
+                            'message' => translate('messages.Please_select_items_from_the_same_store'),
+                        ];
+                    }
+                    if ($c['quantity'] > $box->available_count) {
+                        return [
+                            'status_code' => 403,
+                            'code' => 'stock',
+                            'message' => translate('messages.box_quantity_unavailable'),
+                        ];
+                    }
+
+                    $price = $box->price;
+                    $or_d = [
+                        'item_id' => null,
+                        'item_campaign_id' => null,
+                        'box_id' => $box->id,
+                        'item_details' => json_encode([
+                            'id' => $box->id,
+                            'name' => $box->name,
+                            'description' => $box->description,
+                            'image' => $box->image,
+                            'price' => $box->price,
+                            'item_count' => $box->item_count,
+                        ]),
+                        'quantity' => $c['quantity'],
+                        'price' => round($price, config('round_up_to_digit')),
+                        'category_id' => null,
+                        'tax_amount' => 0,
+                        'tax_status' => null,
+                        'discount_on_product_by' => 'vendor',
+                        'discount_type' => null,
+                        'discount_on_item' => 0,
+                        'discount_percentage' => 0,
+                        'variant' => json_encode([]),
+                        'variation' => json_encode([]),
+                        'add_ons' => json_encode([]),
+                        'total_add_on_price' => 0,
+                        'addon_discount' => 0,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+
+                    $product_price += $price * $or_d['quantity'];
+                    $order_details[] = $or_d;
+                    continue; // Skip to next cart item
+                }
+
                 if (isset($c['item_type']) && ($c['item_type'] === 'App\Models\ItemCampaign' || $c['item_type'] === 'AppModelsItemCampaign')) {
                     $product = ItemCampaign::with('module')->active()->find($c['item_id']);
                     $isCampaign = true;

@@ -19,7 +19,8 @@ class OrderDetail extends Model
         'item_id'=> 'integer',
         'order_id'=> 'integer',
         'quantity'=>'integer',
-        'item_campaign_id'=>'integer'
+        'item_campaign_id'=>'integer',
+        'box_id'=>'integer'
     ];
 
     protected $primaryKey   = 'id';
@@ -39,6 +40,10 @@ class OrderDetail extends Model
     public function campaign()
     {
         return $this->belongsTo(ItemCampaign::class, 'item_campaign_id');
+    }
+    public function box()
+    {
+        return $this->belongsTo(Box::class, 'box_id');
     }
 
     protected static function boot(){

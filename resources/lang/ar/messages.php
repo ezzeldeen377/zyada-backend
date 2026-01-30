@@ -5506,4 +5506,11 @@
   'Otp_Successfully_Sent_To_Your_Phone' => 'Otp Successfully Sent To Your Phone',
   'Invalid OTP.' => 'Invalid OTP.',
   'user_not_found!' => 'User not found!',
+  'box_created_successfully' => 'تم إنشاء الصندوق بنجاح',
+  'box_updated_successfully' => 'تم تحديث الصندوق بنجاح',
+  'box_deleted_successfully' => 'تم حذف الصندوق بنجاح',
+  'box_status_updated' => 'تم تحديث حالة الصندوق',
+  'box_not_found' => 'الصندوق غير موجود',
+  'box_quantity_unavailable' => 'كمية الصندوق غير متوفرة',
+  'item_not_found' => 'العنصر غير موجود',
 );

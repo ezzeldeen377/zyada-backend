@@ -128,6 +128,27 @@ class Helpers
         return $data;
     }
 
+    public static function cart_box_data_formatting($data)
+    {
+        $data['store_name'] = $data->store->name;
+        $data['module_type'] = $data->module->module_type;
+        $data['zone_id'] = $data->store->zone_id;
+        $data['stock'] = $data->available_count;
+        $data['category_ids'] = [];
+        $data['add_ons'] = [];
+        $data['variations'] = [];
+        $data['food_variations'] = [];
+        $data['discount'] = 0;
+        $data['discount_type'] = null;
+        $data['rating_count'] = 0;
+        $data['avg_rating'] = 0;
+        
+        unset($data['store']);
+        unset($data['module']);
+        
+        return $data;
+    }
+
     public static function cart_product_data_formatting($data, $selected_variation, $selected_addons,
                                                         $selected_addon_quantity, $trans = false, $local = 'en')
     {
@@ -1108,9 +1129,16 @@ class Helpers
                 $product = \App\Models\Item::where(['id' => $item['item_details']['id']])->first();
                 $item['image_full_url'] = $product?->image_full_url;
                 $item['images_full_url'] = $product?->images_full_url;
-            } else {
+            } elseif ($item['item_campaign_id']) {
                 $product = \App\Models\ItemCampaign::where(['id' => $item['item_details']['id']])->first();
                 $item['image_full_url'] = $product?->image_full_url;
+                $item['images_full_url'] = [];
+            } elseif ($item['box_id']) {
+                $product = \App\Models\Box::where(['id' => $item['box_id']])->first();
+                $item['image_full_url'] = $product?->image_full_url;
+                $item['images_full_url'] = [];
+            } else {
+                $item['image_full_url'] = null;
                 $item['images_full_url'] = [];
             }
             array_push($storage, $item);
@@ -4325,7 +4353,7 @@ class Helpers
         if (addon_published_status('TaxModule')) {
 
             foreach ($details_data as $item) {
-                $item_id = $item['item_id'] ?? $item['item_campaign_id'];
+                $item_id = $item['item_id'] ?? $item['item_campaign_id'] ?? $item['box_id'];
                 $itemWiseDiscount = $item['discount_type'] === 'product_discount' ? $item['discount_on_item'] * $item['quantity'] : $item['discount_on_item'];
                 $productDiscountTotal += $itemWiseDiscount;
 
@@ -4342,6 +4370,7 @@ class Helpers
                     'discount_type' => $item['discount_type'],
                     'base_final' => $itemFinal,
                     'is_campaign_item' => $item['item_campaign_id'] ? true : false,
+                    'is_box_item' => $item['box_id'] ? true : false,
                 ];
 
                 $totalAfterOwnDiscounts += $itemFinal;

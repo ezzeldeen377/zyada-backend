@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Models\Box;
 use App\Models\Cart;
 use App\Models\Item;
 use Illuminate\Http\Request;
@@ -23,15 +24,26 @@ class CartController extends Controller
         }
         $user_id = $request->user ? $request->user->id : $request['guest_id'];
         $is_guest = $request->user ? 0 : 1;
-        $carts = Cart::where('user_id', $user_id)->where('is_guest',$is_guest)->where('module_id',$request->header('moduleId'))->get()
-        ->map(function ($data) {
-            $data->add_on_ids = json_decode($data->add_on_ids,true);
-            $data->add_on_qtys = json_decode($data->add_on_qtys,true);
-            $data->variation = json_decode($data->variation,true);
-			$data->item = Helpers::cart_product_data_formatting($data->item, $data->variation,$data->add_on_ids,
-            $data->add_on_qtys, false, app()->getLocale());
-			return $data;
-		});
+        $carts = Cart::where('user_id', $user_id)->where('is_guest', $is_guest)->where('module_id', $request->header('moduleId'))->get()
+            ->map(function ($data) {
+                $data->add_on_ids = json_decode($data->add_on_ids, true);
+                $data->add_on_qtys = json_decode($data->add_on_qtys, true);
+                $data->variation = json_decode($data->variation, true);
+
+                if ($data->item_type === 'App\Models\Box' || $data->item_type === 'AppModelsBox') {
+                    $data->item = Helpers::cart_box_data_formatting($data->item);
+                } else {
+                    $data->item = Helpers::cart_product_data_formatting(
+                        $data->item,
+                        $data->variation,
+                        $data->add_on_ids,
+                        $data->add_on_qtys,
+                        false,
+                        app()->getLocale()
+                    );
+                }
+                return $data;
+            });
         return response()->json($carts, 200);
     }
 
@@ -40,7 +52,7 @@ class CartController extends Controller
         $validator = Validator::make($request->all(), [
             'guest_id' => $request->user ? 'nullable' : 'required',
             'item_id' => 'required|integer',
-            'model' => 'required|string|in:Item,ItemCampaign',
+            'model' => 'required|string|in:Item,ItemCampaign,Box',
             'price' => 'required|numeric',
             'quantity' => 'required|integer|min:1',
         ]);
@@ -51,9 +63,40 @@ class CartController extends Controller
 
         $user_id = $request->user ? $request->user->id : $request['guest_id'];
         $is_guest = $request->user ? 0 : 1;
-        $model = $request->model === 'Item' ? 'App\Models\Item' : 'App\Models\ItemCampaign';
-        $item = $request->model === 'Item' ? Item::find($request->item_id) : ItemCampaign::find($request->item_id);
+        
+        // Determine model class based on request
+        $modelMap = [
+            'Item' => 'App\Models\Item',
+            'ItemCampaign' => 'App\Models\ItemCampaign',
+            'Box' => 'App\Models\Box',
+        ];
+        $model = $modelMap[$request->model];
+        
+        // Find the item based on model type
+        $item = match ($request->model) {
+            'Item' => Item::find($request->item_id),
+            'ItemCampaign' => ItemCampaign::find($request->item_id),
+            'Box' => Box::find($request->item_id),
+        };
 
+        if (!$item) {
+            return response()->json([
+                'errors' => [
+                    ['code' => 'item', 'message' => translate('messages.item_not_found')]
+                ]
+            ], 404);
+        }
+
+        // Check if box is available
+        if ($request->model === 'Box') {
+            if ($item->available_count < $request->quantity) {
+                return response()->json([
+                    'errors' => [
+                        ['code' => 'box_unavailable', 'message' => translate('messages.box_quantity_unavailable')]
+                    ]
+                ], 403);
+            }
+        }
 
         $cart = Cart::where('item_id',$request->item_id)->where('item_type',$model)->where('user_id', $user_id)->where('is_guest',$is_guest)->where('module_id',$request->header('moduleId'))->first();
 
@@ -66,7 +109,8 @@ class CartController extends Controller
             ], 403);
         }
 
-        if($item->maximum_cart_quantity && ($request->quantity>$item->maximum_cart_quantity)){
+        // Check maximum cart quantity for items (not applicable to boxes)
+        if ($request->model !== 'Box' && $item->maximum_cart_quantity && ($request->quantity > $item->maximum_cart_quantity)) {
             return response()->json([
                 'errors' => [
                     ['code' => 'cart_item_limit', 'message' => translate('messages.maximum_cart_quantity_exceeded')]
@@ -89,17 +133,28 @@ class CartController extends Controller
 
         $item->carts()->save($cart);
 
-        $carts = Cart::where('user_id', $user_id)->where('is_guest',$is_guest)->where('module_id',$request->header('moduleId'))->get()
-        ->map(function ($data) {
-            $data->add_on_ids = json_decode($data->add_on_ids,true);
-            $data->add_on_qtys = json_decode($data->add_on_qtys,true);
-            $data->variation = json_decode($data->variation,true);
-			$data->item = Helpers::cart_product_data_formatting($data->item, $data->variation,$data->add_on_ids,
-            $data->add_on_qtys, false, app()->getLocale());
-            return $data;
-		});
+        $carts = Cart::where('user_id', $user_id)->where('is_guest', $is_guest)->where('module_id', $request->header('moduleId'))->get()
+            ->map(function ($data) {
+                $data->add_on_ids = json_decode($data->add_on_ids, true);
+                $data->add_on_qtys = json_decode($data->add_on_qtys, true);
+                $data->variation = json_decode($data->variation, true);
+                if ($data->item_type === 'App\Models\Box' || $data->item_type === 'AppModelsBox') {
+                    $data->item = Helpers::cart_box_data_formatting($data->item);
+                } else {
+                    $data->item = Helpers::cart_product_data_formatting(
+                        $data->item,
+                        $data->variation,
+                        $data->add_on_ids,
+                        $data->add_on_qtys,
+                        false,
+                        app()->getLocale()
+                    );
+                }
+                return $data;
+            });
         return response()->json($carts, 200);
     }
+
 
     public function update_cart(Request $request)
     {
@@ -117,34 +172,69 @@ class CartController extends Controller
         $user_id = $request->user ? $request->user->id : $request['guest_id'];
         $is_guest = $request->user ? 0 : 1;
         $cart = Cart::find($request->cart_id);
-        $item = $cart->item_type === 'App\Models\Item' ? Item::find($cart->item_id) : ItemCampaign::find($cart->item_id);
-        if($item->maximum_cart_quantity && ($request->quantity>$item->maximum_cart_quantity)){
+        
+        $item = match ($cart->item_type) {
+            'App\Models\Item', 'AppModelsItem' => Item::find($cart->item_id),
+            'App\Models\ItemCampaign', 'AppModelsItemCampaign' => ItemCampaign::find($cart->item_id),
+            'App\Models\Box', 'AppModelsBox' => Box::find($cart->item_id),
+            default => null,
+        };
+
+        if (!$item) {
             return response()->json([
                 'errors' => [
-                    ['code' => 'cart_item_limit', 'message' => translate('messages.maximum_cart_quantity_exceeded')]
+                    ['code' => 'item', 'message' => translate('messages.item_not_found')]
                 ]
-            ], 403);
+            ], 404);
+        }
+
+        if ($cart->item_type === 'App\Models\Box' || $cart->item_type === 'AppModelsBox') {
+            if ($item->available_count < $request->quantity) {
+                return response()->json([
+                    'errors' => [
+                        ['code' => 'box_unavailable', 'message' => translate('messages.box_quantity_unavailable')]
+                    ]
+                ], 403);
+            }
+        } else {
+            if ($item->maximum_cart_quantity && ($request->quantity > $item->maximum_cart_quantity)) {
+                return response()->json([
+                    'errors' => [
+                        ['code' => 'cart_item_limit', 'message' => translate('messages.maximum_cart_quantity_exceeded')]
+                    ]
+                ], 403);
+            }
         }
 
         $cart->user_id = $user_id;
         $cart->module_id = $request->header('moduleId');
         $cart->is_guest = $is_guest;
-        $cart->add_on_ids = isset($request->add_on_ids)?json_encode($request->add_on_ids):$cart->add_on_ids;
-        $cart->add_on_qtys = isset($request->add_on_qtys)?json_encode($request->add_on_qtys):$cart->add_on_qtys;
+        $cart->add_on_ids = isset($request->add_on_ids) ? json_encode($request->add_on_ids) : $cart->add_on_ids;
+        $cart->add_on_qtys = isset($request->add_on_qtys) ? json_encode($request->add_on_qtys) : $cart->add_on_qtys;
         $cart->price = $request->price;
         $cart->quantity = $request->quantity;
-        $cart->variation = isset($request->variation)?json_encode($request->variation):$cart->variation;
+        $cart->variation = isset($request->variation) ? json_encode($request->variation) : $cart->variation;
         $cart->save();
 
-        $carts = Cart::where('user_id', $user_id)->where('is_guest',$is_guest)->where('module_id',$request->header('moduleId'))->get()
-        ->map(function ($data) {
-            $data->add_on_ids = json_decode($data->add_on_ids,true);
-            $data->add_on_qtys = json_decode($data->add_on_qtys,true);
-            $data->variation = json_decode($data->variation,true);
-			$data->item = Helpers::cart_product_data_formatting($data->item, $data->variation,$data->add_on_ids,
-            $data->add_on_qtys, false, app()->getLocale());
-            return $data;
-		});
+        $carts = Cart::where('user_id', $user_id)->where('is_guest', $is_guest)->where('module_id', $request->header('moduleId'))->get()
+            ->map(function ($data) {
+                $data->add_on_ids = json_decode($data->add_on_ids, true);
+                $data->add_on_qtys = json_decode($data->add_on_qtys, true);
+                $data->variation = json_decode($data->variation, true);
+                if ($data->item_type === 'App\Models\Box' || $data->item_type === 'AppModelsBox') {
+                    $data->item = Helpers::cart_box_data_formatting($data->item);
+                } else {
+                    $data->item = Helpers::cart_product_data_formatting(
+                        $data->item,
+                        $data->variation,
+                        $data->add_on_ids,
+                        $data->add_on_qtys,
+                        false,
+                        app()->getLocale()
+                    );
+                }
+                return $data;
+            });
         return response()->json($carts, 200);
     }
 
