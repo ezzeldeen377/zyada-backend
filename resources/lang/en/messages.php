@@ -8887,4 +8887,5 @@ Smartly or Earn. ',
   'sods' => 'Sods',
   'Your_Offline_payment_is_approved' => 'Your Offline payment is approved',
   'The interest field is required.' => 'The interest field is required.',
+  'The discount field is required.' => 'The discount field is required.',
 );
