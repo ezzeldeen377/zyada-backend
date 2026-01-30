@@ -496,6 +496,16 @@
                 @endif
                 <!-- End Category -->
 
+                @if (\App\CentralLogics\Helpers::module_permission_check('item'))
+                <li class="navbar-vertical-aside-has-menu {{ Request::is('admin/box*') ? 'active' : '' }}">
+                    <a class="nav-link " href="{{ route('admin.box.add-new') }}" title="{{ translate('messages.mystery_box') }}">
+                        <i class="tio-archive nav-icon"></i>
+                        <span class="text-truncate text-capitalize">{{ translate('messages.mystery_box') }}</span>
+                    </a>
+                </li>
+                @endif
+
+
                 <!-- Attributes -->
                 @if (\App\CentralLogics\Helpers::module_permission_check('attribute'))
                 <li class="navbar-vertical-aside-has-menu {{ Request::is('admin/attribute*') ? 'active' : '' }}">
@@ -550,14 +560,6 @@
                             </a>
                         </li>
                     </ul>
-                </li>
-                @endif
-                @if (\App\CentralLogics\Helpers::module_permission_check('item'))
-                <li class="navbar-vertical-aside-has-menu {{ Request::is('admin/box*') ? 'active' : '' }}">
-                    <a class="nav-link " href="{{ route('admin.box.add-new') }}" title="{{ translate('messages.mystery_box') }}">
-                        <i class="tio-archive nav-icon"></i>
-                        <span class="text-truncate text-capitalize">{{ translate('messages.mystery_box') }}</span>
-                    </a>
                 </li>
                 @endif
                 <!-- End AddOn -->
