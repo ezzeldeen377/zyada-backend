@@ -607,6 +607,12 @@
                                 <span class="text-truncate text-capitalize">{{ translate('messages.bulk_export') }}</span>
                             </a>
                         </li>
+                        <li class="nav-item {{ Request::is('admin/box*') ? 'active' : '' }}">
+                            <a class="nav-link " href="{{ route('admin.box.add-new') }}" title="{{ translate('messages.mystery_box') }}">
+                                <span class="tio-circle nav-indicator-icon"></span>
+                                <span class="text-truncate text-capitalize">{{ translate('messages.mystery_box') }}</span>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 @endif

@@ -148,6 +148,16 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
             Route::post('video-image/store', 'OtherBannerController@video_image_store')->name('video-image-store');
         });
 
+        Route::group(['prefix' => 'box', 'as' => 'box.'], function () {
+            Route::get('add-new', 'BoxController@index')->name('add-new');
+            Route::post('store', 'BoxController@store')->name('store');
+            Route::get('edit/{id}', 'BoxController@edit')->name('edit');
+            Route::post('update/{id}', 'BoxController@update')->name('update');
+            Route::delete('delete', 'BoxController@delete')->name('delete');
+            Route::get('status/{id}/{status}', 'BoxController@status')->name('status');
+            Route::post('search', 'BoxController@search')->name('search');
+        });
+
         Route::group(['prefix' => 'campaign', 'as' => 'campaign.', 'middleware' => ['module:campaign']], function () {
             Route::get('{type}/add-new', 'CampaignController@index')->name('add-new');
             Route::post('store/basic', 'CampaignController@storeBasic')->name('store-basic');
