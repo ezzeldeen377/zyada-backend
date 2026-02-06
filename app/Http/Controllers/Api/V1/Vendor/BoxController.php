@@ -52,7 +52,7 @@ class BoxController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'item_count' => 'required|integer|min:1',
@@ -60,7 +60,7 @@ class BoxController extends Controller
             'image' => 'nullable|image|max:2048',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'translations' => 'array',
+            'translations' => 'nullable',
         ]);
 
         if ($validator->fails()) {
@@ -74,10 +74,27 @@ class BoxController extends Controller
             $imageName = Helpers::upload('box/', 'png', $request->file('image'));
         }
 
+        // Parse translations
+        $translations = [];
+        if ($request->translations) {
+            $translations = is_string($request->translations) ? json_decode($request->translations, true) : $request->translations;
+        }
+
+        $name = $request->name;
+        if (empty($name) && !empty($translations)) {
+             $name = $translations[0]['value'] ?? null;
+        }
+
+        if (empty($name)) {
+             $errors = [];
+             array_push($errors, ['code' => 'name', 'message' => translate('messages.Name is required')]);
+             return response()->json(['errors' => $errors], 403);
+        }
+
         $box = new Box();
         $box->store_id = $vendor->stores[0]->id;
         $box->module_id = $vendor->stores[0]->module_id;
-        $box->name = $request->name;
+        $box->name = $name;
         $box->description = $request->description;
         $box->price = $request->price;
         $box->item_count = $request->item_count;
@@ -89,7 +106,6 @@ class BoxController extends Controller
         $box->save();
 
         // Handle translations
-        $translations = $request->translations ?? [];
         foreach ($translations as $item) {
             Translation::updateOrInsert(
                 [
