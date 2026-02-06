@@ -19,3 +19,5 @@ docker-local/
 .idea/
 .vscode/
 .ddev/
+/storage/app/public/*
+!/storage/app/public/.gitignore
