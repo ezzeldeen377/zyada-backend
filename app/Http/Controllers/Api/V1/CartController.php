@@ -24,8 +24,30 @@ class CartController extends Controller
         }
         $user_id = $request->user ? $request->user->id : $request['guest_id'];
         $is_guest = $request->user ? 0 : 1;
-        $carts = Cart::where('user_id', $user_id)->where('is_guest', $is_guest)->where('module_id', $request->header('moduleId'))->get()
-            ->map(function ($data) {
+        
+        \Illuminate\Support\Facades\Log::info('Cart List Debug', [
+            'user_id' => $user_id,
+            'is_guest' => $is_guest,
+            'module_id' => $request->header('moduleId')
+        ]);
+        
+        $carts = Cart::where('user_id', $user_id)
+            ->where('is_guest', $is_guest)
+            ->where('module_id', $request->header('moduleId'))
+            ->with('item')
+            ->get();
+            
+        \Illuminate\Support\Facades\Log::info('Cart Count', ['count' => $carts->count()]);
+        
+        if ($carts->count() > 0) {
+            \Illuminate\Support\Facades\Log::info('First Cart Item', [
+                'item_type' => $carts->first()->item_type,
+                'item_id' => $carts->first()->item_id,
+                'has_item' => $carts->first()->item ? 'yes' : 'no'
+            ]);
+        }
+        
+        $carts = $carts->map(function ($data) {
                 $data->add_on_ids = json_decode($data->add_on_ids, true);
                 $data->add_on_qtys = json_decode($data->add_on_qtys, true);
                 $data->variation = json_decode($data->variation, true);
