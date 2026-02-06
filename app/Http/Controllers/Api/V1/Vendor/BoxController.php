@@ -52,15 +52,20 @@ class BoxController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
+            'name.0' => 'required',
+            'name.*' => 'max:191',
+            'description.*' => 'max:1000',
             'price' => 'required|numeric|min:0',
             'item_count' => 'required|integer|min:1',
             'available_count' => 'required|integer|min:0',
             'image' => 'nullable|image|max:2048',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'translations' => 'nullable',
+        ], [
+            'name.0.required' => translate('messages.item_name_required'),
+            'description.*.max' => translate('messages.description_length_warning'),
+            'price.required' => translate('messages.price_required'),
+            'item_count.required' => translate('messages.item_count_required'),
         ]);
 
         if ($validator->fails()) {
@@ -74,22 +79,11 @@ class BoxController extends Controller
             $imageName = Helpers::upload('box/', 'png', $request->file('image'));
         }
 
-        // Parse translations
-        $translations = [];
-        if ($request->translations) {
-            $translations = is_string($request->translations) ? json_decode($request->translations, true) : $request->translations;
-        }
-
-        $name = $request->name;
-
-     
-        $item->name = $request->name[array_search('default', $request->lang)];
-        
         $box = new Box();
         $box->store_id = $vendor->stores[0]->id;
         $box->module_id = $vendor->stores[0]->module_id;
-        $box->name = $name;
-        $box->description = $request->description;
+        $box->name = $request->name[array_search('default', $request->lang)];
+        $box->description = $request->description[array_search('default', $request->lang)];
         $box->price = $request->price;
         $box->item_count = $request->item_count;
         $box->available_count = $request->available_count;
@@ -99,18 +93,8 @@ class BoxController extends Controller
         $box->status = true;
         $box->save();
 
-        // Handle translations
-        foreach ($translations as $item) {
-            Translation::updateOrInsert(
-                [
-                    'translationable_type' => 'App\Models\Box',
-                    'translationable_id' => $box->id,
-                    'locale' => $item['locale'],
-                    'key' => $item['key'],
-                ],
-                ['value' => $item['value']]
-            );
-        }
+        Helpers::add_or_update_translations(request: $request, key_data: 'name', name_field: 'name', model_name: 'App\Models\Box', data_id: $box->id, data_value: $box->name);
+        Helpers::add_or_update_translations(request: $request, key_data: 'description', name_field: 'description', model_name: 'App\Models\Box', data_id: $box->id, data_value: $box->description);
 
         return response()->json([
             'message' => translate('messages.box_created_successfully'),
