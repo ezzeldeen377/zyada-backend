@@ -192,9 +192,9 @@ class CartController extends Controller
         $cart = Cart::find($request->cart_id);
         
         $item = match ($cart->item_type) {
-            'App\Models\Item', 'AppModelsItem' => Item::find($cart->item_id),
-            'App\Models\ItemCampaign', 'AppModelsItemCampaign' => ItemCampaign::find($cart->item_id),
-            'App\Models\Box', 'AppModelsBox' => Box::find($cart->item_id),
+            'App\Models\Item', 'AppModelsItem', 'Item' => Item::find($cart->item_id),
+            'App\Models\ItemCampaign', 'AppModelsItemCampaign', 'ItemCampaign' => ItemCampaign::find($cart->item_id),
+            'App\Models\Box', 'AppModelsBox', 'App\ModelsBox', 'Box' => Box::find($cart->item_id),
             default => null,
         };
 
@@ -285,10 +285,17 @@ class CartController extends Controller
             $data->add_on_ids = json_decode($data->add_on_ids,true);
             $data->add_on_qtys = json_decode($data->add_on_qtys,true);
             $data->variation = json_decode($data->variation,true);
-			$data->item = Helpers::cart_product_data_formatting($data->item, $data->variation,$data->add_on_ids,
-            $data->add_on_qtys, false, app()->getLocale());
+            
+            $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox', 'App\ModelsBox']);
+            
+            if ($isBox) {
+                $data->item = Helpers::cart_box_data_formatting($data->item);
+            } else {
+                $data->item = Helpers::cart_product_data_formatting($data->item, $data->variation,$data->add_on_ids,
+                $data->add_on_qtys, false, app()->getLocale());
+            }
             return $data;
-		});
+        });
         return response()->json($carts, 200);
     }
 
