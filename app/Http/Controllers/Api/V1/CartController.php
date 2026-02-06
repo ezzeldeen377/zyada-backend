@@ -15,39 +15,24 @@ class CartController extends Controller
 {
     public function get_carts(Request $request)
     {
+        $user = auth('api')->user();
+        
         $validator = Validator::make($request->all(), [
-            'guest_id' => $request->user ? 'nullable' : 'required',
+            'guest_id' => $user ? 'nullable' : 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
-        $user_id = $request->user ? $request->user->id : $request['guest_id'];
-        $is_guest = $request->user ? 0 : 1;
-        
-        \Illuminate\Support\Facades\Log::info('Cart List Debug', [
-            'user_id' => $user_id,
-            'is_guest' => $is_guest,
-            'module_id' => $request->header('moduleId')
-        ]);
+        $user_id = $user ? $user->id : $request['guest_id'];
+        $is_guest = $user ? 0 : 1;
         
         $carts = Cart::where('user_id', $user_id)
             ->where('is_guest', $is_guest)
             ->where('module_id', $request->header('moduleId'))
             ->with('item')
-            ->get();
-            
-        \Illuminate\Support\Facades\Log::info('Cart Count', ['count' => $carts->count()]);
-        
-        if ($carts->count() > 0) {
-            \Illuminate\Support\Facades\Log::info('First Cart Item', [
-                'item_type' => $carts->first()->item_type,
-                'item_id' => $carts->first()->item_id,
-                'has_item' => $carts->first()->item ? 'yes' : 'no'
-            ]);
-        }
-        
-        $carts = $carts->map(function ($data) {
+            ->get()
+            ->map(function ($data) {
                 $data->add_on_ids = json_decode($data->add_on_ids, true);
                 $data->add_on_qtys = json_decode($data->add_on_qtys, true);
                 $data->variation = json_decode($data->variation, true);
@@ -74,8 +59,11 @@ class CartController extends Controller
 
     public function add_to_cart(Request $request)
     {
+        // Check if user is authenticated using auth() helper
+        $user = auth('api')->user();
+        
         $validator = Validator::make($request->all(), [
-            'guest_id' => $request->user ? 'nullable' : 'required',
+            'guest_id' => $user ? 'nullable' : 'required',
             'item_id' => 'required|integer',
             'model' => 'required|string|in:Item,ItemCampaign,Box',
             'price' => 'required|numeric',
@@ -86,8 +74,8 @@ class CartController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $user_id = $request->user ? $request->user->id : $request['guest_id'];
-        $is_guest = $request->user ? 0 : 1;
+        $user_id = $user ? $user->id : $request['guest_id'];
+        $is_guest = $user ? 0 : 1;
         
         // Determine model class based on request
         $modelMap = [
@@ -186,9 +174,11 @@ class CartController extends Controller
 
     public function update_cart(Request $request)
     {
+        $user = auth('api')->user();
+        
         $validator = Validator::make($request->all(), [
             'cart_id' => 'required',
-            'guest_id' => $request->user ? 'nullable' : 'required',
+            'guest_id' => $user ? 'nullable' : 'required',
             'price' => 'required|numeric',
             'quantity' => 'required|integer|min:1',
         ]);
@@ -197,8 +187,8 @@ class CartController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $user_id = $request->user ? $request->user->id : $request['guest_id'];
-        $is_guest = $request->user ? 0 : 1;
+        $user_id = $user ? $user->id : $request['guest_id'];
+        $is_guest = $user ? 0 : 1;
         $cart = Cart::find($request->cart_id);
         
         $item = match ($cart->item_type) {
@@ -273,17 +263,19 @@ class CartController extends Controller
 
     public function remove_cart_item(Request $request)
     {
+        $user = auth('api')->user();
+        
         $validator = Validator::make($request->all(), [
             'cart_id' => 'required',
-            'guest_id' => $request->user ? 'nullable' : 'required',
+            'guest_id' => $user ? 'nullable' : 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $user_id = $request->user ? $request->user->id : $request['guest_id'];
-        $is_guest = $request->user ? 0 : 1;
+        $user_id = $user ? $user->id : $request['guest_id'];
+        $is_guest = $user ? 0 : 1;
 
         $cart = Cart::find($request->cart_id);
         $cart?->delete();
@@ -302,16 +294,18 @@ class CartController extends Controller
 
     public function remove_cart(Request $request)
     {
+        $user = auth('api')->user();
+        
         $validator = Validator::make($request->all(), [
-            'guest_id' => $request->user ? 'nullable' : 'required',
+            'guest_id' => $user ? 'nullable' : 'required',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $user_id = $request->user ? $request->user->id : $request['guest_id'];
-        $is_guest = $request->user ? 0 : 1;
+        $user_id = $user ? $user->id : $request['guest_id'];
+        $is_guest = $user ? 0 : 1;
 
         $carts = Cart::where('user_id', $user_id)->where('is_guest',$is_guest)->where('module_id',$request->header('moduleId'))->get();
 
