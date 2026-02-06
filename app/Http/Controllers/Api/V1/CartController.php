@@ -30,8 +30,8 @@ class CartController extends Controller
                 $data->add_on_qtys = json_decode($data->add_on_qtys, true);
                 $data->variation = json_decode($data->variation, true);
 
-                // Check if item is a Box (handles multiple formats: 'Box', 'App\Models\Box', 'AppModelsBox')
-                $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox']);
+                // Check if item is a Box (handles multiple formats)
+                $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox', 'App\ModelsBox']);
 
                 if ($isBox) {
                     $data->item = Helpers::cart_box_data_formatting($data->item);
@@ -142,7 +142,7 @@ class CartController extends Controller
                 $data->add_on_qtys = json_decode($data->add_on_qtys, true);
                 $data->variation = json_decode($data->variation, true);
                 
-                $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox']);
+                $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox', 'App\ModelsBox']);
                 
                 if ($isBox) {
                     $data->item = Helpers::cart_box_data_formatting($data->item);
@@ -194,7 +194,7 @@ class CartController extends Controller
             ], 404);
         }
 
-        $isBox = in_array($cart->item_type, ['Box', 'App\Models\Box', 'AppModelsBox']);
+        $isBox = in_array($cart->item_type, ['Box', 'App\Models\Box', 'AppModelsBox', 'App\ModelsBox']);
         
         if ($isBox) {
             if ($item->available_count < $request->quantity) {
@@ -230,7 +230,7 @@ class CartController extends Controller
                 $data->add_on_qtys = json_decode($data->add_on_qtys, true);
                 $data->variation = json_decode($data->variation, true);
                 
-                $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox']);
+                $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox', 'App\ModelsBox']);
                 
                 if ($isBox) {
                     $data->item = Helpers::cart_box_data_formatting($data->item);
