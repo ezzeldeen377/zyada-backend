@@ -80,7 +80,7 @@ class BoxController extends Controller
             $translations = is_string($request->translations) ? json_decode($request->translations, true) : $request->translations;
         }
 
-        $name = $request->name;
+        $name = $request->input('name');
         if (empty($name) && !empty($translations)) {
              $name = $translations[0]['value'] ?? null;
         }
