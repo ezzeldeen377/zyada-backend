@@ -34,6 +34,22 @@ class Cart extends Model
         'variation',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+        
+        // Define morph map to handle various Box type formats
+        \Illuminate\Database\Eloquent\Relations\Relation::morphMap([
+            'Box' => 'App\Models\Box',
+            'AppModelsBox' => 'App\Models\Box',
+            'App\ModelsBox' => 'App\Models\Box',
+            'Item' => 'App\Models\Item',
+            'AppModelsItem' => 'App\Models\Item',
+            'ItemCampaign' => 'App\Models\ItemCampaign',
+            'AppModelsItemCampaign' => 'App\Models\ItemCampaign',
+        ]);
+    }
+
     public function item()
     {
         return $this->morphTo();
