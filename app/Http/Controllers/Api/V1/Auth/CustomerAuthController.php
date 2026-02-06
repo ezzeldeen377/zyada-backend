@@ -300,7 +300,7 @@ class CustomerAuthController extends Controller
             ]);
 
         $response = SMS_module::twilio($request->phone, $otp);
-        return response()->json(['message' => $response], 200);
+        return response()->json(['message' => $response, 'otp' => $otp,'phone' => $request->phone], 200);
     }
 
     public function firebase_auth_verify(Request $request)
