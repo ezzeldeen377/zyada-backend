@@ -280,6 +280,19 @@ class CustomerAuthController extends Controller
 
     }
 
+    public function check_phone(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|min:9|max:14',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+        }
+
+        return $this->send_otp(['phone' => $request->phone]);
+    }
+
     public function firebase_auth_verify(Request $request)
     {
         $validator = Validator::make($request->all(), [
