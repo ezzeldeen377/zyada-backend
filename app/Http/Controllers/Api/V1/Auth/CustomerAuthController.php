@@ -290,7 +290,17 @@ class CustomerAuthController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        return $this->send_otp(['phone' => $request->phone]);
+        $otp = rand(100000, 999999);
+        DB::table('phone_verifications')->updateOrInsert(['phone' => $request['phone']],
+            [
+                'token' => $otp,
+                'otp_hit_count' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+        $response = SMS_module::twilio($request->phone, $otp);
+        return response()->json(['message' => $response], 200);
     }
 
     public function firebase_auth_verify(Request $request)
