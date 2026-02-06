@@ -79,11 +79,63 @@ class BoxController extends Controller
             $imageName = Helpers::upload('box/', 'png', $request->file('image'));
         }
 
+        // Debug logging
+        \Illuminate\Support\Facades\Log::info('Box Store Request Data', [
+            'name' => $request->name,
+            'lang' => $request->lang,
+            'description' => $request->description,
+            'all_data' => $request->all()
+        ]);
+
+        // Extract name with defensive checks
+        $name = null;
+        if (is_array($request->name) && is_array($request->lang)) {
+            $defaultIndex = array_search('default', $request->lang);
+            if ($defaultIndex !== false && isset($request->name[$defaultIndex])) {
+                $name = $request->name[$defaultIndex];
+            } elseif (isset($request->name[0])) {
+                // Fallback to first element if 'default' not found
+                $name = $request->name[0];
+            }
+        } elseif (is_string($request->name)) {
+            // Fallback for single string format
+            $name = $request->name;
+        }
+
+        // Extract description with defensive checks
+        $description = null;
+        if (is_array($request->description) && is_array($request->lang)) {
+            $defaultIndex = array_search('default', $request->lang);
+            if ($defaultIndex !== false && isset($request->description[$defaultIndex])) {
+                $description = $request->description[$defaultIndex];
+            } elseif (isset($request->description[0])) {
+                // Fallback to first element if 'default' not found
+                $description = $request->description[0];
+            }
+        } elseif (is_string($request->description)) {
+            // Fallback for single string format
+            $description = $request->description;
+        }
+
+        \Illuminate\Support\Facades\Log::info('Box Store Extracted Values', [
+            'name' => $name,
+            'description' => $description
+        ]);
+
+        // Final validation
+        if (empty($name)) {
+            return response()->json([
+                'errors' => [
+                    ['code' => 'name', 'message' => translate('messages.Name is required')]
+                ]
+            ], 403);
+        }
+
         $box = new Box();
         $box->store_id = $vendor->stores[0]->id;
         $box->module_id = $vendor->stores[0]->module_id;
-        $box->name = $request->name[array_search('default', $request->lang)];
-        $box->description = $request->description[array_search('default', $request->lang)];
+        $box->name = $name;
+        $box->description = $description;
         $box->price = $request->price;
         $box->item_count = $request->item_count;
         $box->available_count = $request->available_count;
