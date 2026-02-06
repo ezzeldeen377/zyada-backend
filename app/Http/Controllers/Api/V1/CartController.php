@@ -30,7 +30,10 @@ class CartController extends Controller
                 $data->add_on_qtys = json_decode($data->add_on_qtys, true);
                 $data->variation = json_decode($data->variation, true);
 
-                if ($data->item_type === 'App\Models\Box' || $data->item_type === 'AppModelsBox') {
+                // Check if item is a Box (handles multiple formats: 'Box', 'App\Models\Box', 'AppModelsBox')
+                $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox']);
+
+                if ($isBox) {
                     $data->item = Helpers::cart_box_data_formatting($data->item);
                 } else {
                     $data->item = Helpers::cart_product_data_formatting(
@@ -138,7 +141,10 @@ class CartController extends Controller
                 $data->add_on_ids = json_decode($data->add_on_ids, true);
                 $data->add_on_qtys = json_decode($data->add_on_qtys, true);
                 $data->variation = json_decode($data->variation, true);
-                if ($data->item_type === 'App\Models\Box' || $data->item_type === 'AppModelsBox') {
+                
+                $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox']);
+                
+                if ($isBox) {
                     $data->item = Helpers::cart_box_data_formatting($data->item);
                 } else {
                     $data->item = Helpers::cart_product_data_formatting(
@@ -188,7 +194,9 @@ class CartController extends Controller
             ], 404);
         }
 
-        if ($cart->item_type === 'App\Models\Box' || $cart->item_type === 'AppModelsBox') {
+        $isBox = in_array($cart->item_type, ['Box', 'App\Models\Box', 'AppModelsBox']);
+        
+        if ($isBox) {
             if ($item->available_count < $request->quantity) {
                 return response()->json([
                     'errors' => [
@@ -221,7 +229,10 @@ class CartController extends Controller
                 $data->add_on_ids = json_decode($data->add_on_ids, true);
                 $data->add_on_qtys = json_decode($data->add_on_qtys, true);
                 $data->variation = json_decode($data->variation, true);
-                if ($data->item_type === 'App\Models\Box' || $data->item_type === 'AppModelsBox') {
+                
+                $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox']);
+                
+                if ($isBox) {
                     $data->item = Helpers::cart_box_data_formatting($data->item);
                 } else {
                     $data->item = Helpers::cart_product_data_formatting(
