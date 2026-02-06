@@ -80,17 +80,11 @@ class BoxController extends Controller
             $translations = is_string($request->translations) ? json_decode($request->translations, true) : $request->translations;
         }
 
-        $name = $request->input('name');
-        if (empty($name) && !empty($translations)) {
-             $name = $translations[0]['value'] ?? null;
-        }
+        $name = $request->name;
 
-        if (empty($name)) {
-             $errors = [];
-             array_push($errors, ['code' => 'name', 'message' => translate('messages.Name is required')]);
-             return response()->json(['errors' => $errors], 403);
-        }
-
+     
+        $item->name = $request->name[array_search('default', $request->lang)];
+        
         $box = new Box();
         $box->store_id = $vendor->stores[0]->id;
         $box->module_id = $vendor->stores[0]->module_id;
