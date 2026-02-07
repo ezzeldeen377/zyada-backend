@@ -363,7 +363,7 @@ class ItemController extends Controller
 
         $zone_id= $request->header('zoneId');
 
-        $items = ProductLogic::popular_products($zone_id, $request['limit']??25, $request['offset']??1, $type,$category_ids, $filter, $min_price, $max_price, $rating_count,$request['search']);
+        $items = ProductLogic::popular_products($zone_id, $request['limit']??25, $request['offset']??1, $type,$category_ids, $filter, $min_price, $max_price, $rating_count,$request['search'], limit_per_store: true);
         $items['products'] = Helpers::productListDataFormatting($items['products']);
         return response()->json($items, 200);
     }
@@ -388,7 +388,7 @@ class ItemController extends Controller
         $category_ids = $request->query('category_ids', '');
 
         $zone_id= $request->header('zoneId');
-        $items = ProductLogic::most_reviewed_products($zone_id, $request['limit']??25, $request['offset']??1, $type,$category_ids, $filter ,$min_price, $max_price, $rating_count);
+        $items = ProductLogic::most_reviewed_products($zone_id, $request['limit']??25, $request['offset']??1, $type,$category_ids, $filter ,$min_price, $max_price, $rating_count, limit_per_store: true);
         $items['categories'] = $items['categories'];
 
         $items['products'] = Helpers::productListDataFormatting($items['products']);
@@ -416,7 +416,7 @@ class ItemController extends Controller
 
         $zone_id= $request->header('zoneId');
 
-        $items = ProductLogic::discounted_products(zone_id:$zone_id, limit: $request['limit']??25, offset: $request['offset']??1, type: $type, category_ids: $category_ids, filter:$filter,min: $min_price, max:$max_price, rating_count:$rating_count,search:$request['search']??null);
+        $items = ProductLogic::discounted_products(zone_id:$zone_id, limit: $request['limit']??25, offset: $request['offset']??1, type: $type, category_ids: $category_ids, filter:$filter,min: $min_price, max:$max_price, rating_count:$rating_count,search:$request['search']??null, limit_per_store: true);
         $items['products'] = Helpers::productListDataFormatting($items['products']);
         return response()->json($items, 200);
     }

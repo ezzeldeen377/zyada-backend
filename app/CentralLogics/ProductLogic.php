@@ -474,7 +474,7 @@ class ProductLogic
     }
 
 
-    public static function popular_products($zone_id, $limit = 25, $offset = 1, $type = 'all', $category_ids = null, $filter = null,$min=0, $max=false, $rating_count = null, $search = null)
+    public static function popular_products($zone_id, $limit = 25, $offset = 1, $type = 'all', $category_ids = null, $filter = null,$min=0, $max=false, $rating_count = null, $search = null, $limit_per_store = false)
     {
         $popular_item_default_status = Helpers::get_business_settings('popular_item_default_status') ?? 1;
         $popular_item_sort_by_general = Helpers::getPriorityList(name: 'popular_item_sort_by_general', type: 'general');
@@ -541,6 +541,10 @@ class ProductLogic
                 };
             }
 
+            if($limit_per_store) {
+                $query = $query->groupBy('store_id');
+            }
+
             $paginator = $query->paginate($limit, ['*'], 'page', $offset);
 
             return [
@@ -554,7 +558,7 @@ class ProductLogic
 
     }
 
-    public static function most_reviewed_products($zone_id, $limit = 25, $offset = 1, $type = 'all',$category_ids = null, $filter = null,$min=0, $max=false, $rating_count = null, $search = null)
+    public static function most_reviewed_products($zone_id, $limit = 25, $offset = 1, $type = 'all',$category_ids = null, $filter = null,$min=0, $max=false, $rating_count = null, $search = null, $limit_per_store = false)
     {
         $category_ids = isset($category_ids)?(is_array($category_ids)?$category_ids:json_decode($category_ids)):[];
         $best_reviewed_item_default_status = Helpers::get_business_settings('best_reviewed_item_default_status') ?? 1;
@@ -566,7 +570,7 @@ class ProductLogic
         if ($filter && in_array('most_loved', $filter)) {
             $withCount[] = 'whislists';
         }
-      
+
 
         $query = Item::select(['items.*'])->with('store')
             ->withAvg('reviews', 'quality_rating')
@@ -613,6 +617,10 @@ class ProductLogic
                 };
             }
 
+            if($limit_per_store) {
+                $query = $query->groupBy('store_id');
+            }
+
             $paginator = $query->paginate($limit, ['*'], 'page', $offset);
             return [
                 'total_size' => $paginator->total(),
@@ -624,7 +632,7 @@ class ProductLogic
 
     }
 
-    public static function discounted_products($zone_id, $limit = 25, $offset = 1, $type = 'all', $category_ids = null, $filter = null,$min=0, $max=false, $rating_count = null, $brand_ids = null, $search = null)
+    public static function discounted_products($zone_id, $limit = 25, $offset = 1, $type = 'all', $category_ids = null, $filter = null,$min=0, $max=false, $rating_count = null, $brand_ids = null, $search = null, $limit_per_store = false)
     {
 
         $special_offer_default_status = Helpers::get_business_settings('special_offer_default_status') ?? 1;
@@ -689,6 +697,10 @@ class ProductLogic
                     'z_to_a' => $query->orderByDesc('name'),
                     default => $query,
                 };
+            }
+
+            if($limit_per_store) {
+                $query = $query->groupBy('store_id');
             }
 
             $paginator = $query->paginate($limit, ['*'], 'page', $offset);
