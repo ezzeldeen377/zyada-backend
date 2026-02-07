@@ -544,6 +544,10 @@ class StoreLogic
             }
             $relationships = [
                 'translations' => 'value',
+                'items' => 'name',
+                'items.translations' => 'value',
+                'items.category' => 'name',
+                'items.category.translations' => 'value',
                 'items.nutritions' => 'nutrition',
                 'items.allergies' => 'allergy',
                 'items.generic' => 'generic_name',
