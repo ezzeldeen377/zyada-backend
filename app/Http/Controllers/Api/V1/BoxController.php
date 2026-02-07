@@ -13,7 +13,7 @@ class BoxController extends Controller
     /**
      * Get all available boxes.
      */
-    public function index(Request $request)
+    public function index(Request $request, $store_id = null)
     {
         $validator = Validator::make($request->all(), [
             'limit' => 'nullable|integer|min:1|max:50',
@@ -29,12 +29,13 @@ class BoxController extends Controller
 
         $limit = $request->input('limit', 10);
         $offset = $request->input('offset', 1);
+        $store_id = $store_id ?? $request->store_id;
 
         $boxes = Box::active()
             ->available()
             ->module($request->header('moduleId'))
-            ->when($request->store_id, function ($query) use ($request) {
-                return $query->where('store_id', $request->store_id);
+            ->when($store_id, function ($query) use ($store_id) {
+                return $query->where('store_id', $store_id);
             })
             ->with('store:id,name,logo,address')
             ->latest()
