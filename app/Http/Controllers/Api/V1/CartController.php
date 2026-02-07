@@ -39,6 +39,7 @@ class CartController extends Controller
 
                 // Check if item is a Box (handles multiple formats)
                 $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox', 'App\ModelsBox']);
+                $data->model = $isBox ? 'Box' : 'Item';
 
                 if ($isBox) {
                     $data->item = Helpers::cart_box_data_formatting($data->item);
@@ -287,6 +288,7 @@ class CartController extends Controller
             $data->variation = json_decode($data->variation,true);
             
             $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox', 'App\ModelsBox']);
+            $data->model = $isBox ? 'Box' : 'Item';
             
             if ($isBox) {
                 $data->item = Helpers::cart_box_data_formatting($data->item);
