@@ -1125,33 +1125,39 @@ class Helpers
     {
         $storage = [];
         foreach ($data as $item) {
-            $item_id = $item['item_id'];
-            $item_campaign_id = $item['item_campaign_id'];
-            $box_id = $item['box_id'];
-            
-            // Convert to array to ensure dynamic properties are serialized in JSON
             $item_array = $item instanceof \Illuminate\Database\Eloquent\Model ? $item->toArray() : (array)$item;
             
-            $item_array['add_ons'] = is_string($item_array['add_ons']) ? json_decode($item_array['add_ons']) : $item_array['add_ons'];
-            $item_array['variation'] = is_string($item_array['variation']) ? json_decode($item_array['variation'], true) : $item_array['variation'];
-            $item_array['item_details'] = is_string($item_array['item_details']) ? json_decode($item_array['item_details'], true) : $item_array['item_details'];
+            $item_id = $item_array['item_id'] ?? null;
+            $item_campaign_id = $item_array['item_campaign_id'] ?? null;
+            $box_id = $item_array['box_id'] ?? null;
             
+            $item_details = $item_array['item_details'] ?? null;
+            if (is_string($item_details)) {
+                $item_details = json_decode($item_details, true);
+            }
+            $item_array['item_details'] = $item_details;
+            $item_array['add_ons'] = is_string($item_array['add_ons'] ?? null) ? json_decode($item_array['add_ons'], true) : ($item_array['add_ons'] ?? []);
+            $item_array['variation'] = is_string($item_array['variation'] ?? null) ? json_decode($item_array['variation'], true) : ($item_array['variation'] ?? []);
+            
+            $image_full_url = null;
             if ($item_id) {
-                $product = \App\Models\Item::find($item_array['item_details']['id'] ?? $item_id);
-                $item_array['image_full_url'] = $product?->image_full_url;
-                $item_array['images_full_url'] = $product?->images_full_url;
+                $product = \App\Models\Item::find($item_id);
+                $image_full_url = $product?->image_full_url ?? Helpers::get_full_url('product', $item_details['image'] ?? '', $item_details['storage'] ?? 'public');
+                $item_array['images_full_url'] = $product?->images_full_url ?? [];
             } elseif ($item_campaign_id) {
-                $product = \App\Models\ItemCampaign::find($item_array['item_details']['id'] ?? $item_campaign_id);
-                $item_array['image_full_url'] = $product?->image_full_url;
+                $product = \App\Models\ItemCampaign::find($item_campaign_id);
+                $image_full_url = $product?->image_full_url ?? Helpers::get_full_url('campaign', $item_details['image'] ?? '', $item_details['storage'] ?? 'public');
                 $item_array['images_full_url'] = [];
-            } elseif ($box_id || (isset($item_array['item_details']['id']) && !$item_id && !$item_campaign_id)) {
-                $product = \App\Models\Box::find($box_id ?? $item_array['item_details']['id']);
-                $item_array['image_full_url'] = $product?->image_full_url;
+            } elseif ($box_id || (isset($item_details['id']) && !$item_id && !$item_campaign_id)) {
+                $product = \App\Models\Box::find($box_id ?? $item_details['id']);
+                $image_full_url = $product?->image_full_url ?? Helpers::get_full_url('box', $item_details['image'] ?? '', $item_details['storage'] ?? 'public');
                 $item_array['images_full_url'] = [];
             } else {
-                $item_array['image_full_url'] = null;
+                $image_full_url = Helpers::get_full_url('product', $item_details['image'] ?? '', $item_details['storage'] ?? 'public');
                 $item_array['images_full_url'] = [];
             }
+            
+            $item_array['image_full_url'] = $image_full_url;
             array_push($storage, $item_array);
         }
         return $storage;
