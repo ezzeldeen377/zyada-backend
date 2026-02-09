@@ -1046,7 +1046,7 @@ trait PlaceNewOrder
                         'name' => $box->name,
                         'description' => $box->description,
                         'image' => $box->image,
-                        'storage' => $box->storage?->first()?->value ?? 'public',
+                        'storage' => $box->image_full_url ?? 'public',
                         'price' => $box->price,
                         'item_count' => $box->item_count,
                         'tax' => 0,
