@@ -1125,30 +1125,36 @@ class Helpers
     {
         $storage = [];
         foreach ($data as $item) {
-            $item['add_ons'] = json_decode($item['add_ons']);
-            $item['variation'] = json_decode($item['variation'], true);
-            $item['item_details'] = json_decode($item['item_details'], true);
-            if ($item['item_id']) {
-                $product = \App\Models\Item::where(['id' => $item['item_details']['id']])->first();
-                $item['image_full_url'] = $product?->image_full_url;
-                $item['images_full_url'] = $product?->images_full_url;
-            } elseif ($item['item_campaign_id']) {
-                $product = \App\Models\ItemCampaign::where(['id' => $item['item_details']['id']])->first();
-                $item['image_full_url'] = $product?->image_full_url;
-                $item['images_full_url'] = [];
-            } elseif ($item['box_id']) {
-                $product = \App\Models\Box::where(['id' => $item['box_id']])->first();
-                $item['image_full_url'] = $product?->image_full_url;
-                $item['images_full_url'] = [];
+            $item_id = $item['item_id'];
+            $item_campaign_id = $item['item_campaign_id'];
+            $box_id = $item['box_id'];
+            
+            // Convert to array to ensure dynamic properties are serialized in JSON
+            $item_array = $item instanceof \Illuminate\Database\Eloquent\Model ? $item->toArray() : (array)$item;
+            
+            $item_array['add_ons'] = is_string($item_array['add_ons']) ? json_decode($item_array['add_ons']) : $item_array['add_ons'];
+            $item_array['variation'] = is_string($item_array['variation']) ? json_decode($item_array['variation'], true) : $item_array['variation'];
+            $item_array['item_details'] = is_string($item_array['item_details']) ? json_decode($item_array['item_details'], true) : $item_array['item_details'];
+            
+            if ($item_id) {
+                $product = \App\Models\Item::find($item_array['item_details']['id'] ?? $item_id);
+                $item_array['image_full_url'] = $product?->image_full_url;
+                $item_array['images_full_url'] = $product?->images_full_url;
+            } elseif ($item_campaign_id) {
+                $product = \App\Models\ItemCampaign::find($item_array['item_details']['id'] ?? $item_campaign_id);
+                $item_array['image_full_url'] = $product?->image_full_url;
+                $item_array['images_full_url'] = [];
+            } elseif ($box_id || (isset($item_array['item_details']['id']) && !$item_id && !$item_campaign_id)) {
+                $product = \App\Models\Box::find($box_id ?? $item_array['item_details']['id']);
+                $item_array['image_full_url'] = $product?->image_full_url;
+                $item_array['images_full_url'] = [];
             } else {
-                $item['image_full_url'] = null;
-                $item['images_full_url'] = [];
+                $item_array['image_full_url'] = null;
+                $item_array['images_full_url'] = [];
             }
-            array_push($storage, $item);
+            array_push($storage, $item_array);
         }
-        $data = $storage;
-
-        return $data;
+        return $storage;
     }
 
     public static function deliverymen_list_formatting($data)
