@@ -1141,19 +1141,19 @@ class Helpers
             
             $image_full_url = null;
             if ($item_id) {
-                $product = \App\Models\Item::find($item_id);
-                $image_full_url = $product?->image_full_url ?? Helpers::get_full_url('product', $item_details['image'] ?? '', $item_details['storage'] ?? 'public');
+                $product = \App\Models\Item::withoutGlobalScopes()->find($item_id);
+                $image_full_url = $product?->image_full_url ?? Helpers::get_full_url('product', $item_details['image'] ?? '', $item_details['storage'] ?? 'public', 'product');
                 $item_array['images_full_url'] = $product?->images_full_url ?? [];
             } elseif ($item_campaign_id) {
-                $product = \App\Models\ItemCampaign::find($item_campaign_id);
-                $image_full_url = $product?->image_full_url ?? Helpers::get_full_url('campaign', $item_details['image'] ?? '', $item_details['storage'] ?? 'public');
+                $product = \App\Models\ItemCampaign::withoutGlobalScopes()->find($item_campaign_id);
+                $image_full_url = $product?->image_full_url ?? Helpers::get_full_url('campaign', $item_details['image'] ?? '', $item_details['storage'] ?? 'public', 'campaign');
                 $item_array['images_full_url'] = [];
             } elseif ($box_id || (isset($item_details['id']) && !$item_id && !$item_campaign_id)) {
-                $product = \App\Models\Box::find($box_id ?? $item_details['id']);
-                $image_full_url = $product?->image_full_url ?? Helpers::get_full_url('box', $item_details['image'] ?? '', $item_details['storage'] ?? 'public');
+                $product = \App\Models\Box::withoutGlobalScopes()->find($box_id ?? $item_details['id']);
+                $image_full_url = $product?->image_full_url ?? Helpers::get_full_url('box', $item_details['image'] ?? '', $item_details['storage'] ?? 'public', 'product');
                 $item_array['images_full_url'] = [];
             } else {
-                $image_full_url = Helpers::get_full_url('product', $item_details['image'] ?? '', $item_details['storage'] ?? 'public');
+                $image_full_url = Helpers::get_full_url('product', $item_details['image'] ?? '', $item_details['storage'] ?? 'public', 'product');
                 $item_array['images_full_url'] = [];
             }
             
