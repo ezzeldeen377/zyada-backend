@@ -495,8 +495,10 @@ trait PlaceNewOrder
 
                     if ($item['item_id']) {
                         $item_id = $item['item_id'];
-                    } else {
+                    } elseif ($item['item_campaign_id']) {
                         $item_id = $item['item_campaign_id'];
+                    } else {
+                        $item_id = $item['box_id'];
                     }
                     $index = $taxMapCollection->search(function ($tax) use ($item_id) {
                         return $tax['product_id'] == $item_id;
@@ -1051,9 +1053,9 @@ trait PlaceNewOrder
                     'price' => round($price, config('round_up_to_digit')),
                     'category_id' => null,
                     'tax_amount' => 0,
-                    'tax_status' => null,
+                    'tax_status' => 'excluded',
                     'discount_on_product_by' => 'vendor',
-                    'discount_type' => null,
+                    'discount_type' => 'amount',
                     'discount_on_item' => 0,
                     'discount_percentage' => 0,
                     'variant' => json_encode([]),
@@ -1291,9 +1293,9 @@ trait PlaceNewOrder
                         'price' => round($price, config('round_up_to_digit')),
                         'category_id' => null,
                         'tax_amount' => 0,
-                        'tax_status' => null,
+                        'tax_status' => 'excluded',
                         'discount_on_product_by' => 'vendor',
-                        'discount_type' => null,
+                        'discount_type' => 'amount',
                         'discount_on_item' => 0,
                         'discount_percentage' => 0,
                         'variant' => json_encode([]),
@@ -1529,9 +1531,9 @@ trait PlaceNewOrder
                         'price' => round($price, config('round_up_to_digit')),
                         'category_id' => null,
                         'tax_amount' => 0,
-                        'tax_status' => null,
+                        'tax_status' => 'excluded',
                         'discount_on_product_by' => 'vendor',
-                        'discount_type' => null,
+                        'discount_type' => 'amount',
                         'discount_on_item' => 0,
                         'discount_percentage' => 0,
                         'variant' => json_encode([]),
