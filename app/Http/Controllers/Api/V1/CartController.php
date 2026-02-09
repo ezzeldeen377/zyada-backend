@@ -154,7 +154,7 @@ class CartController extends Controller
                 $data->variation = json_decode($data->variation, true);
                 
                 $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox', 'App\ModelsBox']);
-                
+                $data->model = $isBox ? 'Box' : 'Item';                
                 if ($isBox) {
                     $data->item = Helpers::cart_box_data_formatting($data->item);
                 } else {
@@ -244,7 +244,7 @@ class CartController extends Controller
                 $data->variation = json_decode($data->variation, true);
                 
                 $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox', 'App\ModelsBox']);
-                
+                $data->model = $isBox ? 'Box' : 'Item';
                 if ($isBox) {
                     $data->item = Helpers::cart_box_data_formatting($data->item);
                 } else {

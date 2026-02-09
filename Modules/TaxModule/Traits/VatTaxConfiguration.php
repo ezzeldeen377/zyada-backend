@@ -90,6 +90,7 @@ trait VatTaxConfiguration
                 'trip' =>  'Modules\Rental\Entities\Trips',
                 'parcel_category' =>  'App\Models\ParcelCategory',
                 'campaign_product' =>  'App\Models\ItemCampaign',
+                'box' =>  'App\Models\Box',
             ],
             'stackfood' => [
                 'product' => 'App\Models\Food',
@@ -98,11 +99,13 @@ trait VatTaxConfiguration
                 'addon_category' =>  'App\Models\AddonCategory',
                 'order' =>  'App\Models\Order',
                 'store' =>  'App\Models\Restaurant',
+                'box' =>  'App\Models\Box',
             ],
             '6valley' => [
                 'product' => 'App\Models\Product',
                 'category' =>  'App\Models\Category',
                 'order' =>  'App\Models\Order',
+                'box' =>  'App\Models\Box',
             ],
         ];
 

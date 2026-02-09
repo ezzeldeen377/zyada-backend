@@ -177,6 +177,8 @@ class CalculateTaxService
 
             if($product['is_campaign_item'] == true ){
                 $dataType = self::getClassNames($taxType === 'product_wise' ? 'campaign_product' : 'category');
+            } elseif (isset($product['is_box_item']) && $product['is_box_item'] == true) {
+                $dataType = self::getClassNames($taxType === 'product_wise' ? 'box' : 'category');
             }
             $dataId = $taxType === 'product_wise' ? $product['id'] : $product['category_id'];
             $taxVatIds = Taxable::where('taxable_type', $dataType)

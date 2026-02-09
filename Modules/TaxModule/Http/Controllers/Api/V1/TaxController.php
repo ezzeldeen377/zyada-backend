@@ -46,17 +46,29 @@ class TaxController extends Controller
             return response()->json(['errors' => $this->error_processor($validator)], 403);
         }
 
+        $productIds = json_decode($request->productIds, true) ?? [];
+        $categoryIds = json_decode($request->categoryIds, true) ?? [];
+        $quantities = json_decode($request->quantity, true) ?? [];
+        
+        $formattedProducts = [];
+        foreach ($productIds as $key => $id) {
+            $formattedProducts[] = [
+                'id' => $id,
+                'category_id' => $categoryIds[$key] ?? null,
+                'quantity' => $quantities[$key] ?? 1,
+                'after_discount_final_price' => $request->totalProductAmount / count($productIds), // Approximation
+                'is_campaign_item' => false,
+                'is_box_item' => false, // Direct API might need a flag if it's a box
+            ];
+        }
+
         $data = CalculateTaxService::getCalculatedTax(
             amount: $request->totalProductAmount,
-            productIds: json_decode($request->productIds, true) ?? [],
-            categoryIds: json_decode($request->categoryIds, true) ?? [],
-            quantity: json_decode($request->quantity, true) ?? [],
-            addonIds: json_decode($request->addonIds, true) ?? [],
-            addonQuantity: json_decode($request->addonQuantity, true) ?? [],
-            addonCategoryIds: json_decode($request->addonCategoryIds, true) ?? [],
+            productIds: $formattedProducts,
             storeData: false,
             additionalCharges: json_decode($request?->additionalCharges, true) ?? [],
             taxPayer: $request->taxPayer ?? 'vendor',
+            addonIds: json_decode($request->addonIds, true) ?? [],
             orderId: $request?->orderId,
             countryCode: $request?->countryCode
         );

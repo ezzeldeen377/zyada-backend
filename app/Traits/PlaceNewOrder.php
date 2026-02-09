@@ -1010,7 +1010,7 @@ trait PlaceNewOrder
             $isBox = false;
 
             // Handle Box items
-            if ($c['item_type'] === 'App\Models\Box' || $c['item_type'] === 'AppModelsBox') {
+            if ($c['item_type'] === 'App\Models\Box' || $c['item_type'] === 'AppModelsBox' || $c['item_type'] === 'Box' || $c['item_type'] === 'App\ModelsBox') {
                 $box = Box::with('module')->active()->available()->find($c['item_id']);
                 if (!$box) {
                     return [
@@ -1250,7 +1250,7 @@ trait PlaceNewOrder
                 $isBox = false;
 
                 // Handle Box items
-                if (isset($c['item_type']) && ($c['item_type'] === 'App\Models\Box' || $c['item_type'] === 'AppModelsBox')) {
+                if (isset($c['item_type']) && ($c['item_type'] === 'App\Models\Box' || $c['item_type'] === 'AppModelsBox' || $c['item_type'] === 'Box' || $c['item_type'] === 'App\ModelsBox')) {
                     $box = Box::active()->available()->find($c['item_id'] ?? $c['id']);
                     if (!$box) {
                         return [
@@ -1488,7 +1488,7 @@ trait PlaceNewOrder
                 $isBox = false;
 
                 // Handle Box items
-                if (isset($c['item_type']) && ($c['item_type'] === 'App\Models\Box' || $c['item_type'] === 'AppModelsBox')) {
+                if (isset($c['item_type']) && ($c['item_type'] === 'App\Models\Box' || $c['item_type'] === 'AppModelsBox' || $c['item_type'] === 'Box' || $c['item_type'] === 'App\ModelsBox')) {
                     $box = Box::active()->available()->find($c['item_id'] ?? $c['id']);
                     if (!$box) {
                         return [

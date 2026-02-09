@@ -4422,6 +4422,7 @@ class Helpers
                         'discount_type' => $entry['discount_type'],
                         'after_discount_final_price' => $finalPrice,
                         'is_campaign_item' => $entry['is_campaign_item'],
+                        'is_box_item' => $entry['is_box_item'],
                     ];
                 } else {
                     $addonIds[] = [
