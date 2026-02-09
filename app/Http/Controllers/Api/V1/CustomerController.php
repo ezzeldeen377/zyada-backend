@@ -200,6 +200,9 @@ class CustomerController extends Controller
         $data['discount_amount'] = (float)data_get($discount_data, 'discount_amount');
         $data['discount_amount_type'] = data_get($discount_data, 'discount_amount_type');
         $data['validity'] = (string)data_get($discount_data, 'validity');
+        $data['total_discount'] = (float)$request->user()->orders()
+            ->select(DB::raw('SUM(coupon_discount_amount + store_discount_amount + flash_admin_discount_amount + flash_store_discount_amount + ref_bonus_amount) as total_discount'))
+            ->value('total_discount');
 
         unset($data['orders']);
         return response()->json($data, 200);
