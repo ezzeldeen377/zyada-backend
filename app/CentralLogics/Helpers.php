@@ -4421,7 +4421,7 @@ class Helpers
             $otherDiscounts = $totalDiscount - ($productDiscountTotal + $addonDiscountTotal);
 
             foreach ($tempList as $entry) {
-                $share = ($entry['base_final'] / $totalAfterOwnDiscounts) * $otherDiscounts;
+                $share = $totalAfterOwnDiscounts > 0 ? ($entry['base_final'] / $totalAfterOwnDiscounts) * $otherDiscounts : 0;
                 $finalPrice = $entry['base_final'] - $share;
 
                 if ($entry['type'] === 'product') {

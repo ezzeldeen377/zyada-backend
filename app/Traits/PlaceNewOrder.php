@@ -331,14 +331,16 @@ trait PlaceNewOrder
 
                 $total_price = $product_price + $total_addon_price - $store_discount_amount - $flash_sale_admin_discount_amount - $flash_sale_vendor_discount_amount  - $coupon_discount_amount;
 
-                if ($order->is_guest  == 0 && $order->user_id) {
-                    $user = User::withcount('orders')->find($order->user_id);
+            if ($order->user_id && !$order->is_guest) {
+                $user = User::withCount('orders')->find($order->user_id);
+                if ($user) {
                     $discount_data = Helpers::getCusromerFirstOrderDiscount(order_count: $user->orders_count, user_creation_date: $user->created_at,  refby: $user->ref_by, price: $total_price);
                     if (data_get($discount_data, 'is_valid') == true &&  data_get($discount_data, 'calculated_amount') > 0) {
                         $total_price = $total_price - data_get($discount_data, 'calculated_amount');
                         $order->ref_bonus_amount = data_get($discount_data, 'calculated_amount');
                     }
                 }
+            }
 
                 $total_price = max($total_price, 0);
 
@@ -1855,12 +1857,14 @@ trait PlaceNewOrder
         $total_price = $product_price + $total_addon_price - $store_discount_amount - $flash_sale_admin_discount_amount - $flash_sale_vendor_discount_amount  - $coupon_discount_amount;
 
 
-        if ($order->is_guest  == 0 && $order->user_id) {
-            $user = User::withcount('orders')->find($order->user_id);
-            $discount_data = Helpers::getCusromerFirstOrderDiscount(order_count: $user->orders_count, user_creation_date: $user->created_at,  refby: $user->ref_by, price: $total_price);
-            if (data_get($discount_data, 'is_valid') == true &&  data_get($discount_data, 'calculated_amount') > 0) {
-                $total_price = $total_price - data_get($discount_data, 'calculated_amount');
-                $ref_bonus_amount = data_get($discount_data, 'calculated_amount');
+        if ($order->user_id && !$order->is_guest) {
+            $user = User::withCount('orders')->find($order->user_id);
+            if ($user) {
+                $discount_data = Helpers::getCusromerFirstOrderDiscount(order_count: $user->orders_count, user_creation_date: $user->created_at,  refby: $user->ref_by, price: $total_price);
+                if (data_get($discount_data, 'is_valid') == true &&  data_get($discount_data, 'calculated_amount') > 0) {
+                    $total_price = $total_price - data_get($discount_data, 'calculated_amount');
+                    $ref_bonus_amount = data_get($discount_data, 'calculated_amount');
+                }
             }
         }
 
