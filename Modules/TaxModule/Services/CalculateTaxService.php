@@ -14,8 +14,8 @@ class CalculateTaxService
 {
     use VatTaxConfiguration;
     public static function getCalculatedTax(
-        float $amount,
-        array $productIds,
+        $amount,
+        $productIds = [],
         string $taxPayer = 'vendor',
         bool $storeData = false,
         array $additionalCharges = [],
@@ -24,21 +24,23 @@ class CalculateTaxService
         $countryCode = null,
         $storeId = null,
     ) {
-        $systemTaxVat = SystemTaxSetup::with('additionalData')
-            ->when($countryCode, fn($query) => $query->where('country_code', $countryCode))
-            ->where('tax_payer', $taxPayer)
-            ->where('is_active', 1)
-            ->first();
-
-        if (!$systemTaxVat || !$systemTaxVat->is_active) {
-            return self::emptyTaxResult();
-        }
-
-        if ($systemTaxVat->is_included) {
-            return array_merge(self::emptyTaxResult(), ['include' => 1]);
-        }
+        $productIds = is_array($productIds) ? $productIds : [];
+        $amount = (float)$amount;
 
         try {
+            $systemTaxVat = SystemTaxSetup::with('additionalData')
+                ->when($countryCode, fn($query) => $query->where('country_code', $countryCode))
+                ->where('tax_payer', $taxPayer)
+                ->where('is_active', 1)
+                ->first();
+
+            if (!$systemTaxVat || !$systemTaxVat->is_active) {
+                return self::emptyTaxResult();
+            }
+
+            if ($systemTaxVat->is_included) {
+                return array_merge(self::emptyTaxResult(), ['include' => 1]);
+            }
 
             $taxType = $systemTaxVat->tax_type;
             $totalTaxamount = 0;
