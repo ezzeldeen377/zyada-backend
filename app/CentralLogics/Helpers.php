@@ -4384,8 +4384,8 @@ class Helpers
                     'discount' => $item['discount_on_item'],
                     'discount_type' => $item['discount_type'],
                     'base_final' => $itemFinal,
-                    'is_campaign_item' => $item['item_campaign_id'] ? true : false,
-                    'is_box_item' => $item['box_id'] ? true : false,
+                    'is_campaign_item' => !empty($item['item_campaign_id']),
+                    'is_box_item' => !empty($item['box_id']),
                 ];
 
                 $totalAfterOwnDiscounts += $itemFinal;

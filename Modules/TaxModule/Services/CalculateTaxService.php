@@ -177,9 +177,9 @@ class CalculateTaxService
 
         foreach ($productIds as $product) {
 
-            if($product['is_campaign_item'] == true ){
+            if(!empty($product['is_campaign_item']) ){
                 $dataType = self::getClassNames($taxType === 'product_wise' ? 'campaign_product' : 'category');
-            } elseif (isset($product['is_box_item']) && $product['is_box_item'] == true) {
+            } elseif (!empty($product['is_box_item'])) {
                 $dataType = self::getClassNames($taxType === 'product_wise' ? 'box' : 'category');
             }
             $dataId = $taxType === 'product_wise' ? $product['id'] : $product['category_id'];
