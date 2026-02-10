@@ -2292,7 +2292,7 @@ class Helpers
         $data = [];
         if ($addons) {
             foreach ($addons as $key2 => $addon) {
-                if ($add_on_qtys == null) {
+                if ($add_on_qtys == null || !isset($add_on_qtys[$key2])) {
                     $add_on_qty = 1;
                 } else {
                     $add_on_qty = $add_on_qtys[$key2];

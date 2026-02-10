@@ -1004,6 +1004,10 @@ trait PlaceNewOrder
         $discount_type = '';
         $discount_on_product_by = 'vendor';
         foreach ($carts as $c) {
+            $c['add_on_ids'] = is_string($c['add_on_ids']) ? json_decode($c['add_on_ids'], true) : $c['add_on_ids'];
+            $c['add_on_qtys'] = is_string($c['add_on_qtys']) ? json_decode($c['add_on_qtys'], true) : $c['add_on_qtys'];
+            $c['variation'] = is_string($c['variation']) ? json_decode($c['variation'], true) : $c['variation'];
+
             $variations = [];
             $isCampaign = false;
             $isBox = false;
@@ -1146,7 +1150,7 @@ trait PlaceNewOrder
                 }
 
                 $product = Helpers::product_data_formatting($product, false, false, app()->getLocale());
-                $addon_data = Helpers::calculate_addon_price(AddOn::whereIn('id', $c['add_on_ids'])->get(), $c['add_on_qtys']);
+                $addon_data = Helpers::calculate_addon_price(AddOn::whereIn('id', $c['add_on_ids'] ?: [])->get(), $c['add_on_qtys'] ?: []);
                 $product_discount = Helpers::product_discount_calculate($product, $price, $store, false);
 
 
@@ -1247,6 +1251,10 @@ trait PlaceNewOrder
         foreach ($carts as $c) {
             $variations = [];
             if (is_array($c)) {
+                $c['add_ons'] = is_string($c['add_ons'] ?? null) ? json_decode($c['add_ons'], true) : ($c['add_ons'] ?? []);
+                $c['add_on_qtys'] = is_string($c['add_on_qtys'] ?? null) ? json_decode($c['add_on_qtys'], true) : ($c['add_on_qtys'] ?? []);
+                $c['variations'] = is_string($c['variations'] ?? null) ? json_decode($c['variations'], true) : ($c['variations'] ?? []);
+
                 $isCampaign = false;
                 $isBox = false;
 
