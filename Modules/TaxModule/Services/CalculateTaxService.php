@@ -176,14 +176,14 @@ class CalculateTaxService
         }
 
         foreach ($productIds as $product) {
-
+            $currentDataType = $dataType;
             if(!empty($product['is_campaign_item']) ){
-                $dataType = self::getClassNames($taxType === 'product_wise' ? 'campaign_product' : 'category');
+                $currentDataType = self::getClassNames($taxType === 'product_wise' ? 'campaign_product' : 'category');
             } elseif (!empty($product['is_box_item'])) {
-                $dataType = self::getClassNames($taxType === 'product_wise' ? 'box' : 'category');
+                $currentDataType = self::getClassNames($taxType === 'product_wise' ? 'box' : 'category');
             }
             $dataId = $taxType === 'product_wise' ? $product['id'] : $product['category_id'];
-            $taxVatIds = Taxable::where('taxable_type', $dataType)
+            $taxVatIds = Taxable::where('taxable_type', $currentDataType)
                 ->where('taxable_id', $dataId)
                 ->where('system_tax_setup_id', $systemTaxVat->id)
                 ->pluck('tax_id')
@@ -198,7 +198,7 @@ class CalculateTaxService
                 orderId: $orderId,
                 countryCode: $countryCode,
                 data_id: $dataId,
-                data_type: $dataType,
+                data_type: $currentDataType,
                 quantity: $product['quantity'],
                 storeId: $storeId
             );

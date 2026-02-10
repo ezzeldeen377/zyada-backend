@@ -4399,7 +4399,8 @@ class Helpers
 
                 foreach ($addons as $addon) {
                     $addonPrice = $addon['price'] * $addon['quantity'];
-                    $discountPart = $addonDiscount * ($addonPrice / $addonTotalPrice);
+                    $shareFactor = $addonTotalPrice > 0 ? ($addonPrice / $addonTotalPrice) : 0;
+                    $discountPart = $addonDiscount * $shareFactor;
                     $addonFinal = $addonPrice - $discountPart;
 
                     $tempList[] = [
