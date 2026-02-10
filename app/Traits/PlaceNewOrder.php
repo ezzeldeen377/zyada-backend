@@ -289,15 +289,10 @@ trait PlaceNewOrder
                         ->when(isset($request->is_buy_now) && $request->is_buy_now == 1 && $request->cart_id, function ($query) use ($request) {
                             return $query->where('id', $request->cart_id);
                         })
-                        ->get()->map(function ($data) {
-                            $data->add_on_ids = json_decode($data->add_on_ids, true);
-                            $data->add_on_qtys = json_decode($data->add_on_qtys, true);
-                            $data->variation = json_decode($data->variation, true);
-                            return $data;
-                        });
+                        ->get();
 
                     if (isset($request->is_buy_now) && $request->is_buy_now == 1) {
-                        $carts = json_decode($request['cart'], true);
+                        $carts = is_string($request['cart']) ? json_decode($request['cart'], true) : $request['cart'];
                     }
 
                     if (count($carts) == 0 && !$is_prescription) {
@@ -1830,15 +1825,10 @@ trait PlaceNewOrder
                     ->when(isset($request->is_buy_now) && $request->is_buy_now == 1 && $request->cart_id, function ($query) use ($request) {
                         return $query->where('id', $request->cart_id);
                     })
-                    ->get()->map(function ($data) {
-                        $data->add_on_ids = json_decode($data->add_on_ids, true);
-                        $data->add_on_qtys = json_decode($data->add_on_qtys, true);
-                        $data->variation = json_decode($data->variation, true);
-                        return $data;
-                    });
+                    ->get();
 
                 if (isset($request->is_buy_now) && $request->is_buy_now == 1) {
-                    $carts = json_decode($request['cart'], true);
+                    $carts = is_string($request['cart']) ? json_decode($request['cart'], true) : $request['cart'];
                 }
 
                 $order_details = $this->makeOrderDetails($carts, $request, $order, $store);
