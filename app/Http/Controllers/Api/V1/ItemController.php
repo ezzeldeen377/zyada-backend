@@ -452,7 +452,13 @@ class ItemController extends Controller
     {
         try {
 
-            $item = Item::withCount('whislists')->with(['tags','nutritions','allergies','reviews','reviews.customer'])->active()
+            $item = Item::withCount('whislists')
+            ->withAvg('reviews', 'quality_rating')
+            ->withAvg('reviews', 'value_rating')
+            ->withAvg('reviews', 'packaging_rating')
+            ->withAvg('reviews', 'service_rating')
+            ->withAvg('reviews', 'usability_rating')
+            ->with(['tags','nutritions','allergies','reviews','reviews.customer'])->active()
             ->when(config('module.current_module_data'), function($query){
                 $query->module(config('module.current_module_data')['id']);
             })
