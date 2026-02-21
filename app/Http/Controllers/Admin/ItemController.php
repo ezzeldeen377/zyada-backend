@@ -70,6 +70,7 @@ class ItemController extends Controller
             'name.0' => 'required',
             'description.0' => 'required',
             'item_count' => 'nullable|integer|min:0',
+            'expiration_date' => 'nullable|date',
         ], [
             'description.*.max' => translate('messages.description_length_warning'),
             'name.0.required' => translate('messages.item_name_required'),
@@ -349,6 +350,7 @@ class ItemController extends Controller
         $item->images = $images;
         $item->is_halal =  $request->is_halal ?? 0;
         $item->item_count = $request->item_count ?? 0;
+        $item->expiration_date = $request->expiration_date ?? null;
         $item->save();
         $item->tags()->sync($tag_ids);
         $item->nutritions()->sync($nutrition_ids);
@@ -456,6 +458,7 @@ class ItemController extends Controller
             'name.0' => 'required',
             'description.0' => 'required',
             'item_count' => 'nullable|integer|min:0',
+            'expiration_date' => 'nullable|date',
         ], [
             'description.*.max' => translate('messages.description_length_warning'),
             'category_id.required' => translate('messages.category_required'),
@@ -680,6 +683,7 @@ class ItemController extends Controller
         $item->veg = $request->veg ?? 0;
         $item->images = $images;
         $item->item_count = $request->item_count ?? 0;
+        $item->expiration_date = $request->expiration_date ?? null;
         if (Helpers::get_mail_status('product_approval') && $request?->temp_product) {
 
 
@@ -2010,6 +2014,8 @@ class ItemController extends Controller
         $item->organic = $data->organic;
         $item->is_halal = $data->is_halal;
         $item->stock =  $data->stock;
+        $item->item_count = $data->item_count;
+        $item->expiration_date = $data->expiration_date;
         $item->is_approved = 1;
 
         $item->save();

@@ -135,6 +135,15 @@
                                         value="{{ isset($product) ? $product->item_count : '' }}" id="item_count">
                                 </div>
                             </div>
+                            
+                            <div class="col-sm-6 col-lg-3">
+                                <div class="form-group mb-0 error-wrapper">
+                                    <label class="input-label"
+                                        for="expiration_date">{{ translate('messages.expiration_date') }}</label>
+                                    <input type="date" class="form-control" name="expiration_date"
+                                        value="{{ isset($product) && $product->expiration_date ? \Carbon\Carbon::parse($product->expiration_date)->format('Y-m-d') : '' }}" id="expiration_date">
+                                </div>
+                            </div>
 
 
                     </div>

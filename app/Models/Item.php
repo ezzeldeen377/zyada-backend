@@ -45,6 +45,7 @@ class Item extends Model
         'unit_id' => 'integer',
         'is_halal' => 'integer',
         'item_count' => 'integer',
+        'expiration_date' => 'date',
     ];
 
     protected $appends = ['unit_type', 'image_full_url', 'images_full_url'];
