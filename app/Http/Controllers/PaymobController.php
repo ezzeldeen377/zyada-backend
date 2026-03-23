@@ -108,8 +108,12 @@ class PaymobController extends Controller
             $order = $this->createOrder($token, $data, $business_name);
             $paymentToken = $this->getPaymentToken($order, $token, $data, $payer);
         } catch (\Exception $exception) {
-            return response()->json($this->response_formatter(GATEWAYS_DEFAULT_404), 200);
-        }
+    return response()->json([
+        'error' => $exception->getMessage(),
+        'line' => $exception->getLine(),
+        'file' => $exception->getFile(),
+    ], 500);
+}
         return Redirect::away('https://accept.paymobsolutions.com/api/acceptance/iframes/' . $this->config_values->iframe_id . '?payment_token=' . $paymentToken);
     }
 
