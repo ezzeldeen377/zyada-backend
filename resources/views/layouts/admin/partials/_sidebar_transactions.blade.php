@@ -69,14 +69,14 @@
                             </a>
                         </li>
                     @endif
-                    @if (\App\CentralLogics\Helpers::module_permission_check('withdraw_list'))
+                    {{-- @if (\App\CentralLogics\Helpers::module_permission_check('withdraw_list'))
                     <li class="navbar-vertical-aside-has-menu {{ Request::is('admin/transactions/delivery-man/withdraw*') ? 'active' : '' }}">
                         <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{ route('admin.transactions.delivery-man.withdraw_list') }}" title="{{ translate('messages.deliveryman_withdraws') }}">
                             <i class="tio-table nav-icon"></i>
                             <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{ translate('deliveryman_withdraws') }}</span>
                         </a>
                     </li>
-                    @endif
+                    @endif --}}
                     <!-- End withdraw -->
                     @if (\App\CentralLogics\Helpers::module_permission_check('disbursement'))
                         <li
@@ -90,7 +90,7 @@
                             </a>
                         </li>
                     @endif
-                    @if (\App\CentralLogics\Helpers::module_permission_check('disbursement'))
+                    {{-- @if (\App\CentralLogics\Helpers::module_permission_check('disbursement'))
                         <li
                             class="navbar-vertical-aside-has-menu {{ Request::is('admin/transactions/dm-disbursement*') ? 'active' : '' }}">
                             <a class="js-navbar-vertical-aside-menu-link nav-link"
@@ -101,7 +101,7 @@
                                     class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{ translate('messages.delivery_man_disbursement') }}</span>
                             </a>
                         </li>
-                    @endif
+                    @endif --}}
                     <!-- account -->
                     @if (\App\CentralLogics\Helpers::module_permission_check('collect_cash'))
                         <li
@@ -118,7 +118,7 @@
                     <!-- End account -->
 
                     <!-- provide_dm_earning -->
-                    @if (\App\CentralLogics\Helpers::module_permission_check('provide_dm_earning'))
+                    {{-- @if (\App\CentralLogics\Helpers::module_permission_check('provide_dm_earning'))
                         <li
                             class="navbar-vertical-aside-has-menu {{ Request::is('admin/transactions/provide-deliveryman-earnings*') ? 'active' : '' }}">
                             <a class="js-navbar-vertical-aside-menu-link nav-link"
@@ -129,7 +129,7 @@
                                     class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{ translate('Delivery Man Payments') }}</span>
                             </a>
                         </li>
-                    @endif
+                    @endif --}}
                     <!-- End provide_dm_earning -->
 
                     @if (\App\CentralLogics\Helpers::module_permission_check('settings'))

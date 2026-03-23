@@ -202,7 +202,7 @@
                             <div id="dognut-pie"></div>
                             <!-- Total Orders -->
                             <div class="total--orders">
-                                <h3 class="text-uppercase mb-xxl-2">{{ $data['customer'] + $data['stores'] + $data['delivery_man'] }}</h3>
+                                <h3 class="text-uppercase mb-xxl-2">{{ $data['customer'] + $data['stores'] }}</h3>
                                 <span class="text-capitalize">{{translate('messages.total_users')}}</span>
                             </div>
                             <!-- Total Orders -->
@@ -214,12 +214,12 @@
                                     {{translate('messages.customer')}} {{$data['customer']}}
                                 </span>
                             </div>
-                            <div class="chart--label">
+                            {{-- <div class="chart--label">
                                 <span class="indicator chart-bg-3"></span>
                                 <span class="info">
                                     {{translate('messages.delivery_man')}} {{$data['delivery_man']}}
                                 </span>
-                            </div>
+                            </div> --}}
                         </div>
 
                     </div>
@@ -227,13 +227,13 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
+            {{-- <div class="col-lg-4 col-md-6">
                 <!-- Card -->
-                <div class="card h-100" id="top-deliveryman-view">
+                {{-- <div class="card h-100" id="top-deliveryman-view">
                     @include('admin-views.partials._top-deliveryman',['top_deliveryman'=>$data['top_deliveryman']])
-                </div>
+                </div> --}}
                 <!-- End Card -->
-            </div>
+            </div> --}}
 
             <div class="col-lg-4 col-md-6">
                 <!-- Card -->

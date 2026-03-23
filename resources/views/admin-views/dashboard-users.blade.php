@@ -39,7 +39,7 @@
     <!-- End Page Header -->
 
     <div class="row g-2 pb-4 mb-0">
-        <div class="col-sm-6 col-lg-4">
+        <div class="col-sm-6 col-lg-6">
             <a href="{{ route('admin.users.customer.list', ['zone_id' => $params['zone_id'] ?? null]) }}">
                 <div class="__user-dashboard-card">
                     <div class="__user-dashboard-card-thumbs">
@@ -57,26 +57,8 @@
                 </div>
             </a>
         </div>
-        <div class="col-sm-6 col-lg-4">
-            <a href="{{ route('admin.users.delivery-man.list', ['zone_id' => $params['zone_id'] ?? null]) }}">
-                <div class="__user-dashboard-card" style="--theme-clr:#006AB4">
 
-                    <div class="__user-dashboard-card-thumbs">
-                        @php($total_deliveryman = $inactive_deliveryman + $active_deliveryman + $blocked_deliveryman )
-                        <div class="more-icon">
-                            +{{$total_deliveryman >= 4 ? $total_deliveryman - 2 : $total_deliveryman}}
-                        </div>
-                        @foreach ($delivery_man as $key => $dm)
-                            <img src="{{ $dm['image_full_url'] }}" class="onerror-image"
-                                data-onerror-image="{{asset('public/assets/admin/img/160x160/img2.jpg')}}" alt="new-img">
-                        @endforeach
-                    </div>
-                    <h3 class="title">{{$total_deliveryman}}</h3>
-                    <h5 class="subtitle text-capitalize">{{translate('messages.total_delivery_man')}}</h5>
-                </div>
-            </a>
-        </div>
-        <div class="col-sm-6 col-lg-4">
+        <div class="col-sm-6 col-lg-6">
             <a href="{{ route('admin.users.employee.list', ['zone_id' => $params['zone_id'] ?? null]) }}">
                 <div class="__user-dashboard-card" style="--theme-clr:#FFA800">
                     <div class="__user-dashboard-card-thumbs">
@@ -256,88 +238,6 @@
                                                 <span class="ratio">{{$negative_percent}}%</span>
                                             </li>
                                         </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <h4 class="mb-md-3">{{ translate('Deliveryman Statistics') }}</h4>
-                            <div class="row g-2">
-                                <div class="col-lg-8">
-                                    <div class="row gap__10">
-                                        <div class="col-md-3 col-sm-6">
-                                            <a
-                                                href="{{ route('admin.users.delivery-man.list', ['zone_id' => $params['zone_id'] ?? null, 'filter' => 'active']) }}">
-                                                <div class="__customer-statistics-card h-100">
-                                                    <div class="title">
-                                                        <img src="{{asset('/public/assets/admin/img/new-img/deliveryman/active.svg')}}"
-                                                            alt="new-img">
-                                                        <h4>{{$active_deliveryman}}</h4>
-                                                    </div>
-                                                    <h4 class="subtitle text-capitalize">{{translate('messages.active_delivery_man')}}</h4>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="col-md-3 col-sm-6">
-                                            <a
-                                                href="{{ route('admin.users.delivery-man.list', ['zone_id' => $params['zone_id'] ?? null, 'filter' => 'new']) }}">
-                                                <div class="__customer-statistics-card h-100" style="--clr:#006AB4">
-                                                    <div class="title">
-                                                        <img src="{{asset('/public/assets/admin/img/new-img/deliveryman/newly.svg')}}"
-                                                            alt="new-img">
-                                                        <h4>{{$newly_joined_deliveryman}}</h4>
-                                                    </div>
-                                                    <h4 class="subtitle text-capitalize">{{translate('messages.newly_joined_delivery_man')}}
-                                                    </h4>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="col-md-3 col-sm-6">
-                                            <a
-                                                href="{{ route('admin.users.delivery-man.list', ['zone_id' => $params['zone_id'] ?? null, 'filter' => 'inactive']) }}">
-                                                <div class="__customer-statistics-card h-100" style="--clr:#FF5A54">
-                                                    <div class="title">
-                                                        <img src="{{asset('/public/assets/admin/img/new-img/deliveryman/in-active.svg')}}"
-                                                            alt="new-img">
-                                                        <h4>{{$inactive_deliveryman}}</h4>
-                                                    </div>
-                                                    <h4 class="subtitle text-capitalize">{{translate('messages.inactive_deliveryman')}}</h4>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="col-md-3 col-sm-6">
-                                            <a
-                                                href="{{ route('admin.users.delivery-man.list', ['zone_id' => $params['zone_id'] ?? null, 'filter' => 'blocked']) }}">
-                                                <div class="__customer-statistics-card h-100" style="--clr:#FF5A54">
-                                                    <div class="title">
-                                                        <img src="{{asset('/public/assets/admin/img/new-img/customer/blocked.svg')}}"
-                                                            alt="new-img">
-                                                        <h4>{{$blocked_deliveryman}}</h4>
-                                                    </div>
-                                                    <h4 class="subtitle text-capitalize">{{translate('messages.Blocked_deliveryman')}}</h4>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="__map-wrapper-2 mt-3">
-                                        <div class="map-pop-deliveryman">
-                                            <form action="javascript:" id="search-form" class="map-pop-deliveryman-inner">
-                                                <label>{{ translate('Currently Active Delivery Men') }} </label>
-                                                <div class="position-relative mx-auto">
-                                                    <i class="tio-search"></i>
-                                                    <input type="text" name="search" class="form-control"
-                                                        placeholder="{{translate('Search Delivery Man ...')}}">
-                                                </div>
-                                                <a href="{{ route('admin.users.delivery-man.list') }}"
-                                                    class="link">{{ translate('View All Delivery Men') }}</a>
-                                            </form>
-                                        </div>
-                                        <div class="map-warper map-wrapper-2 rounded">
-                                            <div id="map-canvas" class="rounded"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="card h-100" id="top-deliveryman-view">
-                                        @include('admin-views.partials._top-deliveryman', ['top_deliveryman' => $data['top_deliveryman']])
                                     </div>
                                 </div>
                             </div>

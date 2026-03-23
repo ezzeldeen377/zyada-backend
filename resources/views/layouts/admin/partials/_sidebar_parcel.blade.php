@@ -118,7 +118,7 @@
                                     </span>
                                     </a>
                                 </li>
-                                <li class="nav-item {{ Request::is('admin/parcel/orders/processing') ? 'active' : '' }}">
+                                {{-- <li class="nav-item {{ Request::is('admin/parcel/orders/processing') ? 'active' : '' }}">
                                     <a class="nav-link " href="{{ route('admin.parcel.orders', ['processing']) }}"
                                        title="{{ translate('messages.processing_orders') }}">
                                         <span class="tio-circle nav-indicator-icon"></span>
@@ -129,8 +129,8 @@
                                         </span>
                                     </span>
                                     </a>
-                                </li>
-                                <li class="nav-item {{ Request::is('admin/parcel/orders/item_on_the_way') ? 'active' : '' }}">
+                                </li> --}}
+                                {{-- <li class="nav-item {{ Request::is('admin/parcel/orders/item_on_the_way') ? 'active' : '' }}">
                                     <a class="nav-link text-capitalize"
                                        href="{{ route('admin.parcel.orders', ['item_on_the_way']) }}"
                                        title="{{ translate('messages.order_on_the_way') }}">
@@ -142,7 +142,7 @@
                                         </span>
                                     </span>
                                     </a>
-                                </li>
+                                </li> --}}
                                 <li class="nav-item {{ Request::is('admin/parcel/orders/delivered') ? 'active' : '' }}">
                                     <a class="nav-link " href="{{ route('admin.parcel.orders', ['delivered']) }}"
                                        title="{{ translate('messages.delivered_orders') }}">
@@ -167,7 +167,7 @@
                                     </span>
                                     </a>
                                 </li>
-                                <li class="nav-item {{ Request::is('admin/parcel/orders/failed') ? 'active' : '' }}">
+                                {{-- <li class="nav-item {{ Request::is('admin/parcel/orders/failed') ? 'active' : '' }}">
                                     <a class="nav-link " href="{{ route('admin.parcel.orders', ['failed']) }}"
                                        title="{{ translate('messages.payment_failed_orders') }}">
                                         <span class="tio-circle nav-indicator-icon"></span>
@@ -178,10 +178,10 @@
                                         </span>
                                     </span>
                                     </a>
-                                </li>
+                                </li> --}}
 
 
-                                <li class="nav-item {{ Request::is('admin/order/offline/payment/list*') ? 'active' : '' }}">
+                                {{-- <li class="nav-item {{ Request::is('admin/order/offline/payment/list*') ? 'active' : '' }}">
                                     <a class="nav-link "
                                        href="{{ route('admin.order.offline_verification_list', ['all']) }}"
                                        title="{{ translate('Offline_Payments') }}">
@@ -193,7 +193,7 @@
                                         </span>
                                     </span>
                                     </a>
-                                </li>
+                                </li> --}}
                             </ul>
                         </li>
 

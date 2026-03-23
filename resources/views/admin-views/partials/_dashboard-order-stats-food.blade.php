@@ -33,7 +33,7 @@
     </div>
     <div class="col-12">
         <div class="row g-2">
-            <div class="col-sm-6 col-lg-3">
+            {{-- <div class="col-sm-6 col-lg-3">
                 <a class="order--card h-100" href="{{route('admin.order.list',['searching_for_deliverymen'])}}">
                     <div class="d-flex justify-content-between align-items-center">
                         <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
@@ -47,19 +47,7 @@
                 </a>
             </div>
 
-            <div class="col-sm-6 col-lg-3">
-                <a class="order--card h-100" href="{{route('admin.order.list',['accepted'])}}">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
-                            <img src="{{asset('/public/assets/admin/img/dashboard/grocery/accepted.svg')}}" alt="dashboard" class="oder--card-icon">
-                            <span>{{translate('Accepted by Delivery Man')}}</span>
-                        </h6>
-                        <span class="card-title text-success">
-                            {{$data['accepted_by_dm']}}
-                        </span>
-                    </div>
-                </a>
-            </div>
+
             <div class="col-sm-6 col-lg-3">
                 <a class="order--card h-100" href="{{route('admin.order.list',['processing'])}}">
                     <div class="d-flex justify-content-between align-items-center">
@@ -74,19 +62,7 @@
                 </a>
             </div>
 
-            <div class="col-sm-6 col-lg-3">
-                <a class="order--card h-100" href="{{route('admin.order.list',['item_on_the_way'])}}">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="card-subtitle d-flex justify-content-between m-0 align-items-center">
-                            <img src="{{asset('/public/assets/admin/img/dashboard/grocery/out-for.svg')}}" alt="dashboard" class="oder--card-icon">
-                            <span>{{translate('Out for Delivery')}}</span>
-                        </h6>
-                        <span class="card-title text-success">
-                            {{$data['picked_up']}}
-                        </span>
-                    </div>
-                </a>
-            </div>
+
 
             <div class="col-sm-6 col-lg-3">
                 <a class="order--card h-100" href="{{route('admin.order.list',['delivered'])}}">

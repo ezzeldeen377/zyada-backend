@@ -107,13 +107,9 @@ class PaymobController extends Controller
             $token = $this->getToken();
             $order = $this->createOrder($token, $data, $business_name);
             $paymentToken = $this->getPaymentToken($order, $token, $data, $payer);
-        } catch (\Exception $exception) {
-    return response()->json([
-        'error' => $exception->getMessage(),
-        'line' => $exception->getLine(),
-        'file' => $exception->getFile(),
-    ], 500);
-}
+        } catch (\Throwable $exception) {
+            return response()->json($this->response_formatter(GATEWAYS_DEFAULT_404), 200);
+        }
         return Redirect::away('https://accept.paymobsolutions.com/api/acceptance/iframes/' . $this->config_values->iframe_id . '?payment_token=' . $paymentToken);
     }
 
@@ -124,7 +120,11 @@ class PaymobController extends Controller
             ['api_key' => $this->config_values->api_key]
         );
 
-        return $response->token;
+        if (isset($response->token)) {
+            return $response->token;
+        }
+
+        throw new \Exception('Paymob Auth Failed: ' . json_encode($response));
     }
 
     public function createOrder($token, $payment_data, $business_name)
@@ -149,7 +149,11 @@ class PaymobController extends Controller
             $data
         );
 
-        return $response;
+        if (isset($response->id)) {
+            return $response;
+        }
+
+        throw new \Exception('Paymob Order Creation Failed: ' . json_encode($response));
     }
 
     public function getPaymentToken($order, $token, $payment_data, $payer)
@@ -186,7 +190,11 @@ class PaymobController extends Controller
             $data
         );
 
-        return $response->token;
+        if (isset($response->token)) {
+            return $response->token;
+        }
+
+        throw new \Exception('Paymob Payment Key Failed: ' . json_encode($response));
     }
 
     public function callback(Request $request)

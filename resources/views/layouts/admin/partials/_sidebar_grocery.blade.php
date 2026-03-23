@@ -61,7 +61,7 @@
                     </li>
                     <!-- End Dashboards -->
                     <!-- Marketing section -->
-                    @if(\App\CentralLogics\Helpers::module_permission_check('pos'))
+                    @if(false && \App\CentralLogics\Helpers::module_permission_check('pos'))
                         <li class="nav-item">
                             <small class="nav-subtitle"
                                    title="{{ translate('messages.employee_handle') }}">{{ translate('pos section') }}</small>
@@ -107,7 +107,7 @@
                                     </span>
                                     </a>
                                 </li>
-                                <li class="nav-item {{ Request::is('admin/order/list/scheduled') ? 'active' : '' }}">
+                                {{-- <li class="nav-item {{ Request::is('admin/order/list/scheduled') ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ route('admin.order.list', ['scheduled']) }}"
                                        title="{{ translate('messages.scheduled_orders') }}">
                                         <span class="tio-circle nav-indicator-icon"></span>
@@ -118,7 +118,7 @@
                                         </span>
                                     </span>
                                     </a>
-                                </li>
+                                </li> --}}
                                 <li class="nav-item {{ Request::is('admin/order/list/pending') ? 'active' : '' }}">
                                     <a class="nav-link " href="{{ route('admin.order.list', ['pending']) }}"
                                        title="{{ translate('messages.pending_orders') }}">
@@ -144,7 +144,7 @@
                                     </span>
                                     </a>
                                 </li>
-                                <li class="nav-item {{ Request::is('admin/order/list/processing') ? 'active' : '' }}">
+                                {{-- <li class="nav-item {{ Request::is('admin/order/list/processing') ? 'active' : '' }}">
                                     <a class="nav-link " href="{{ route('admin.order.list', ['processing']) }}"
                                        title="{{ translate('messages.processing_orders') }}">
                                         <span class="tio-circle nav-indicator-icon"></span>
@@ -155,8 +155,8 @@
                                         </span>
                                     </span>
                                     </a>
-                                </li>
-                                <li class="nav-item {{ Request::is('admin/order/list/item_on_the_way') ? 'active' : '' }}">
+                                </li> --}}
+                                {{-- <li class="nav-item {{ Request::is('admin/order/list/item_on_the_way') ? 'active' : '' }}">
                                     <a class="nav-link text-capitalize"
                                        href="{{ route('admin.order.list', ['item_on_the_way']) }}"
                                        title="{{ translate('messages.order_on_the_way') }}">
@@ -168,7 +168,7 @@
                                         </span>
                                     </span>
                                     </a>
-                                </li>
+                                </li> --}}
                                 <li class="nav-item {{ Request::is('admin/order/list/delivered') ? 'active' : '' }}">
                                     <a class="nav-link " href="{{ route('admin.order.list', ['delivered']) }}"
                                        title="{{ translate('messages.delivered_orders') }}">
@@ -193,7 +193,7 @@
                                     </span>
                                     </a>
                                 </li>
-                                <li class="nav-item {{ Request::is('admin/order/list/failed') ? 'active' : '' }}">
+                                {{-- <li class="nav-item {{ Request::is('admin/order/list/failed') ? 'active' : '' }}">
                                     <a class="nav-link " href="{{ route('admin.order.list', ['failed']) }}"
                                        title="{{ translate('messages.payment_failed_orders') }}">
                                         <span class="tio-circle nav-indicator-icon"></span>
@@ -204,7 +204,7 @@
                                         </span>
                                     </span>
                                     </a>
-                                </li>
+                                </li> --}}
                                 <li class="nav-item {{ Request::is('admin/order/list/refunded') ? 'active' : '' }}">
                                     <a class="nav-link " href="{{ route('admin.order.list', ['refunded']) }}"
                                        title="{{ translate('messages.refunded_orders') }}">
@@ -218,7 +218,7 @@
                                     </a>
                                 </li>
 
-                                <li class="nav-item {{ Request::is('admin/order/offline/payment/list*') ? 'active' : '' }}">
+                                {{-- <li class="nav-item {{ Request::is('admin/order/offline/payment/list*') ? 'active' : '' }}">
                                     <a class="nav-link "
                                        href="{{ route('admin.order.offline_verification_list', ['all']) }}"
                                        title="{{ translate('Offline_Payments') }}">
@@ -230,7 +230,7 @@
                                         </span>
                                     </span>
                                     </a>
-                                </li>
+                                </li> --}}
 
                             </ul>
                         </li>
@@ -294,7 +294,7 @@
                     <!-- End Orders -->
 
                     <!-- Marketing section -->
-                    @if (\App\CentralLogics\Helpers::module_permission_check('campaign')||
+                    @if (false && \App\CentralLogics\Helpers::module_permission_check('campaign')||
                         \App\CentralLogics\Helpers::module_permission_check('banner') ||
                         \App\CentralLogics\Helpers::module_permission_check('coupon')||
                         \App\CentralLogics\Helpers::module_permission_check('notification')||
@@ -307,7 +307,7 @@
                             <small class="tio-more-horizontal nav-subtitle-replacer"></small>
                         </li>
                         <!-- Campaign -->
-                        <li class="navbar-vertical-aside-has-menu {{ Request::is('admin/campaign') ? 'active' : '' }}">
+                        {{-- <li class="navbar-vertical-aside-has-menu {{ Request::is('admin/campaign') ? 'active' : '' }}">
                             <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle" href="javascript:"
                                title="{{ translate('messages.campaigns') }}">
                                 <i class="tio-layers-outlined nav-icon"></i>
@@ -332,7 +332,7 @@
                                     </a>
                                 </li>
                             </ul>
-                        </li>
+                        </li> --}}
                     @endif
                     <!-- End Campaign -->
                     <!-- Banner -->
@@ -357,7 +357,7 @@
                     @endif
                     <!-- End Banner -->
                     <!-- Coupon -->
-                    @if (\App\CentralLogics\Helpers::module_permission_check('coupon'))
+                    @if (false && \App\CentralLogics\Helpers::module_permission_check('coupon'))
                         <li class="navbar-vertical-aside-has-menu {{ Request::is('admin/coupon*') ? 'active' : '' }}">
                             <a class="js-navbar-vertical-aside-menu-link nav-link"
                                href="{{ route('admin.coupon.add-new') }}" title="{{ translate('messages.coupons') }}">
