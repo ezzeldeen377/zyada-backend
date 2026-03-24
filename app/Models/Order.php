@@ -199,6 +199,11 @@ class Order extends Model
         return $query->where('order_status', 'accepted');
     }
 
+    public function scopeHandover($query)
+    {
+        return $query->where('order_status', 'handover');
+    }
+
     public function scopePreparing($query)
     {
         return $query->whereIn('order_status', ['confirmed', 'processing', 'handover']);

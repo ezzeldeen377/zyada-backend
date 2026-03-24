@@ -81,6 +81,9 @@ class OrderController extends Controller
             ->when($status == 'processing', function ($query) {
                 return $query->Preparing();
             })
+            ->when($status == 'handover', function ($query) {
+                return $query->Handover();
+            })
             ->when($status == 'item_on_the_way', function ($query) {
                 return $query->ItemOnTheWay();
             })

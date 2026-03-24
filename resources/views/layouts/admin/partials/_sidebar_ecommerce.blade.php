@@ -149,6 +149,18 @@
                                     </span>
                                     </a>
                                 </li>
+                                
+                                <li class="nav-item {{ Request::is('admin/order/list/handover') ? 'active' : '' }}">
+                                    <a class="nav-link " href="{{ route('admin.order.list', ['handover']) }}" title="{{ translate('messages.handover_orders') }}">
+                                        <span class="tio-circle nav-indicator-icon"></span>
+                                        <span class="text-truncate sidebar--badge-container">
+                                            {{ translate('handover') }}
+                                            <span class="badge badge-soft-warning badge-pill ml-1">
+                                                {{ \App\Models\Order::Handover()->OrderScheduledIn(30)->StoreOrder()->module(Config::get('module.current_module_id'))->count() }}
+                                            </span>
+                                        </span>
+                                    </a>
+                                </li>
                                 {{-- <li class="nav-item {{ Request::is('admin/order/list/processing') ? 'active' : '' }}">
                                     <a class="nav-link " href="{{ route('admin.order.list', ['processing']) }}"
                                        title="{{ translate('messages.processing_orders') }}">
