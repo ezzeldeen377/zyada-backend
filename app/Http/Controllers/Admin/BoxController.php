@@ -43,8 +43,14 @@ class BoxController extends Controller
         $store = Store::find($request->store_id);
 
         $box = new Box();
-        $box->name = $request->name[array_search('en', $request->lang)];
-        $box->description = $request->description[array_search('en', $request->lang)];
+        
+        // Extract default or first translation item
+        $default_index = array_search('default', $request->lang);
+        $name = $default_index !== false ? $request->name[$default_index] : ($request->name[0] ?? '');
+        $description = $default_index !== false ? $request->description[$default_index] : ($request->description[0] ?? '');
+
+        $box->name = $name;
+        $box->description = $description;
         $box->price = $request->price;
         $box->available_count = $request->available_count;
         $box->item_count = $request->item_count;
@@ -56,38 +62,8 @@ class BoxController extends Controller
         $box->status = 1;
         $box->save();
 
-        $default_lang = str_replace('_', '-', app()->getLocale());
-        foreach ($request->lang as $index => $key) {
-            if ($default_lang == $key && !($request->name[$index])) {
-                if ($key != 'en') {
-                    $translation_name = $request->name[array_search('en', $request->lang)];
-                    $translation_description = $request->description[array_search('en', $request->lang)];
-                }
-            } else {
-                $translation_name = $request->name[$index];
-                $translation_description = $request->description[$index];
-            }
-
-            Translation::updateOrCreate(
-                [
-                    'translationable_type' => 'App\Models\Box',
-                    'translationable_id' => $box->id,
-                    'locale' => $key,
-                    'key' => 'name'
-                ],
-                ['value' => $translation_name]
-            );
-
-            Translation::updateOrCreate(
-                [
-                    'translationable_type' => 'App\Models\Box',
-                    'translationable_id' => $box->id,
-                    'locale' => $key,
-                    'key' => 'description'
-                ],
-                ['value' => $translation_description]
-            );
-        }
+        Helpers::add_or_update_translations(request: $request, key_data: 'name', name_field: 'name', model_name: 'App\Models\Box', data_id: $box->id, data_value: $box->name);
+        Helpers::add_or_update_translations(request: $request, key_data: 'description', name_field: 'description', model_name: 'App\Models\Box', data_id: $box->id, data_value: $box->description);
 
         return response()->json(['success' => translate('messages.box_added_successfully')]);
     }
@@ -115,8 +91,13 @@ class BoxController extends Controller
         $box = Box::findOrFail($id);
         $store = Store::find($request->store_id);
 
-        $box->name = $request->name[array_search('en', $request->lang)];
-        $box->description = $request->description[array_search('en', $request->lang)];
+        // Extract default or first translation item
+        $default_index = array_search('default', $request->lang);
+        $name = $default_index !== false ? $request->name[$default_index] : ($request->name[0] ?? '');
+        $description = $default_index !== false ? $request->description[$default_index] : ($request->description[0] ?? '');
+
+        $box->name = $name;
+        $box->description = $description;
         $box->price = $request->price;
         $box->available_count = $request->available_count;
         $box->item_count = $request->item_count;
@@ -127,27 +108,8 @@ class BoxController extends Controller
         $box->image = $request->has('image') ? Helpers::update('box/', $box->image, 'png', $request->file('image')) : $box->image;
         $box->save();
 
-        foreach ($request->lang as $index => $key) {
-            Translation::updateOrCreate(
-                [
-                    'translationable_type' => 'App\Models\Box',
-                    'translationable_id' => $box->id,
-                    'locale' => $key,
-                    'key' => 'name'
-                ],
-                ['value' => $request->name[$index]]
-            );
-
-            Translation::updateOrCreate(
-                [
-                    'translationable_type' => 'App\Models\Box',
-                    'translationable_id' => $box->id,
-                    'locale' => $key,
-                    'key' => 'description'
-                ],
-                ['value' => $request->description[$index]]
-            );
-        }
+        Helpers::add_or_update_translations(request: $request, key_data: 'name', name_field: 'name', model_name: 'App\Models\Box', data_id: $box->id, data_value: $box->name);
+        Helpers::add_or_update_translations(request: $request, key_data: 'description', name_field: 'description', model_name: 'App\Models\Box', data_id: $box->id, data_value: $box->description);
 
         return response()->json(['success' => translate('messages.box_updated_successfully')]);
     }

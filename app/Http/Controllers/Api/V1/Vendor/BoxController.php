@@ -169,15 +169,20 @@ class BoxController extends Controller
 
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'name.0' => 'required',
+            'name.*' => 'max:191',
+            'description.*' => 'max:1000',
             'price' => 'required|numeric|min:0',
             'item_count' => 'required|integer|min:1',
             'available_count' => 'required|integer|min:0',
             'image' => 'nullable|image|max:2048',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'translations' => 'array',
+        ], [
+            'name.0.required' => translate('messages.item_name_required'),
+            'description.*.max' => translate('messages.description_length_warning'),
+            'price.required' => translate('messages.price_required'),
+            'item_count.required' => translate('messages.item_count_required'),
         ]);
 
         if ($validator->fails()) {
@@ -200,8 +205,42 @@ class BoxController extends Controller
             $box->image = Helpers::update('box/', $box->image, 'png', $request->file('image'));
         }
 
-        $box->name = $request->name;
-        $box->description = $request->description;
+        // Extract name with defensive checks
+        $name = null;
+        if (is_array($request->name) && is_array($request->lang)) {
+            $defaultIndex = array_search('default', $request->lang);
+            if ($defaultIndex !== false && isset($request->name[$defaultIndex])) {
+                $name = $request->name[$defaultIndex];
+            } elseif (isset($request->name[0])) {
+                $name = $request->name[0];
+            }
+        } elseif (is_string($request->name)) {
+            $name = $request->name;
+        }
+
+        // Extract description with defensive checks
+        $description = null;
+        if (is_array($request->description) && is_array($request->lang)) {
+            $defaultIndex = array_search('default', $request->lang);
+            if ($defaultIndex !== false && isset($request->description[$defaultIndex])) {
+                $description = $request->description[$defaultIndex];
+            } elseif (isset($request->description[0])) {
+                $description = $request->description[0];
+            }
+        } elseif (is_string($request->description)) {
+            $description = $request->description;
+        }
+
+        if (empty($name)) {
+            return response()->json([
+                'errors' => [
+                    ['code' => 'name', 'message' => translate('messages.Name is required')]
+                ]
+            ], 403);
+        }
+
+        $box->name = $name;
+        $box->description = $description;
         $box->price = $request->price;
         $box->item_count = $request->item_count;
         $box->available_count = $request->available_count;
@@ -209,19 +248,8 @@ class BoxController extends Controller
         $box->end_date = $request->end_date;
         $box->save();
 
-        // Handle translations
-        $translations = $request->translations ?? [];
-        foreach ($translations as $item) {
-            Translation::updateOrInsert(
-                [
-                    'translationable_type' => 'App\Models\Box',
-                    'translationable_id' => $box->id,
-                    'locale' => $item['locale'],
-                    'key' => $item['key'],
-                ],
-                ['value' => $item['value']]
-            );
-        }
+        Helpers::add_or_update_translations(request: $request, key_data: 'name', name_field: 'name', model_name: 'App\Models\Box', data_id: $box->id, data_value: $box->name);
+        Helpers::add_or_update_translations(request: $request, key_data: 'description', name_field: 'description', model_name: 'App\Models\Box', data_id: $box->id, data_value: $box->description);
 
         return response()->json([
             'message' => translate('messages.box_updated_successfully'),
