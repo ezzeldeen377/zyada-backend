@@ -896,7 +896,34 @@ class ItemController extends Controller
         ->latest()->get();
 
         $storage = [];
+
+        $quality = 0;
+        $value = 0;
+        $packaging = 0;
+        $service = 0;
+        $usability = 0;
+        $rating5 = 0;
+        $rating4 = 0;
+        $rating3 = 0;
+        $rating2 = 0;
+        $rating1 = 0;
+        $totalRating = 0;
+
         foreach ($reviews as $item) {
+            $quality += $item->quality_rating ?? 0;
+            $value += $item->value_rating ?? 0;
+            $packaging += $item->packaging_rating ?? 0;
+            $service += $item->service_rating ?? 0;
+            $usability += $item->usability_rating ?? 0;
+
+            if ($item->rating == 5) $rating5++;
+            if ($item->rating == 4) $rating4++;
+            if ($item->rating == 3) $rating3++;
+            if ($item->rating == 2) $rating2++;
+            if ($item->rating == 1) $rating1++;
+            
+            $totalRating += $item->rating ?? 0;
+
             $item['attachment'] = json_decode($item['attachment']);
             $item['item_name'] = null;
             $item['item_image'] = null;
@@ -923,7 +950,21 @@ class ItemController extends Controller
             array_push($storage, $item);
         }
 
-        return response()->json($storage, 200);
+        $total_reviews = count($reviews);
+
+        $data = [
+            'reviews' => $storage,
+            'rating_quantity' => [$rating5, $rating4, $rating3, $rating2, $rating1],
+            'average_rating' => $total_reviews > 0 ? round($totalRating / $total_reviews, 1) : 0,
+            'quality_rating' => $total_reviews > 0 ? round($quality / $total_reviews, 1) : 0,
+            'value_rating' => $total_reviews > 0 ? round($value / $total_reviews, 1) : 0,
+            'packaging_rating' => $total_reviews > 0 ? round($packaging / $total_reviews, 1) : 0,
+            'service_rating' => $total_reviews > 0 ? round($service / $total_reviews, 1) : 0,
+            'usability_rating' => $total_reviews > 0 ? round($usability / $total_reviews, 1) : 0,
+            'total_size' => $total_reviews
+        ];
+
+        return response()->json($data, 200);
     }
 
 
