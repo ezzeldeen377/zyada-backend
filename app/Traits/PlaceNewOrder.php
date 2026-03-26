@@ -509,6 +509,13 @@ trait PlaceNewOrder
 
                 OrderDetail::insert($order_details);
 
+                // Decrement available_count for any box items in this order
+                foreach ($order_details as $detail) {
+                    if (!empty($detail['box_id'])) {
+                        Box::where('id', $detail['box_id'])->decrement('available_count', $detail['quantity']);
+                    }
+                }
+
                 if (count($product_data) > 0) {
                     foreach ($product_data as $item) {
                         ProductLogic::update_stock($item['item'], $item['quantity'], $item['variant'])->save();
@@ -1069,9 +1076,6 @@ trait PlaceNewOrder
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
-
-                // Decrement box available count
-                $box->decrement('available_count', $c['quantity']);
 
                 $product_price += $price * $or_d['quantity'];
                 $order_details[] = $or_d;
