@@ -53,45 +53,37 @@ class BoxController extends Controller
                     ['code' => 'translations', 'message' => translate('messages.Name and description are required')]
                 ]
             ], 403);
-        }
-
         $vendor = $request['vendor'];
 
         $imageName = null;
         if ($request->hasFile('image')) {
             $imageName = Helpers::upload('box/', 'png', $request->file('image'));
         }
+        $translations = json_decode($request->translations, true);
+        if (!is_array($translations) || count($translations) < 1) {
+            return response()->json(['errors' => [['code' => 'translations', 'message' => translate('messages.Name and description in english is required')]]], 402);
+        }
 
-        // Extract name and description for the main model (usually from the first translation entry)
+        // Extract name and description for default model columns
         $name = '';
         $description = '';
-        foreach ($data as $tm) {
-            if ($tm['locale'] == 'default' || $tm['locale'] == 'en') {
-                if ($tm['key'] == 'name') {
-                    $name = $tm['value'];
+        foreach ($translations as $translation) {
+            if ($translation['locale'] == 'default' || $translation['locale'] == 'en') {
+                if ($translation['key'] == 'name') {
+                    $name = $translation['value'];
                 }
-                if ($tm['key'] == 'description') {
-                    $description = $tm['value'];
+                if ($translation['key'] == 'description') {
+                    $description = $translation['value'];
                 }
             }
         }
 
-        // If no default/en found, pick the first ones available
+        // Fallback if en/default not found
         if (empty($name)) {
-            foreach ($data as $tm) {
-                if ($tm['key'] == 'name') {
-                    $name = $tm['value'];
-                    break;
-                }
-            }
+            $name = $translations[0]['value'] ?? '';
         }
         if (empty($description)) {
-            foreach ($data as $tm) {
-                if ($tm['key'] == 'description') {
-                    $description = $tm['value'];
-                    break;
-                }
-            }
+            $description = $translations[1]['value'] ?? ($translations[0]['value'] ?? '');
         }
 
         $box = new Box();
@@ -110,15 +102,23 @@ class BoxController extends Controller
         $box->status = true;
         $box->save();
 
-        foreach ($data as $key => $i) {
-            $data[$key]['translationable_type'] = 'App\Models\Box';
-            $data[$key]['translationable_id'] = $box->id;
+        foreach ($translations as $translation) {
+            Translation::updateOrInsert(
+                [
+                    'translationable_type' => 'App\Models\Box',
+                    'translationable_id' => $box->id,
+                    'locale' => $translation['locale'],
+                    'key' => $translation['key']
+                ],
+                [
+                    'value' => $translation['value']
+                ]
+            );
         }
-        Translation::insert($data);
 
         return response()->json([
             'message' => translate('messages.box_created_successfully'),
-            'box' => $box,
+            'box' => Helpers::box_data_formatting($box, false, true, app()->getLocale()),
         ], 200);
     }
 
@@ -138,19 +138,15 @@ class BoxController extends Controller
 
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer',
-            'translations' => 'required',
-            'price' => 'required|numeric|min:0',
-            'item_count' => 'required|integer|min:1',
-            'available_count' => 'required|integer|min:0',
+            'price' => 'numeric|min:0',
+            'item_count' => 'integer|min:1',
+            'available_count' => 'integer|min:0',
             'image' => 'nullable|image|max:2048',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'end_date' => 'nullable|date',
             'pickup_time_from' => 'nullable|date_format:H:i',
             'pickup_time_to' => 'nullable|date_format:H:i',
-        ], [
-            'translations.required' => translate('messages.translations_required'),
-            'price.required' => translate('messages.price_required'),
-            'item_count.required' => translate('messages.item_count_required'),
+            'translations' => 'sometimes',
         ]);
 
         if ($validator->fails()) {
@@ -169,77 +165,64 @@ class BoxController extends Controller
             ], 404);
         }
 
-        $data = json_decode($request->translations, true);
-        if (count($data) < 1) {
-            return response()->json([
-                'errors' => [
-                    ['code' => 'translations', 'message' => translate('messages.Name and description are required')]
-                ]
-            ], 403);
-        }
-
         if ($request->hasFile('image')) {
             $box->image = Helpers::update('box/', $box->image, 'png', $request->file('image'));
         }
 
-        // Extract name and description for the main model (usually from the first translation entry)
-        $name = '';
-        $description = '';
-        foreach ($data as $tm) {
-            if ($tm['locale'] == 'default' || $tm['locale'] == 'en') {
-                if ($tm['key'] == 'name') {
-                    $name = $tm['value'];
+        if ($request->has('translations')) {
+            $translations = json_decode($request->translations, true);
+            if (is_array($translations)) {
+                // Extract name and description for the main model
+                $name = '';
+                $description = '';
+                foreach ($translations as $tm) {
+                    if ($tm['locale'] == 'default' || $tm['locale'] == 'en') {
+                        if ($tm['key'] == 'name') {
+                            $name = $tm['value'];
+                        }
+                        if ($tm['key'] == 'description') {
+                            $description = $tm['value'];
+                        }
+                    }
                 }
-                if ($tm['key'] == 'description') {
-                    $description = $tm['value'];
+
+                if (empty($name)) {
+                    $name = $translations[0]['value'] ?? $box->name;
+                }
+                if (empty($description)) {
+                    $description = $translations[1]['value'] ?? ($translations[0]['value'] ?? $box->description);
+                }
+
+                $box->name = $name;
+                $box->description = $description;
+
+                foreach ($translations as $item) {
+                    Translation::updateOrInsert(
+                        [
+                            'translationable_type' => 'App\Models\Box',
+                            'translationable_id' => $box->id,
+                            'locale' => $item['locale'],
+                            'key' => $item['key']
+                        ],
+                        ['value' => $item['value']]
+                    );
                 }
             }
         }
 
-        // If no default/en found, pick the first ones available
-        if (empty($name)) {
-            foreach ($data as $tm) {
-                if ($tm['key'] == 'name') {
-                    $name = $tm['value'];
-                    break;
-                }
-            }
-        }
-        if (empty($description)) {
-            foreach ($data as $tm) {
-                if ($tm['key'] == 'description') {
-                    $description = $tm['value'];
-                    break;
-                }
-            }
-        }
-
-        $box->name = $name;
-        $box->description = $description;
-        $box->price = $request->price;
-        $box->item_count = $request->item_count;
-        $box->available_count = $request->available_count;
-        $box->start_date = $request->start_date;
-        $box->end_date = $request->end_date;
-        $box->pickup_time_from = $request->pickup_time_from;
-        $box->pickup_time_to = $request->pickup_time_to;
+        if ($request->has('price')) $box->price = $request->price;
+        if ($request->has('item_count')) $box->item_count = $request->item_count;
+        if ($request->has('available_count')) $box->available_count = $request->available_count;
+        if ($request->has('start_date')) $box->start_date = $request->start_date;
+        if ($request->has('end_date')) $box->end_date = $request->end_date;
+        if ($request->has('pickup_time_from')) $box->pickup_time_from = $request->pickup_time_from;
+        if ($request->has('pickup_time_to')) $box->pickup_time_to = $request->pickup_time_to;
+        
         $box->save();
-
-        foreach ($data as $key => $item) {
-            Translation::updateOrInsert(
-                [
-                    'translationable_type' => 'App\Models\Box',
-                    'translationable_id' => $box->id,
-                    'locale' => $item['locale'],
-                    'key' => $item['key']
-                ],
-                ['value' => $item['value']]
-            );
-        }
 
         return response()->json([
             'message' => translate('messages.box_updated_successfully'),
-            'box' => $box,
+            'box' => Helpers::box_data_formatting($box, false, true, app()->getLocale()),
         ], 200);
     }
 
