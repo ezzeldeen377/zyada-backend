@@ -345,7 +345,7 @@ class BoxController extends Controller
             'total_size' => $boxes->total(),
             'limit' => $limit,
             'offset' => $offset,
-            'boxes' => Helpers::box_data_formatting($boxes->items(), true, false, app()->getLocale()),
+            'boxes' => Helpers::box_data_formatting($boxes->items(), true, true, app()->getLocale()),
         ];
 
         return response()->json($data, 200);

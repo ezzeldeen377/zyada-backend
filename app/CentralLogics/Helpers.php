@@ -154,28 +154,69 @@ class Helpers
         $storage = [];
         if ($multi_data == true) {
             foreach ($data as $item) {
-                if ($trans) {
-                    $item['translations'] = $item['translations'];
-                } else {
-                    unset($item['translations']);
-                }
                 $item['image_full_url'] = $item->image_full_url;
                 $item['store_name'] = $item->store?->name;
                 $item['module_type'] = $item->module?->module_type;
+
+                if (count($item['translations']) > 0) {
+                    foreach ($item['translations'] as $translation) {
+                        if ($translation['locale'] == $local) {
+                            if ($translation['key'] == 'name') {
+                                $item['name'] = $translation['value'];
+                            }
+                            if ($translation['key'] == 'description') {
+                                $item['description'] = $translation['value'];
+                            }
+                        }
+                    }
+                }
+
+                if (!$trans) {
+                    unset($item['translations']);
+                }
                 
+                // Keep storage if present
+                if (isset($item['storage'])) {
+                    $item['storage'] = $item['storage'];
+                }
+
+                // Clean up relations that are already flattened
+                unset($item['store']);
+
                 array_push($storage, $item);
             }
             $data = $storage;
         } else {
-            if ($trans) {
-                $data['translations'] = $data['translations'];
-            } else {
-                unset($data['translations']);
-            }
             $data['image_full_url'] = $data->image_full_url;
             $data['store_name'] = $data->store?->name;
             $data['module_type'] = $data->module?->module_type;
+
+            if (count($data['translations']) > 0) {
+                foreach ($data['translations'] as $translation) {
+                    if ($translation['locale'] == $local) {
+                        if ($translation['key'] == 'name') {
+                            $data['name'] = $translation['value'];
+                        }
+                        if ($translation['key'] == 'description') {
+                            $data['description'] = $translation['value'];
+                        }
+                    }
+                }
+            }
+
+            if (!$trans) {
+                unset($data['translations']);
+            }
+            
+            // Keep storage if present
+            if (isset($data['storage'])) {
+                $data['storage'] = $data['storage'];
+            }
+
+            // Clean up relations that are already flattened
+            unset($data['store']);
         }
+
 
         return $data;
     }
