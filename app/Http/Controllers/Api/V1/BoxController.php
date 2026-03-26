@@ -19,6 +19,7 @@ class BoxController extends Controller
             'limit' => 'nullable|integer|min:1|max:50',
             'offset' => 'nullable|integer|min:1',
             'store_id' => 'nullable|integer',
+            'all_boxes' => 'nullable|in:true,false',
         ]);
 
         if ($validator->fails()) {
@@ -30,12 +31,16 @@ class BoxController extends Controller
         $limit = $request->input('limit', 10);
         $offset = $request->input('offset', 1);
         $store_id = $store_id ?? $request->store_id;
+        $all_boxes = $request->query('all_boxes') == 'true';
 
         $boxes = Box::active()
             ->available()
             ->module($request->header('moduleId'))
             ->when($store_id, function ($query) use ($store_id) {
                 return $query->where('store_id', $store_id);
+            })
+            ->when(!$store_id && !$all_boxes, function ($query) {
+                return $query->groupBy('store_id');
             })
             ->with('store:id,name,logo,address')
             ->latest()
