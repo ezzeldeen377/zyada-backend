@@ -53,6 +53,7 @@ class BoxController extends Controller
                     ['code' => 'translations', 'message' => translate('messages.Name and description are required')]
                 ]
             ], 403);
+        }
         $vendor = $request['vendor'];
 
         $imageName = null;

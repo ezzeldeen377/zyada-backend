@@ -154,71 +154,61 @@ class Helpers
         $storage = [];
         if ($multi_data == true) {
             foreach ($data as $item) {
-                $item['image_full_url'] = $item->image_full_url;
-                $item['store_name'] = $item->store?->name;
-                $item['module_type'] = $item->module?->module_type;
+                $box = $item->toArray();
+                $box['image_full_url'] = $item->image_full_url;
+                $box['store_name'] = $item->store?->name;
+                $box['module_type'] = $item->module?->module_type;
 
-                if (count($item['translations']) > 0) {
-                    foreach ($item['translations'] as $translation) {
-                        if ($translation['locale'] == $local) {
-                            if ($translation['key'] == 'name') {
-                                $item['name'] = $translation['value'];
+                if (count($item->translations) > 0) {
+                    foreach ($item->translations as $translation) {
+                        if ($translation->locale == $local) {
+                            if ($translation->key == 'name') {
+                                $box['name'] = $translation->value;
                             }
-                            if ($translation['key'] == 'description') {
-                                $item['description'] = $translation['value'];
+                            if ($translation->key == 'description') {
+                                $box['description'] = $translation->value;
                             }
                         }
                     }
                 }
 
                 if (!$trans) {
-                    unset($item['translations']);
+                    unset($box['translations']);
                 }
                 
-                // Keep storage if present
-                if (isset($item['storage'])) {
-                    $item['storage'] = $item['storage'];
-                }
+                // Relations are already included in toArray() but we filter/clean them
+                unset($box['store']); // We have store_name
 
-                // Clean up relations that are already flattened
-                unset($item['store']);
-
-                array_push($storage, $item);
+                array_push($storage, $box);
             }
-            $data = $storage;
+            return $storage;
         } else {
-            $data['image_full_url'] = $data->image_full_url;
-            $data['store_name'] = $data->store?->name;
-            $data['module_type'] = $data->module?->module_type;
+            $box = $data->toArray();
+            $box['image_full_url'] = $data->image_full_url;
+            $box['store_name'] = $data->store?->name;
+            $box['module_type'] = $data->module?->module_type;
 
-            if (count($data['translations']) > 0) {
-                foreach ($data['translations'] as $translation) {
-                    if ($translation['locale'] == $local) {
-                        if ($translation['key'] == 'name') {
-                            $data['name'] = $translation['value'];
+            if (count($data->translations) > 0) {
+                foreach ($data->translations as $translation) {
+                    if ($translation->locale == $local) {
+                        if ($translation->key == 'name') {
+                            $box['name'] = $translation->value;
                         }
-                        if ($translation['key'] == 'description') {
-                            $data['description'] = $translation['value'];
+                        if ($translation->key == 'description') {
+                            $box['description'] = $translation->value;
                         }
                     }
                 }
             }
 
             if (!$trans) {
-                unset($data['translations']);
+                unset($box['translations']);
             }
             
-            // Keep storage if present
-            if (isset($data['storage'])) {
-                $data['storage'] = $data['storage'];
-            }
+            unset($box['store']);
 
-            // Clean up relations that are already flattened
-            unset($data['store']);
+            return $box;
         }
-
-
-        return $data;
     }
 
     public static function cart_product_data_formatting($data, $selected_variation, $selected_addons,

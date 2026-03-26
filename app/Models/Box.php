@@ -171,10 +171,6 @@ class Box extends Model
 
         static::addGlobalScope(new ZoneScope);
 
-        static::addGlobalScope('storage', function ($builder) {
-            $builder->with('storage');
-        });
-
         static::addGlobalScope('translate', function (Builder $builder) {
             $builder->with(['translations' => function ($query) {
                 return $query->where('locale', app()->getLocale());
