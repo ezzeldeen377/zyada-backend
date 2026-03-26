@@ -12,31 +12,6 @@ use Illuminate\Support\Facades\Validator;
 
 class BoxController extends Controller
 {
-    /**
-     * List all boxes for the vendor's store.
-     */
-    public function list(Request $request)
-    {
-        $vendor = $request['vendor'];
-        $limit = $request->input('limit', 25);
-        $offset = $request->input('offset', 1);
-
-        $boxes = Box::withoutGlobalScope(StoreScope::class)
-            ->withoutGlobalScope('translate')
-            ->with('translations', 'storage')
-            ->where('store_id', $vendor->stores[0]->id)
-            ->latest()
-            ->paginate($limit, ['*'], 'page', $offset);
-
-        $data = [
-            'total_size' => $boxes->total(),
-            'limit' => $limit,
-            'offset' => $offset,
-            'boxes' => $boxes->items(),
-        ];
-
-        return response()->json($data, 200);
-    }
 
     /**
      * Store a new box.
@@ -52,9 +27,7 @@ class BoxController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name.0' => 'required',
-            'name.*' => 'max:191',
-            'description.*' => 'max:1000',
+            'translations' => 'required',
             'price' => 'required|numeric|min:0',
             'item_count' => 'required|integer|min:1',
             'available_count' => 'required|integer|min:0',
@@ -64,14 +37,22 @@ class BoxController extends Controller
             'pickup_time_from' => 'nullable|date_format:H:i',
             'pickup_time_to' => 'nullable|date_format:H:i',
         ], [
-            'name.0.required' => translate('messages.item_name_required'),
-            'description.*.max' => translate('messages.description_length_warning'),
+            'translations.required' => translate('messages.translations_required'),
             'price.required' => translate('messages.price_required'),
             'item_count.required' => translate('messages.item_count_required'),
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+        }
+
+        $data = json_decode($request->translations, true);
+        if (count($data) < 1) {
+            return response()->json([
+                'errors' => [
+                    ['code' => 'translations', 'message' => translate('messages.Name and description are required')]
+                ]
+            ], 403);
         }
 
         $vendor = $request['vendor'];
@@ -81,56 +62,36 @@ class BoxController extends Controller
             $imageName = Helpers::upload('box/', 'png', $request->file('image'));
         }
 
-        // Debug logging
-        \Illuminate\Support\Facades\Log::info('Box Store Request Data', [
-            'name' => $request->name,
-            'lang' => $request->lang,
-            'description' => $request->description,
-            'all_data' => $request->all()
-        ]);
-
-        // Extract name with defensive checks
-        $name = null;
-        if (is_array($request->name) && is_array($request->lang)) {
-            $defaultIndex = array_search('default', $request->lang);
-            if ($defaultIndex !== false && isset($request->name[$defaultIndex])) {
-                $name = $request->name[$defaultIndex];
-            } elseif (isset($request->name[0])) {
-                // Fallback to first element if 'default' not found
-                $name = $request->name[0];
+        // Extract name and description for the main model (usually from the first translation entry)
+        $name = '';
+        $description = '';
+        foreach ($data as $tm) {
+            if ($tm['locale'] == 'default' || $tm['locale'] == 'en') {
+                if ($tm['key'] == 'name') {
+                    $name = $tm['value'];
+                }
+                if ($tm['key'] == 'description') {
+                    $description = $tm['value'];
+                }
             }
-        } elseif (is_string($request->name)) {
-            // Fallback for single string format
-            $name = $request->name;
         }
 
-        // Extract description with defensive checks
-        $description = null;
-        if (is_array($request->description) && is_array($request->lang)) {
-            $defaultIndex = array_search('default', $request->lang);
-            if ($defaultIndex !== false && isset($request->description[$defaultIndex])) {
-                $description = $request->description[$defaultIndex];
-            } elseif (isset($request->description[0])) {
-                // Fallback to first element if 'default' not found
-                $description = $request->description[0];
-            }
-        } elseif (is_string($request->description)) {
-            // Fallback for single string format
-            $description = $request->description;
-        }
-
-        \Illuminate\Support\Facades\Log::info('Box Store Extracted Values', [
-            'name' => $name,
-            'description' => $description
-        ]);
-
-        // Final validation
+        // If no default/en found, pick the first ones available
         if (empty($name)) {
-            return response()->json([
-                'errors' => [
-                    ['code' => 'name', 'message' => translate('messages.Name is required')]
-                ]
-            ], 403);
+            foreach ($data as $tm) {
+                if ($tm['key'] == 'name') {
+                    $name = $tm['value'];
+                    break;
+                }
+            }
+        }
+        if (empty($description)) {
+            foreach ($data as $tm) {
+                if ($tm['key'] == 'description') {
+                    $description = $tm['value'];
+                    break;
+                }
+            }
         }
 
         $box = new Box();
@@ -149,14 +110,18 @@ class BoxController extends Controller
         $box->status = true;
         $box->save();
 
-        Helpers::add_or_update_translations(request: $request, key_data: 'name', name_field: 'name', model_name: 'App\Models\Box', data_id: $box->id, data_value: $box->name);
-        Helpers::add_or_update_translations(request: $request, key_data: 'description', name_field: 'description', model_name: 'App\Models\Box', data_id: $box->id, data_value: $box->description);
+        foreach ($data as $key => $i) {
+            $data[$key]['translationable_type'] = 'App\Models\Box';
+            $data[$key]['translationable_id'] = $box->id;
+        }
+        Translation::insert($data);
 
         return response()->json([
             'message' => translate('messages.box_created_successfully'),
             'box' => $box,
         ], 200);
     }
+
 
     /**
      * Update an existing box.
@@ -173,9 +138,7 @@ class BoxController extends Controller
 
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer',
-            'name.0' => 'required',
-            'name.*' => 'max:191',
-            'description.*' => 'max:1000',
+            'translations' => 'required',
             'price' => 'required|numeric|min:0',
             'item_count' => 'required|integer|min:1',
             'available_count' => 'required|integer|min:0',
@@ -185,8 +148,7 @@ class BoxController extends Controller
             'pickup_time_from' => 'nullable|date_format:H:i',
             'pickup_time_to' => 'nullable|date_format:H:i',
         ], [
-            'name.0.required' => translate('messages.item_name_required'),
-            'description.*.max' => translate('messages.description_length_warning'),
+            'translations.required' => translate('messages.translations_required'),
             'price.required' => translate('messages.price_required'),
             'item_count.required' => translate('messages.item_count_required'),
         ]);
@@ -207,42 +169,49 @@ class BoxController extends Controller
             ], 404);
         }
 
+        $data = json_decode($request->translations, true);
+        if (count($data) < 1) {
+            return response()->json([
+                'errors' => [
+                    ['code' => 'translations', 'message' => translate('messages.Name and description are required')]
+                ]
+            ], 403);
+        }
+
         if ($request->hasFile('image')) {
             $box->image = Helpers::update('box/', $box->image, 'png', $request->file('image'));
         }
 
-        // Extract name with defensive checks
-        $name = null;
-        if (is_array($request->name) && is_array($request->lang)) {
-            $defaultIndex = array_search('default', $request->lang);
-            if ($defaultIndex !== false && isset($request->name[$defaultIndex])) {
-                $name = $request->name[$defaultIndex];
-            } elseif (isset($request->name[0])) {
-                $name = $request->name[0];
+        // Extract name and description for the main model (usually from the first translation entry)
+        $name = '';
+        $description = '';
+        foreach ($data as $tm) {
+            if ($tm['locale'] == 'default' || $tm['locale'] == 'en') {
+                if ($tm['key'] == 'name') {
+                    $name = $tm['value'];
+                }
+                if ($tm['key'] == 'description') {
+                    $description = $tm['value'];
+                }
             }
-        } elseif (is_string($request->name)) {
-            $name = $request->name;
         }
 
-        // Extract description with defensive checks
-        $description = null;
-        if (is_array($request->description) && is_array($request->lang)) {
-            $defaultIndex = array_search('default', $request->lang);
-            if ($defaultIndex !== false && isset($request->description[$defaultIndex])) {
-                $description = $request->description[$defaultIndex];
-            } elseif (isset($request->description[0])) {
-                $description = $request->description[0];
-            }
-        } elseif (is_string($request->description)) {
-            $description = $request->description;
-        }
-
+        // If no default/en found, pick the first ones available
         if (empty($name)) {
-            return response()->json([
-                'errors' => [
-                    ['code' => 'name', 'message' => translate('messages.Name is required')]
-                ]
-            ], 403);
+            foreach ($data as $tm) {
+                if ($tm['key'] == 'name') {
+                    $name = $tm['value'];
+                    break;
+                }
+            }
+        }
+        if (empty($description)) {
+            foreach ($data as $tm) {
+                if ($tm['key'] == 'description') {
+                    $description = $tm['value'];
+                    break;
+                }
+            }
         }
 
         $box->name = $name;
@@ -256,14 +225,24 @@ class BoxController extends Controller
         $box->pickup_time_to = $request->pickup_time_to;
         $box->save();
 
-        Helpers::add_or_update_translations(request: $request, key_data: 'name', name_field: 'name', model_name: 'App\Models\Box', data_id: $box->id, data_value: $box->name);
-        Helpers::add_or_update_translations(request: $request, key_data: 'description', name_field: 'description', model_name: 'App\Models\Box', data_id: $box->id, data_value: $box->description);
+        foreach ($data as $key => $item) {
+            Translation::updateOrInsert(
+                [
+                    'translationable_type' => 'App\Models\Box',
+                    'translationable_id' => $box->id,
+                    'locale' => $item['locale'],
+                    'key' => $item['key']
+                ],
+                ['value' => $item['value']]
+            );
+        }
 
         return response()->json([
             'message' => translate('messages.box_updated_successfully'),
             'box' => $box,
         ], 200);
     }
+
 
     /**
      * Delete a box.
@@ -348,13 +327,40 @@ class BoxController extends Controller
     }
 
     /**
+     * List all boxes for the vendor's store.
+     */
+    public function list(Request $request)
+    {
+        $vendor = $request['vendor'];
+        $limit = $request->input('limit', 25);
+        $offset = $request->input('offset', 1);
+
+        $boxes = Box::withoutGlobalScope(StoreScope::class)
+            ->with('storage', 'store', 'module')
+            ->where('store_id', $vendor->stores[0]->id)
+            ->latest()
+            ->paginate($limit, ['*'], 'page', $offset);
+
+        $data = [
+            'total_size' => $boxes->total(),
+            'limit' => $limit,
+            'offset' => $offset,
+            'boxes' => Helpers::box_data_formatting($boxes->items(), true, false, app()->getLocale()),
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    /**
      * Get box details.
      */
     public function get_box($id, Request $request)
     {
         $box = Box::withoutGlobalScope(StoreScope::class)
             ->withoutGlobalScope('translate')
-            ->with('translations', 'storage')
+            ->with(['translations' => function($query) {
+                return $query; // Get all translations for editing
+            }, 'storage', 'store', 'module'])
             ->find($id);
 
         if (!$box) {
@@ -365,6 +371,7 @@ class BoxController extends Controller
             ], 404);
         }
 
-        return response()->json($box, 200);
+        return response()->json(Helpers::box_data_formatting($box, false, true, app()->getLocale()), 200);
     }
+
 }

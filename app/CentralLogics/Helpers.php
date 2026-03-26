@@ -149,6 +149,37 @@ class Helpers
         return $data;
     }
 
+    public static function box_data_formatting($data, $multi_data = false, $trans = false, $local = 'en')
+    {
+        $storage = [];
+        if ($multi_data == true) {
+            foreach ($data as $item) {
+                if ($trans) {
+                    $item['translations'] = $item['translations'];
+                } else {
+                    unset($item['translations']);
+                }
+                $item['image_full_url'] = $item->image_full_url;
+                $item['store_name'] = $item->store?->name;
+                $item['module_type'] = $item->module?->module_type;
+                
+                array_push($storage, $item);
+            }
+            $data = $storage;
+        } else {
+            if ($trans) {
+                $data['translations'] = $data['translations'];
+            } else {
+                unset($data['translations']);
+            }
+            $data['image_full_url'] = $data->image_full_url;
+            $data['store_name'] = $data->store?->name;
+            $data['module_type'] = $data->module?->module_type;
+        }
+
+        return $data;
+    }
+
     public static function cart_product_data_formatting($data, $selected_variation, $selected_addons,
                                                         $selected_addon_quantity, $trans = false, $local = 'en')
     {
