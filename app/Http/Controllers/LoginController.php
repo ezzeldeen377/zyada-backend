@@ -176,7 +176,7 @@ class LoginController extends Controller
             }
         }
         elseif ($request->role == 'admin') {
-            $data = Admin::where('email', $request->email)->where('role_id', 1)->exists();
+            $data = Admin::where('email', $request->email)->exists();
             if (!$data) {
                 RateLimiter::hit($key, $decayMinutes * 60);
                 return redirect()->back()->withInput($request->only('email', 'remember'))
@@ -245,7 +245,7 @@ class LoginController extends Controller
         }
 
 
-        if ($data == 'admin') {
+        if ($data == 'admin' || $data == 'admin_employee') {
             $admin = Admin::find(auth('admin')->id());
             $admin->is_logged_in = 1;
             $admin->save();

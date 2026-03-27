@@ -17,25 +17,26 @@ class RedirectIfAuthenticated
      * @param  string|null  ...$guards
      * @return mixed
      */
-    public function handle(Request $request, Closure $next, $guard = null)
+    public function handle(Request $request, Closure $next, ...$guards)
     {
+        $guards = empty($guards) ? [null] : $guards;
 
-        switch ($guard) {
-            case 'admin':
-                if (Auth::guard($guard)->check()) {
+        foreach ($guards as $guard) {
+            if (Auth::guard($guard)->check()) {
+                if ($guard == 'admin') {
                     return redirect()->route('admin.dashboard');
                 }
-                break;
-            case 'vendor':
-                if (Auth::guard($guard)->check()) {
+                if ($guard == 'vendor') {
                     return redirect()->route('vendor.dashboard');
                 }
-                break;
-            default:
-                if (Auth::guard($guard)->check()) {
-                    return response()->json([],404);
+                
+                // For other authenticated users (like customers)
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'Already authenticated.'], 200);
                 }
-                break;
+                // Default fallback if authenticated
+                return redirect()->route('admin.dashboard');
+            }
         }
 
         return $next($request);
