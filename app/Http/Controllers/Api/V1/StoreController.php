@@ -209,7 +209,7 @@ class StoreController extends Controller
 
         $storage = [];
         foreach ($reviews as $temp) {
-            $temp['attachment'] = json_decode($temp['attachment']);
+            $temp['attachment'] = is_string($temp['attachment']) ? json_decode($temp['attachment']) : $temp['attachment'];
             $temp['item_name'] = null;
             $temp['item_image'] = null;
             $temp['customer_name'] = null;
@@ -222,7 +222,7 @@ class StoreController extends Controller
                 if(count($temp->item->translations)>0)
                 {
                     $translate = array_column($temp->item->translations->toArray(), 'value', 'key');
-                    $temp['item_name'] = $translate['name'];
+                    $temp['item_name'] = $translate['name'] ?? $temp->item->name;
                 }
                 unset($temp->item);
                 $temp['item'] = Helpers::product_data_formatting($temp->item, false, false, app()->getLocale());

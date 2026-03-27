@@ -872,15 +872,14 @@ class ItemController extends Controller
     public function reviews(Request $request)
     {
         $id = $request['vendor']->stores[0]->id;
-        $key = explode(' ', $request['search']);
 
         $reviews = Review::with(['customer', 'item'])
         ->whereHas('item', function($query)use($id){
             return $query->where('store_id', $id);
         })
-        ->when(isset($key), function ($query) use ($key,$request) {
+        ->when($request->search, function ($query) use ($request) {
+            $key = explode(' ', $request->search);
             $query->where(function($query) use($key,$request) {
-
                 $query->whereHas('item', function ($query) use ($key) {
                     foreach ($key as $value) {
                         $query->where('name', 'like', "%{$value}%");
@@ -889,9 +888,8 @@ class ItemController extends Controller
                     foreach ($key as $value) {
                         $query->where('f_name', 'like', "%{$value}%")->orwhere('l_name', 'like', "%{$value}%");
                     }
-                })->orwhere('rating', $request['search'])->orwhere('review_id', $request['search']);
+                })->orwhere('rating', $request->search)->orwhere('review_id', $request->search);
             });
-
         })
         ->latest()->get();
 
@@ -924,7 +922,7 @@ class ItemController extends Controller
             
             $totalRating += $item->rating ?? 0;
 
-            $item['attachment'] = json_decode($item['attachment']);
+            $item['attachment'] = is_string($item['attachment']) ? json_decode($item['attachment']) : $item['attachment'];
             $item['item_name'] = null;
             $item['item_image'] = null;
             $item['customer_name'] = null;
@@ -936,7 +934,7 @@ class ItemController extends Controller
                 if(count($item->item->translations)>0)
                 {
                     $translate = array_column($item->item->translations->toArray(), 'value', 'key');
-                    $item['item_name'] = $translate['name'];
+                    $item['item_name'] = $translate['name'] ?? $item->item->name;
                 }
             }
 

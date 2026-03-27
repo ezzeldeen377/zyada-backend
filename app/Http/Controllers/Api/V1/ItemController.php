@@ -584,7 +584,7 @@ class ItemController extends Controller
 
         $storage = [];
         foreach ($reviews as $temp) {
-            $temp['attachment'] = json_decode($temp['attachment']);
+            $temp['attachment'] = is_string($temp['attachment']) ? json_decode($temp['attachment']) : $temp['attachment'];
             $temp['item_name'] = null;
             if($temp->item)
             {
@@ -592,7 +592,7 @@ class ItemController extends Controller
                 if(count($temp->item->translations)>0)
                 {
                     $translate = array_column($temp->item->translations->toArray(), 'value', 'key');
-                    $temp['item_name'] = $translate['name'];
+                    $temp['item_name'] = $translate['name'] ?? $temp->item->name;
                 }
             }
 
