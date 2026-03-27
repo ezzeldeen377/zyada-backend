@@ -511,18 +511,15 @@ class StoreLogic
 
     public static function update_store_rating($ratings, $product_rating)
     {
-        $store_ratings = [1=>0 , 2=>0, 3=>0, 4=>0, 5=>0];
-        if($ratings)
-        {
-            $store_ratings[1] = $ratings[4];
-            $store_ratings[2] = $ratings[3];
-            $store_ratings[3] = $ratings[2];
-            $store_ratings[4] = $ratings[1];
-            $store_ratings[5] = $ratings[0];
-            $store_ratings[$product_rating] = $ratings[5-$product_rating] + 1;
-        }
-        else
-        {
+        $store_ratings = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0];
+        if (is_array($ratings) && count($ratings) >= 5) {
+            $store_ratings[1] = $ratings[4] ?? 0;
+            $store_ratings[2] = $ratings[3] ?? 0;
+            $store_ratings[3] = $ratings[2] ?? 0;
+            $store_ratings[4] = $ratings[1] ?? 0;
+            $store_ratings[5] = $ratings[0] ?? 0;
+            $store_ratings[$product_rating] = $store_ratings[$product_rating] + 1;
+        } else {
             $store_ratings[$product_rating] = 1;
         }
         return json_encode($store_ratings);

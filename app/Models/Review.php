@@ -59,10 +59,9 @@ class Review extends Model
     protected static function boot()
     {
         parent::boot();
-        static::saved(function ($review) {
+        static::creating(function ($review) {
             if($review->review_id == null){
                 $review->review_id = $review->generateReviewId($review->order_id);
-                $review->save();
             }
         });
     }

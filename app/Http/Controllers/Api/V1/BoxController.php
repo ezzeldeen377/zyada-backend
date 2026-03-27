@@ -153,94 +153,102 @@ class BoxController extends Controller
      */
     public function submit_review(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'box_id'           => 'required|integer',
-            'order_id'         => 'required|integer',
-            'quality_rating'   => 'required|numeric|min:1|max:5',
-            'value_rating'     => 'required|numeric|min:1|max:5',
-            'packaging_rating' => 'required|numeric|min:1|max:5',
-            'service_rating'   => 'required|numeric|min:1|max:5',
-            'usability_rating' => 'required|numeric|min:1|max:5',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'box_id'           => 'required|integer',
+                'order_id'         => 'required|integer',
+                'quality_rating'   => 'required|numeric|min:1|max:5',
+                'value_rating'     => 'required|numeric|min:1|max:5',
+                'packaging_rating' => 'required|numeric|min:1|max:5',
+                'service_rating'   => 'required|numeric|min:1|max:5',
+                'usability_rating' => 'required|numeric|min:1|max:5',
+            ]);
 
-        $order = Order::find($request->order_id);
-        if (!isset($order)) {
-            $validator->errors()->add('order_id', translate('messages.order_data_not_found'));
-        }
+            $order = Order::find($request->order_id);
+            if (!isset($order)) {
+                $validator->errors()->add('order_id', translate('messages.order_data_not_found'));
+            }
 
-        $box = Box::find($request->box_id);
-        if (!isset($box)) {
-            $validator->errors()->add('box_id', translate('messages.box_not_found'));
-        }
+            $box = Box::find($request->box_id);
+            if (!isset($box)) {
+                $validator->errors()->add('box_id', translate('messages.box_not_found'));
+            }
 
-        if ($validator->errors()->count() > 0) {
-            return response()->json(['errors' => Helpers::error_processor($validator)], 403);
-        }
+            if ($validator->errors()->count() > 0) {
+                return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+            }
 
-        // Check for duplicate review (same box + user + order)
-        $existing = Review::where([
-            'box_id'   => $request->box_id,
-            'user_id'  => $request->user()->id,
-            'order_id' => $request->order_id,
-        ])->first();
+            // Check for duplicate review (same box + user + order)
+            $existing = Review::where([
+                'box_id'   => $request->box_id,
+                'user_id'  => $request->user()->id,
+                'order_id' => $request->order_id,
+            ])->first();
 
-        if (isset($existing)) {
-            return response()->json([
-                'errors' => [
-                    ['code' => 'review', 'message' => translate('messages.already_submitted')]
-                ]
-            ], 403);
-        }
+            if (isset($existing)) {
+                return response()->json([
+                    'errors' => [
+                        ['code' => 'review', 'message' => translate('messages.already_submitted')]
+                    ]
+                ], 403);
+            }
 
-        // Handle attachment uploads
-        $image_array = [];
-        if (!empty($request->file('attachment'))) {
-            foreach ($request->file('attachment') as $image) {
-                if ($image != null) {
-                    if (!Storage::disk('public')->exists('review')) {
-                        Storage::disk('public')->makeDirectory('review');
+            // Handle attachment uploads
+            $image_array = [];
+            if (!empty($request->file('attachment'))) {
+                foreach ($request->file('attachment') as $image) {
+                    if ($image != null) {
+                        if (!Storage::disk('public')->exists('review')) {
+                            Storage::disk('public')->makeDirectory('review');
+                        }
+                        array_push($image_array, Storage::disk('public')->put('review', $image));
                     }
-                    array_push($image_array, Storage::disk('public')->put('review', $image));
                 }
             }
+
+            // Mark order as reviewed
+            $order?->OrderReference?->update(['is_reviewed' => 1]);
+
+            // Compute average rating
+            $avg_rating = ($request->quality_rating + $request->value_rating + $request->packaging_rating + $request->service_rating + $request->usability_rating) / 5;
+
+            $review = new Review;
+            $review->user_id          = $request->user()->id;
+            $review->box_id           = $request->box_id;
+            $review->item_id          = null; // Explicitly null
+            $review->order_id         = $request->order_id;
+            $review->module_id        = $order->module_id;
+            $review->store_id         = $box->store_id;
+            $review->comment          = $request->comment ?? null;
+            $review->rating           = round($avg_rating);
+            $review->quality_rating   = $request->quality_rating;
+            $review->value_rating     = $request->value_rating;
+            $review->packaging_rating = $request->packaging_rating;
+            $review->service_rating   = $request->service_rating;
+            $review->usability_rating = $request->usability_rating;
+            $review->attachment       = json_encode($image_array);
+            $review->save();
+
+            // Update store rating
+            if ($box->store) {
+                $store_rating = StoreLogic::update_store_rating($box->store->rating, (int) $review->rating);
+                $box->store->rating = $store_rating;
+                $box->store->save();
+            }
+
+            // Update box rating
+            $box->rating = ProductLogic::update_rating($box->rating, (int) $review->rating);
+            $box->avg_rating = ProductLogic::get_avg_rating(json_decode($box->rating, true));
+            $box->save();
+            $box->increment('rating_count');
+
+            return response()->json(['message' => translate('messages.review_submited_successfully')], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'errors' => [
+                    ['code' => 'error', 'message' => $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine()]
+                ]
+            ], 500);
         }
-
-        // Mark order as reviewed
-        $order?->OrderReference?->update(['is_reviewed' => 1]);
-
-        // Compute average rating
-        $avg_rating = ($request->quality_rating + $request->value_rating + $request->packaging_rating + $request->service_rating + $request->usability_rating) / 5;
-
-        $review = new Review;
-        $review->user_id          = $request->user()->id;
-        $review->box_id           = $request->box_id;
-        $review->item_id          = null; // Explicitly null — not an item review
-        $review->order_id         = $request->order_id;
-        $review->module_id        = $order->module_id;
-        $review->store_id         = $box->store_id;
-        $review->comment          = $request->comment ?? null;
-        $review->rating           = round($avg_rating);
-        $review->quality_rating   = $request->quality_rating;
-        $review->value_rating     = $request->value_rating;
-        $review->packaging_rating = $request->packaging_rating;
-        $review->service_rating   = $request->service_rating;
-        $review->usability_rating = $request->usability_rating;
-        $review->attachment       = json_encode($image_array);
-        $review->save();
-
-        // Update store rating
-        if ($box->store) {
-            $store_rating = StoreLogic::update_store_rating($box->store->rating, (int) $review->rating);
-            $box->store->rating = $store_rating;
-            $box->store->save();
-        }
-
-        // Update box rating
-        $box->rating = ProductLogic::update_rating($box->rating, (int) $review->rating);
-        $box->avg_rating = ProductLogic::get_avg_rating(json_decode($box->rating, true));
-        $box->save();
-        $box->increment('rating_count');
-
-        return response()->json(['message' => translate('messages.review_submited_successfully')], 200);
     }
 }
