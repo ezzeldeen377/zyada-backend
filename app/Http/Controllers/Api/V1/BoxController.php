@@ -105,32 +105,30 @@ class BoxController extends Controller
             ], 404);
         }
 
-        if (isset($request['limit']) && $request['limit'] != null && isset($request['offset']) && $request['offset'] != null) {
-            $reviews = Review::with(['customer'])
-                ->where('box_id', $box_id)
-                ->active()
-                ->paginate($request['limit'], ['*'], 'page', $request['offset']);
+        $reviews = Review::with(['customer'])
+            ->where('box_id', $box_id)
+            ->active();
+
+        if (isset($request['limit']) && $request['offset']) {
+            $reviews = $reviews->paginate($request['limit'], ['*'], 'page', $request['offset']);
             $total = $reviews->total();
+            $data = $reviews->items();
         } else {
-            $reviews = Review::with(['customer'])
-                ->where('box_id', $box_id)
-                ->active()
-                ->get();
+            $reviews = $reviews->get();
             $total = $reviews->count();
+            $data = $reviews;
         }
 
-        $storage = [];
-        foreach ($reviews as $temp) {
-            $temp['attachment'] = json_decode($temp['attachment']);
-            $temp['box_name'] = $box->name;
-            array_push($storage, $temp);
-        }
+        // Add box name to each review
+        $data->each(function ($item) use ($box) {
+            $item->box_name = $box->name;
+        });
 
         return response()->json([
             'total_size' => $total,
-            'limit' => $request['limit'] ?? null,
-            'offset' => $request['offset'] ?? null,
-            'reviews' => $storage,
+            'limit' => (int) $request['limit'],
+            'offset' => (int) $request['offset'],
+            'reviews' => $data,
         ], 200);
     }
 

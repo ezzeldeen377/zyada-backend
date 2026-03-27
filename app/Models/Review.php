@@ -24,6 +24,7 @@ class Review extends Model
         'packaging_rating' => 'integer',
         'service_rating' => 'integer',
         'usability_rating' => 'integer',
+        'attachment' => 'json'
     ];
 
     public function scopeModule($query, $module_id)

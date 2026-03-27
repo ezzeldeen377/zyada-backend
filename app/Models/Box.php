@@ -30,6 +30,11 @@ class Box extends Model
         'pickup_time_to' => 'string',
         'avg_rating' => 'float',
         'rating_count' => 'integer',
+        'reviews_avg_quality_rating' => 'float',
+        'reviews_avg_value_rating' => 'float',
+        'reviews_avg_packaging_rating' => 'float',
+        'reviews_avg_service_rating' => 'float',
+        'reviews_avg_usability_rating' => 'float',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
