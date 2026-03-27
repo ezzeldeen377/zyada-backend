@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
+use App\Models\Box;
 
 class Review extends Model
 {
     use HasFactory;
     protected $casts = [
         'item_id' => 'integer',
+        'box_id' => 'integer',
         'user_id' => 'integer',
         'order_id' => 'integer',
         'rating' => 'integer',
@@ -32,6 +34,11 @@ class Review extends Model
     public function item()
     {
         return $this->belongsTo(Item::class);
+    }
+
+    public function box()
+    {
+        return $this->belongsTo(Box::class);
     }
 
     public function customer()

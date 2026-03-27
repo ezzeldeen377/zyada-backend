@@ -460,6 +460,9 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
             Route::get('/', 'BoxController@index');
             Route::get('store/{store_id}', 'BoxController@index');
             Route::get('/{id}', 'BoxController@show');
+            Route::get('reviews/{box_id}', 'BoxController@get_reviews');
+            Route::get('rating/{box_id}', 'BoxController@get_rating');
+            Route::post('reviews/submit', 'BoxController@submit_review')->middleware('auth:api');
         });
 
         Route::group(['prefix' => 'stores'], function () {

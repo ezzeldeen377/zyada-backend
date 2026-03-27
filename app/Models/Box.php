@@ -28,6 +28,8 @@ class Box extends Model
         'end_date' => 'date',
         'pickup_time_from' => 'string',
         'pickup_time_to' => 'string',
+        'avg_rating' => 'float',
+        'rating_count' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -51,6 +53,14 @@ class Box extends Model
         }
 
         return Helpers::get_full_url('box', $value, 'public');
+    }
+
+    /**
+     * Get all reviews for this box.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'box_id')->latest();
     }
 
     /**
