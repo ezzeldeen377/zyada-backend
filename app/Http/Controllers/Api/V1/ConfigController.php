@@ -589,9 +589,64 @@ class ConfigController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
         $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $request->lat . ',' . $request->lng . '&key=' . $this->map_api_key);
+        
+        $data = $response->json();
 
-        return $response->json();
+        // 1. Extract the street (route and street_number) from the results
+        $route = '';
+        $streetNumber = '';
+        if (isset($data['results']) && is_array($data['results'])) {
+            foreach ($data['results'] as $res) {
+                if (isset($res['address_components'])) {
+                    foreach ($res['address_components'] as $component) {
+                        if (in_array('route', $component['types']) && empty($route)) {
+                            $route = $component['long_name'];
+                        }
+                        if (in_array('street_number', $component['types']) && empty($streetNumber)) {
+                            $streetNumber = $component['long_name'];
+                        }
+                    }
+                }
+                // Once we found a route, we can stop looking
+                if (!empty($route)) {
+                    break;
+                }
+            }
+        }
+        $streetString = trim($streetNumber . ' ' . $route);
+
+        // Regex to match plus codes at the beginning of the string (e.g., "7HGJ+W94 ", "7HHJ+VG3, ")
+        $plusCodeRegex = '/^[a-zA-Z0-9]+\+[a-zA-Z0-9]*[\s,]*/';
+
+        if (isset($data['plus_code']['compound_code'])) {
+            $data['plus_code']['compound_code'] = trim(preg_replace($plusCodeRegex, '', $data['plus_code']['compound_code']));
+            
+            // If the street is available and not already in the compound code, prepend it
+            if (!empty($streetString) && !empty($route) && strpos($data['plus_code']['compound_code'], $route) === false) {
+                $data['plus_code']['compound_code'] = $streetString . ', ' . $data['plus_code']['compound_code'];
+            }
+        }
+
+        if (isset($data['results']) && is_array($data['results'])) {
+            foreach ($data['results'] as &$result) {
+                if (isset($result['plus_code']['compound_code'])) {
+                    $result['plus_code']['compound_code'] = trim(preg_replace($plusCodeRegex, '', $result['plus_code']['compound_code']));
+                }
+                if (isset($result['formatted_address'])) {
+                    $originalAddress = $result['formatted_address'];
+                    $result['formatted_address'] = trim(preg_replace($plusCodeRegex, '', $result['formatted_address']));
+                    
+                    // If we removed a plus code, and we have a route that isn't in the address, inject the street
+                    if ($originalAddress !== $result['formatted_address'] && !empty($streetString) && !empty($route) && strpos($result['formatted_address'], $route) === false) {
+                        $result['formatted_address'] = $streetString . ', ' . $result['formatted_address'];
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
+
 
     public function landing_page()
     {
