@@ -11,19 +11,23 @@ class ZoneService
 
     public function getAddData(Object $request, int|string $zoneId): array
     {
-        $value = $request['coordinates'];
+        $value = preg_replace('/\s+/', '', $request['coordinates'] ?? '');
+        $polygon = [];
+        $lastCord = null;
 
-
-        foreach(explode('),(',trim($value,'()')) as $index=>$single_array){
-            if($index == 0)
-            {
-                $lastCord = explode(',',$single_array);
+        foreach (explode('),(', trim($value, '()')) as $index => $single_array) {
+            $coords = explode(',', $single_array);
+            if (count($coords) >= 2) {
+                if ($index == 0) {
+                    $lastCord = $coords;
+                }
+                $polygon[] = new Point((float)$coords[0], (float)$coords[1]);
             }
-            $coords = explode(',',$single_array);
-
-            $polygon[] = new Point($coords[0], $coords[1]);
         }
-        $polygon[] = new Point($lastCord[0], $lastCord[1]);
+        if ($lastCord && count($lastCord) >= 2) {
+            $polygon[] = new Point((float)$lastCord[0], (float)$lastCord[1]);
+        }
+
         return [
             'name' => $request->name[array_search('default', $request->lang)],
             'display_name' => $request->display_name[array_search('default', $request->lang)],
@@ -38,18 +42,23 @@ class ZoneService
 
     public function getUpdateData(Object $request, int|string $zoneId): array
     {
-        $value = $request['coordinates'];
+        $value = preg_replace('/\s+/', '', $request['coordinates'] ?? '');
+        $polygon = [];
+        $lastCord = null;
 
-        foreach(explode('),(',trim($value,'()')) as $index=>$single_array){
-            if($index == 0)
-            {
-                $lastCord = explode(',',$single_array);
+        foreach (explode('),(', trim($value, '()')) as $index => $single_array) {
+            $coords = explode(',', $single_array);
+            if (count($coords) >= 2) {
+                if ($index == 0) {
+                    $lastCord = $coords;
+                }
+                $polygon[] = new Point((float)$coords[0], (float)$coords[1]);
             }
-            $coords = explode(',',$single_array);
-
-            $polygon[] = new Point($coords[0], $coords[1]);
         }
-        $polygon[] = new Point($lastCord[0], $lastCord[1]);
+        if ($lastCord && count($lastCord) >= 2) {
+            $polygon[] = new Point((float)$lastCord[0], (float)$lastCord[1]);
+        }
+
         return [
             'name' => $request->name[array_search('default', $request->lang)],
             'display_name' => $request->display_name[array_search('default', $request->lang)],

@@ -33,15 +33,16 @@ class StoreLogic
                 return  $query->active();
             })
             ->Active();
+        $zone_id = Helpers::format_zone_id($zone_id);
         if(config('module.current_module_data')) {
             $query = $query->whereHas('zone.modules', function($query){
                 return  $query->where('modules.id', config('module.current_module_data')['id']);
             })->module(config('module.current_module_data')['id'])
                 ->when(!config('module.current_module_data')['all_zone_service'], function($query)use($zone_id){
-                    return  $query->whereIn('zone_id', json_decode($zone_id,true));
+                    return  $query->whereIn('zone_id', $zone_id);
                 });
         } else {
-            $query = $query->whereIn('zone_id', json_decode($zone_id,true));
+            $query = $query->whereIn('zone_id', $zone_id);
         }
 
             if($all_stores_default_status != '1') {

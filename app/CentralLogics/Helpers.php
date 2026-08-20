@@ -4661,4 +4661,27 @@ class Helpers
         return false;
     }
 
+    public static function format_zone_id($zone_id)
+    {
+        if (is_array($zone_id)) {
+            return array_map('intval', array_filter($zone_id, 'is_numeric'));
+        }
+        if (is_null($zone_id) || $zone_id === '') {
+            return [];
+        }
+        $decoded = json_decode($zone_id, true);
+        if (is_array($decoded)) {
+            return array_map('intval', array_filter($decoded, 'is_numeric'));
+        }
+        if (is_numeric($zone_id)) {
+            return [(int)$zone_id];
+        }
+        if (is_string($zone_id)) {
+            $parts = explode(',', str_replace(['[', ']', '"', "'"], '', $zone_id));
+            $filtered = array_filter($parts, 'is_numeric');
+            return array_map('intval', $filtered);
+        }
+        return [];
+    }
+
 }

@@ -19,17 +19,17 @@ class CampaignController extends Controller
                 'errors' => $errors
             ], 200);
         }
-        $zone_id= $request->header('zoneId');
+        $zone_id = Helpers::format_zone_id($request->header('zoneId'));
         try {
             $campaigns = Campaign::
             whereHas('module.zones',function($query)use($zone_id){
-                $query->whereIn('zones.id', json_decode($zone_id, true));
+                $query->whereIn('zones.id', $zone_id);
             })
             ->when(config('module.current_module_data'), function($query)use($zone_id){
                 $query->module(config('module.current_module_data')['id']);
                 if(!config('module.current_module_data')['all_zone_service']) {
                     $query->whereHas('stores', function($q)use($zone_id){
-                        $q->whereIn('zone_id', json_decode($zone_id, true));
+                        $q->whereIn('zone_id', $zone_id);
                     });
                 }
             })
@@ -48,7 +48,7 @@ class CampaignController extends Controller
                 'errors' => $errors
             ], 200);
         }
-        $zone_id= $request->header('zoneId');
+        $zone_id = Helpers::format_zone_id($request->header('zoneId'));
         $longitude= $request->header('longitude');
         $latitude= $request->header('latitude');
         $validator = Validator::make($request->all(), [
@@ -64,13 +64,13 @@ class CampaignController extends Controller
                     $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
                         $query->where('modules.id', config('module.current_module_data')['id']);
                     });
-                })->whereIn('zone_id', json_decode($zone_id, true));
-                if(!config('module.current_module_data')['all_zone_service']) {
-                    $q->whereIn('zone_id', json_decode($zone_id, true));
+                })->whereIn('zone_id', $zone_id);
+                if(config('module.current_module_data') && !config('module.current_module_data')['all_zone_service']) {
+                    $q->whereIn('zone_id', $zone_id);
                 }
             }])
             ->whereHas('module.zones', function($query)use($zone_id){
-                $query->whereIn('zones.id', json_decode($zone_id, true));
+                $query->whereIn('zones.id', $zone_id);
             })
             ->running()->active()->whereId($request->basic_campaign_id)->first();
 
@@ -91,20 +91,20 @@ class CampaignController extends Controller
                 'errors' => $errors
             ], 200);
         }
-        $zone_id= $request->header('zoneId');
+        $zone_id = Helpers::format_zone_id($request->header('zoneId'));
         $item_campaign_default_status = \App\Models\BusinessSetting::where('key', 'item_campaign_default_status')->first()?->value ??  1;
         $item_campaign_sort_by_general = \App\Models\PriorityList::where('name', 'item_campaign_sort_by_general')->where('type','general')->first()?->value ?? '';
         try {
             $query = ItemCampaign::active()
             ->whereHas('module.zones', function($query)use($zone_id){
-                $query->whereIn('zones.id', json_decode($zone_id, true));
+                $query->whereIn('zones.id', $zone_id);
             })
             ->whereHas('store', function($query)use($zone_id){
                 $query->Active()->when(config('module.current_module_data'), function($query){
                     $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
                         $query->where('modules.id', config('module.current_module_data')['id']);
                     });
-                })->whereIn('zone_id', json_decode($zone_id, true));
+                })->whereIn('zone_id', $zone_id);
             })
             ->running();
 

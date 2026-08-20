@@ -477,9 +477,25 @@
             if (lastpolygon) {
                 lastpolygon.setMap(null);
             }
-            $('#coordinates').val(event.overlay.getPath().getArray());
+            let polygonPath = event.overlay.getPath().getArray();
+            let formattedCoords = polygonPath.map(function(latLng) {
+                return '(' + latLng.lat() + ',' + latLng.lng() + ')';
+            }).join(',');
+            $('#coordinates').val(formattedCoords);
             lastpolygon = event.overlay;
             auto_grow();
+
+            let path = event.overlay.getPath();
+            let updateCoords = function() {
+                let coords = path.getArray().map(function(latLng) {
+                    return '(' + latLng.lat() + ',' + latLng.lng() + ')';
+                }).join(',');
+                $('#coordinates').val(coords);
+                auto_grow();
+            };
+            google.maps.event.addListener(path, 'set_at', updateCoords);
+            google.maps.event.addListener(path, 'insert_at', updateCoords);
+            google.maps.event.addListener(path, 'remove_at', updateCoords);
         });
 
         const resetDiv = document.createElement("div");
