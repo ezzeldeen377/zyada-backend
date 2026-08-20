@@ -192,13 +192,10 @@
 
     function initialize() {
         let myLatlng = new google.maps.LatLng({{trim(explode(' ',$zone->center)[1], 'POINT()')}}, {{trim(explode(' ',$zone->center)[0], 'POINT()')}});
-        const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}"
-
         let myOptions = {
             zoom: 13,
             center: myLatlng,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            mapId:mapId
+            mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
 
@@ -227,57 +224,104 @@
         });
 
 
-        drawingManager = new google.maps.drawing.DrawingManager({
-            drawingMode: google.maps.drawing.OverlayType.POLYGON,
-            drawingControl: true,
-            drawingControlOptions: {
-            position: google.maps.ControlPosition.TOP_CENTER,
-            drawingModes: [google.maps.drawing.OverlayType.POLYGON]
-            },
-            polygonOptions: {
-            editable: true
+        let editZonePoints = [];
+        let editZonePolygon = null;
+
+        function updateEditZonePolygon() {
+            if (editZonePolygon) {
+                editZonePolygon.setMap(null);
             }
-        });
-        drawingManager.setMap(map);
-
-        google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
-            let newShape = event.overlay;
-            newShape.type = event.type;
-        });
-
-        google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
-            if(lastpolygon)
-            {
-                lastpolygon.setMap(null);
+            if (editZonePoints.length === 0) {
+                return;
             }
-            let polygonPath = event.overlay.getPath().getArray();
-            let formattedCoords = polygonPath.map(function(latLng) {
-                return '(' + latLng.lat() + ',' + latLng.lng() + ')';
-            }).join(',');
-            $('#coordinates').val(formattedCoords);
-            lastpolygon = event.overlay;
-            auto_grow();
+            editZonePolygon = new google.maps.Polygon({
+                paths: editZonePoints,
+                strokeColor: "#050df2",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#050df2",
+                fillOpacity: 0.2,
+                editable: true
+            });
+            editZonePolygon.setMap(map);
 
-            let path = event.overlay.getPath();
-            let updateCoords = function() {
-                let coords = path.getArray().map(function(latLng) {
+            let path = editZonePolygon.getPath();
+            let syncCoords = function () {
+                let coords = path.getArray().map(function (latLng) {
                     return '(' + latLng.lat() + ',' + latLng.lng() + ')';
                 }).join(',');
                 $('#coordinates').val(coords);
                 auto_grow();
             };
-            google.maps.event.addListener(path, 'set_at', updateCoords);
-            google.maps.event.addListener(path, 'insert_at', updateCoords);
-            google.maps.event.addListener(path, 'remove_at', updateCoords);
+            google.maps.event.addListener(path, 'set_at', syncCoords);
+            google.maps.event.addListener(path, 'insert_at', syncCoords);
+            google.maps.event.addListener(path, 'remove_at', syncCoords);
+            syncCoords();
+        }
+
+        google.maps.event.addListener(map, 'click', function (event) {
+            if (zonePolygon) {
+                zonePolygon.setMap(null);
+            }
+            editZonePoints.push(event.latLng);
+            updateEditZonePolygon();
         });
+
+        try {
+            drawingManager = new google.maps.drawing.DrawingManager({
+                drawingMode: google.maps.drawing.OverlayType.POLYGON,
+                drawingControl: true,
+                drawingControlOptions: {
+                    position: google.maps.ControlPosition.TOP_CENTER,
+                    drawingModes: [google.maps.drawing.OverlayType.POLYGON]
+                },
+                polygonOptions: {
+                    editable: true
+                }
+            });
+            drawingManager.setMap(map);
+
+            google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
+                let newShape = event.overlay;
+                newShape.type = event.type;
+            });
+
+            google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
+                if(lastpolygon)
+                {
+                    lastpolygon.setMap(null);
+                }
+                let polygonPath = event.overlay.getPath().getArray();
+                let formattedCoords = polygonPath.map(function(latLng) {
+                    return '(' + latLng.lat() + ',' + latLng.lng() + ')';
+                }).join(',');
+                $('#coordinates').val(formattedCoords);
+                lastpolygon = event.overlay;
+                auto_grow();
+
+                let path = event.overlay.getPath();
+                let updateCoords = function() {
+                    let coords = path.getArray().map(function(latLng) {
+                        return '(' + latLng.lat() + ',' + latLng.lng() + ')';
+                    }).join(',');
+                    $('#coordinates').val(coords);
+                    auto_grow();
+                };
+                google.maps.event.addListener(path, 'set_at', updateCoords);
+                google.maps.event.addListener(path, 'insert_at', updateCoords);
+                google.maps.event.addListener(path, 'remove_at', updateCoords);
+            });
+        } catch (e) {
+            console.log("DrawingManager not available, fallback to map click drawing.");
+        }
         const resetDiv = document.createElement("div");
         resetMap(resetDiv, lastpolygon);
-        map.controls[google.maps.ControlPosition.TOP_CENTER].push(resetDiv);
+        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(resetDiv);
 
         // Create the search box and link it to the UI element.
         const input = document.getElementById("pac-input");
             const searchBox = new google.maps.places.SearchBox(input);
-            map.controls[google.maps.ControlPosition.TOP_CENTER].push(input);
+            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
             // Bias the SearchBox results towards current map's viewport.
             map.addListener("bounds_changed", () => {
                 searchBox.setBounds(map.getBounds());

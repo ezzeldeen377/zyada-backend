@@ -425,9 +425,9 @@
         controlUI.appendChild(controlText);
         // Setup the click event listeners: simply set the map to Chicago.
         controlUI.addEventListener("click", () => {
-            lastpolygon.setMap(null);
+            if (typeof lastpolygon !== 'undefined' && lastpolygon) lastpolygon.setMap(null);
+            if (typeof zonePolygon !== 'undefined' && zonePolygon) zonePolygon.setMap(null);
             $('#coordinates').val('');
-
         });
     }
 
@@ -435,77 +435,106 @@
         @php($default_location = \App\Models\BusinessSetting::where('key', 'default_location')->first())
         @php($default_location = $default_location->value ? json_decode($default_location->value, true) : 0)
         let myLatlng = { lat: {{$default_location ? $default_location['lat'] : '23.757989'}}, lng: {{$default_location ? $default_location['lng'] : '90.360587'}} };
-        const mapId = "{{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}"
-
         let myOptions = {
             zoom: 13,
             center: myLatlng,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            mapId: mapId
-
+            mapTypeId: google.maps.MapTypeId.ROADMAP
         }
         map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
-        drawingManager = new google.maps.drawing.DrawingManager({
-            drawingMode: google.maps.drawing.OverlayType.POLYGON,
-            drawingControl: true,
-            drawingControlOptions: {
-                position: google.maps.ControlPosition.TOP_CENTER,
-                drawingModes: [google.maps.drawing.OverlayType.POLYGON]
-            },
-            polygonOptions: {
+        let zonePoints = [];
+        let zonePolygon = null;
+
+        function updateZonePolygon() {
+            if (zonePolygon) {
+                zonePolygon.setMap(null);
+            }
+            if (zonePoints.length === 0) {
+                $('#coordinates').val('');
+                return;
+            }
+            zonePolygon = new google.maps.Polygon({
+                paths: zonePoints,
+                strokeColor: "#050df2",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#050df2",
+                fillOpacity: 0.2,
                 editable: true
-            }
-        });
-        drawingManager.setMap(map);
+            });
+            zonePolygon.setMap(map);
 
-
-        //get current location block
-        // infoWindow = new google.maps.InfoWindow();
-        // Try HTML5 geolocation.
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const pos = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                    };
-                    map.setCenter(pos);
-                });
-        }
-
-        drawingManager.addListener("overlaycomplete", function (event) {
-            if (lastpolygon) {
-                lastpolygon.setMap(null);
-            }
-            let polygonPath = event.overlay.getPath().getArray();
-            let formattedCoords = polygonPath.map(function(latLng) {
-                return '(' + latLng.lat() + ',' + latLng.lng() + ')';
-            }).join(',');
-            $('#coordinates').val(formattedCoords);
-            lastpolygon = event.overlay;
-            auto_grow();
-
-            let path = event.overlay.getPath();
-            let updateCoords = function() {
-                let coords = path.getArray().map(function(latLng) {
+            let path = zonePolygon.getPath();
+            let syncCoords = function () {
+                let coords = path.getArray().map(function (latLng) {
                     return '(' + latLng.lat() + ',' + latLng.lng() + ')';
                 }).join(',');
                 $('#coordinates').val(coords);
                 auto_grow();
             };
-            google.maps.event.addListener(path, 'set_at', updateCoords);
-            google.maps.event.addListener(path, 'insert_at', updateCoords);
-            google.maps.event.addListener(path, 'remove_at', updateCoords);
+            google.maps.event.addListener(path, 'set_at', syncCoords);
+            google.maps.event.addListener(path, 'insert_at', syncCoords);
+            google.maps.event.addListener(path, 'remove_at', syncCoords);
+            syncCoords();
+        }
+
+        google.maps.event.addListener(map, 'click', function (event) {
+            zonePoints.push(event.latLng);
+            updateZonePolygon();
         });
+
+        try {
+            drawingManager = new google.maps.drawing.DrawingManager({
+                drawingMode: google.maps.drawing.OverlayType.POLYGON,
+                drawingControl: true,
+                drawingControlOptions: {
+                    position: google.maps.ControlPosition.TOP_CENTER,
+                    drawingModes: [google.maps.drawing.OverlayType.POLYGON]
+                },
+                polygonOptions: {
+                    editable: true
+                }
+            });
+            drawingManager.setMap(map);
+
+            drawingManager.addListener("overlaycomplete", function (event) {
+                if (lastpolygon) {
+                    lastpolygon.setMap(null);
+                }
+                if (zonePolygon) {
+                    zonePolygon.setMap(null);
+                }
+                let polygonPath = event.overlay.getPath().getArray();
+                let formattedCoords = polygonPath.map(function(latLng) {
+                    return '(' + latLng.lat() + ',' + latLng.lng() + ')';
+                }).join(',');
+                $('#coordinates').val(formattedCoords);
+                lastpolygon = event.overlay;
+                auto_grow();
+
+                let path = event.overlay.getPath();
+                let updateCoords = function() {
+                    let coords = path.getArray().map(function(latLng) {
+                        return '(' + latLng.lat() + ',' + latLng.lng() + ')';
+                    }).join(',');
+                    $('#coordinates').val(coords);
+                    auto_grow();
+                };
+                google.maps.event.addListener(path, 'set_at', updateCoords);
+                google.maps.event.addListener(path, 'insert_at', updateCoords);
+                google.maps.event.addListener(path, 'remove_at', updateCoords);
+            });
+        } catch (e) {
+            console.log("DrawingManager not available, fallback to map click drawing.");
+        }
 
         const resetDiv = document.createElement("div");
         resetMap(resetDiv, lastpolygon);
-        map.controls[google.maps.ControlPosition.TOP_CENTER].push(resetDiv);
+        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(resetDiv);
 
         // Create the search box and link it to the UI element.
         const input = document.getElementById("pac-input");
         const searchBox = new google.maps.places.SearchBox(input);
-        map.controls[google.maps.ControlPosition.TOP_CENTER].push(input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
         // Bias the SearchBox results towards current map's viewport.
         map.addListener("bounds_changed", () => {
             searchBox.setBounds(map.getBounds());
@@ -552,9 +581,9 @@
             });
             map.fitBounds(bounds);
         });
-    }
 
-    // initialize();
+        set_all_zones();
+    }
 
 
     function set_all_zones() {
@@ -577,9 +606,6 @@
             },
         });
     }
-    $(document).on('ready', function () {
-        set_all_zones();
-    });
 
 
     $('#zone_form').on('submit', function () {

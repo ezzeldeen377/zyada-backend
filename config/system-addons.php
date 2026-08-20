@@ -5,7 +5,7 @@
     'username' => 'test',
     'purchase_key' => '3215314265436',
     'software_id' => 'MzY3NzIxMTI=',
-    'domain' => 'zyada.app',
+    'domain' => '127.0.0.1:8000',
     'software_type' => 'product',
   ),
   'vendor_panel' => 
