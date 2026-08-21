@@ -207,7 +207,8 @@ class StoreLogic
                     $query->where('modules.id', config('module.current_module_data')['id']);
                 })->module(config('module.current_module_data')['id']);
                 if(!config('module.current_module_data')['all_zone_service']) {
-                    $query->whereIn('zone_id', json_decode($zone_id, true));
+                    $zone_id = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
+                    $query->whereIn('zone_id', $zone_id);
                 }
             })
             ->Active()
@@ -285,7 +286,8 @@ class StoreLogic
                     $query->where('modules.id', config('module.current_module_data')['id']);
                 })->module(config('module.current_module_data')['id']);
                 if(!config('module.current_module_data')['all_zone_service']) {
-                    $query->whereIn('zone_id', json_decode($zone_id, true));
+                    $zone_id = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
+                    $query->whereIn('zone_id', $zone_id);
                 }
             })
             ->type($type)
@@ -370,7 +372,8 @@ class StoreLogic
                     return $query->where('modules.id', config('module.current_module_data')['id']);
                 })->module(config('module.current_module_data')['id']);
                 if(!config('module.current_module_data')['all_zone_service']) {
-                    return  $query->whereIn('zone_id', json_decode($zone_id, true));
+                    $zone_id = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
+                    return  $query->whereIn('zone_id', $zone_id);
                 }
             })
             ->where(function ($query) {
@@ -467,7 +470,8 @@ class StoreLogic
                     $query->where('modules.id', config('module.current_module_data')['id']);
                 })->module(config('module.current_module_data')['id']);
                 if(!config('module.current_module_data')['all_zone_service']) {
-                    $query->whereIn('zone_id', json_decode($zone_id, true));
+                    $zone_id = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
+                    $query->whereIn('zone_id', $zone_id);
                 }
             })
             ->Active()
@@ -557,7 +561,8 @@ class StoreLogic
             ->when(config('module.current_module_data'), function($query)use($zone_id){
                 return   $query->module(config('module.current_module_data')['id']);
                 if(!config('module.current_module_data')['all_zone_service']) {
-                    return   $query->whereIn('zone_id', json_decode($zone_id, true));
+                    $zone_id = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
+                    return   $query->whereIn('zone_id', $zone_id);
                 }
             })
             ->when($category_id, function($query)use($category_id){
@@ -802,7 +807,8 @@ class StoreLogic
                     $query->where('modules.id', config('module.current_module_data')['id']);
                 })->module(config('module.current_module_data')['id']);
                 if(!config('module.current_module_data')['all_zone_service']) {
-                    $query->whereIn('zone_id', json_decode($zone_id, true));
+                    $zone_id = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
+                    $query->whereIn('zone_id', $zone_id);
                 }
             })
             ->type($type)
@@ -899,7 +905,8 @@ class StoreLogic
                     $query->where('modules.id', config('module.current_module_data')['id']);
                 })->module(config('module.current_module_data')['id']);
                 if(!config('module.current_module_data')['all_zone_service']) {
-                    $query->whereIn('zone_id', json_decode($zone_id, true));
+                    $zone_id = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
+                    $query->whereIn('zone_id', $zone_id);
                 }
             })
             ->type($type)->Active()->Halal($halal);

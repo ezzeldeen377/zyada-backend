@@ -68,7 +68,7 @@ class StoreController extends Controller
             ], 403);
         }
         $type = $request->query('type', 'all');
-        $zone_id= $request->header('zoneId');
+        $zone_id = Helpers::format_zone_id($request->header('zoneId'));
         $longitude= $request->header('longitude');
         $latitude= $request->header('latitude');
         $stores = StoreLogic::get_popular_stores($zone_id, $request['limit'], $request['offset'], $type,$longitude,$latitude);
@@ -87,7 +87,7 @@ class StoreController extends Controller
             ], 403);
         }
         $type = $request->query('type', 'all');
-        $zone_id= $request->header('zoneId');
+        $zone_id = Helpers::format_zone_id($request->header('zoneId'));
         $longitude= $request->header('longitude');
         $latitude= $request->header('latitude');
         $stores = StoreLogic::get_discounted_stores($zone_id, $request['limit'], $request['offset'], $type,$longitude,$latitude);
@@ -106,7 +106,7 @@ class StoreController extends Controller
             ], 403);
         }
         $type = $request->query('type', 'all');
-        $zone_id= $request->header('zoneId');
+        $zone_id = Helpers::format_zone_id($request->header('zoneId'));
         $longitude= $request->header('longitude');
         $latitude= $request->header('latitude');
         $stores = StoreLogic::get_top_rated_stores($zone_id, $request['limit'], $request['offset'], $type,$longitude,$latitude);

@@ -45,6 +45,7 @@ class ProductLogic
             $min = 0.00000001;
         }
 
+        $zone_id_arr = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
         $query = Item::
         when($category_id != 0, function($q)use($category_id){
             $q->whereHas('category',function($q)use($category_id){
@@ -54,15 +55,15 @@ class ProductLogic
         ->when(isset($product_id), function($q)use($product_id){
             $q->where('id', '!=', $product_id);
         })
-        ->whereHas('module.zones', function($query)use($zone_id){
-            $query->whereIn('zones.id', json_decode($zone_id, true));
+        ->whereHas('module.zones', function($query)use($zone_id_arr){
+            $query->whereIn('zones.id', $zone_id_arr);
         })
-        ->whereHas('store', function($query)use($zone_id){
+        ->whereHas('store', function($query)use($zone_id_arr){
             $query->when(config('module.current_module_data'), function($query){
                 $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
                     $query->where('modules.id', config('module.current_module_data')['id']);
                 });
-            })->whereIn('zone_id', json_decode($zone_id, true));
+            })->whereIn('zone_id', $zone_id_arr);
         })
         ->when($min && $max, function($query)use($min,$max){
             $query->whereBetween('price',[$min,$max]);
@@ -143,6 +144,7 @@ class ProductLogic
         $paginator = $query->paginate($limit, ['*'], 'page', $offset);
 
 
+        $zone_id_arr = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
         $query = Item::
         when($category_id != 0, function($q)use($category_id){
             $q->whereHas('category',function($q)use($category_id){
@@ -152,15 +154,15 @@ class ProductLogic
         ->when(isset($product_id), function($q)use($product_id){
             $q->where('id', '!=', $product_id);
         })
-        ->whereHas('module.zones', function($query)use($zone_id){
-            $query->whereIn('zones.id', json_decode($zone_id, true));
+        ->whereHas('module.zones', function($query)use($zone_id_arr){
+            $query->whereIn('zones.id', $zone_id_arr);
         })
-        ->whereHas('store', function($query)use($zone_id){
+        ->whereHas('store', function($query)use($zone_id_arr){
             $query->when(config('module.current_module_data'), function($query){
                 $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
                     $query->where('modules.id', config('module.current_module_data')['id']);
                 });
-            })->whereIn('zone_id', json_decode($zone_id, true));
+            })->whereIn('zone_id', $zone_id_arr);
         })
         ->when($min && $max, function($query)use($min,$max){
             $query->whereBetween('price',[$min,$max]);
@@ -250,6 +252,7 @@ class ProductLogic
         $category_ids = isset($category_ids)?(is_array($category_ids)?$category_ids:json_decode($category_ids)):[];
         $brand_ids = isset($brand_ids)?(is_array($brand_ids)?$brand_ids:json_decode($brand_ids)):[];
         $filter = $filter?(is_array($filter)?$filter:str_getcsv(trim($filter, "[]"), ',')):'';
+        $zone_id_arr = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
         $query = Item::
         when(isset($product_id), function($q)use($product_id){
             $q->where('id', '!=', $product_id);
@@ -266,15 +269,15 @@ class ProductLogic
                 });
             });
         })
-        ->whereHas('module.zones', function($query)use($zone_id){
-            $query->whereIn('zones.id', json_decode($zone_id, true));
+        ->whereHas('module.zones', function($query)use($zone_id_arr){
+            $query->whereIn('zones.id', $zone_id_arr);
         })
-        ->whereHas('store', function($query)use($zone_id , $filter){
+        ->whereHas('store', function($query)use($zone_id_arr , $filter){
             $query->when(config('module.current_module_data'), function($query){
                 $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
                     $query->where('modules.id', config('module.current_module_data')['id']);
                 });
-            })->whereIn('zone_id', json_decode($zone_id, true))
+            })->whereIn('zone_id', $zone_id_arr)
             ->when($filter && in_array('free_delivery',$filter),function ($qurey){
                 return $qurey->where('free_delivery',1);
             })
@@ -377,17 +380,18 @@ class ProductLogic
 
     public static function get_related_products($zone_id,$product_id)
     {
+        $zone_id_arr = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
         $product = Item::find($product_id);
         return Item::active()
-        ->whereHas('module.zones', function($query)use($zone_id){
-            $query->whereIn('zones.id', json_decode($zone_id, true));
+        ->whereHas('module.zones', function($query)use($zone_id_arr){
+            $query->whereIn('zones.id', $zone_id_arr);
         })
-        ->whereHas('store', function($query)use($zone_id){
+        ->whereHas('store', function($query)use($zone_id_arr){
             $query->when(config('module.current_module_data'), function($query){
                 $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
                     $query->where('modules.id', config('module.current_module_data')['id']);
                 });
-            })->whereIn('zone_id', json_decode($zone_id, true));
+            })->whereIn('zone_id', $zone_id_arr);
         })
         ->where('category_ids', $product->category_ids)
         ->where('id', '!=', $product->id)
@@ -396,17 +400,18 @@ class ProductLogic
     }
     public static function get_related_store_products($zone_id,$product_id)
     {
+        $zone_id_arr = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
         $product = Item::find($product_id);
         return Item::active()
-        ->whereHas('module.zones', function($query)use($zone_id){
-            $query->whereIn('zones.id', json_decode($zone_id, true));
+        ->whereHas('module.zones', function($query)use($zone_id_arr){
+            $query->whereIn('zones.id', $zone_id_arr);
         })
-        ->whereHas('store', function($query)use($zone_id){
+        ->whereHas('store', function($query)use($zone_id_arr){
             $query->when(config('module.current_module_data'), function($query){
                 $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
                     $query->where('modules.id', config('module.current_module_data')['id']);
                 });
-            })->whereIn('zone_id', json_decode($zone_id, true));
+            })->whereIn('zone_id', $zone_id_arr);
         })
         ->where('store_id', $product->store_id)
         ->where('id', '!=', $product->id)
@@ -499,7 +504,8 @@ class ProductLogic
                 })
 
             ->whereHas('store', function($query)use($zone_id){
-                    $query->whereIn('zone_id', json_decode($zone_id, true));
+                    $zone_id_arr = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
+                    $query->whereIn('zone_id', $zone_id_arr);
                 })
             ->select(['items.*'])
             ->selectSub(function ($subQuery) {
@@ -579,7 +585,8 @@ class ProductLogic
             ->withAvg('reviews', 'service_rating')
             ->withAvg('reviews', 'usability_rating')
             ->whereHas('store', function($query)use($zone_id){
-                $query->whereIn('zone_id', json_decode($zone_id, true));
+                $zone_id_arr = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
+                $query->whereIn('zone_id', $zone_id_arr);
             })
             ->when(config('module.current_module_data'), function($query){
                     $query->where('module_id', config('module.current_module_data')['id']);
@@ -666,7 +673,8 @@ class ProductLogic
                 });
             })
             ->whereHas('store', function($query)use($zone_id ,$filter){
-                $query->whereIn('zone_id', json_decode($zone_id, true))
+                $zone_id_arr = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
+                $query->whereIn('zone_id', $zone_id_arr)
                 ->when($filter&&in_array('free_delivery',$filter),function ($qurey){
                     return $qurey->where('free_delivery',1);
                 })
@@ -811,28 +819,29 @@ class ProductLogic
         $brand_ids = isset($brand_ids)?(is_array($brand_ids)?$brand_ids:json_decode($brand_ids)):[];
         $filter = $filter?(is_array($filter)?$filter:str_getcsv(trim($filter, "[]"), ',')):'';
 
-            $paginator = Item::
-            whereHas('module.zones', function($query)use($zone_id){
-                return $query->whereIn('zones.id', json_decode($zone_id, true));
+        $zone_id_arr = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
+        $paginator = Item::
+        whereHas('module.zones', function($query)use($zone_id_arr){
+            return $query->whereIn('zones.id', $zone_id_arr);
+        })
+            ->when(isset($category_ids) && (count($category_ids)>0), function($query)use($category_ids){
+                return $query->whereHas('category',function($q)use($category_ids){
+                    return $q->whereIn('id',$category_ids)->orWhereIn('parent_id', $category_ids);
+                });
             })
-                ->when(isset($category_ids) && (count($category_ids)>0), function($query)use($category_ids){
-                    return $query->whereHas('category',function($q)use($category_ids){
-                        return $q->whereIn('id',$category_ids)->orWhereIn('parent_id', $category_ids);
+            ->when(isset($brand_ids) && (count($brand_ids)>0), function($query)use($brand_ids){
+                return  $query->whereHas('ecommerce_item_details',function($q)use($brand_ids){
+                    return $q->whereHas('brand',function($q)use($brand_ids){
+                        return $q->whereIn('id',$brand_ids);
                     });
-                })
-                ->when(isset($brand_ids) && (count($brand_ids)>0), function($query)use($brand_ids){
-                    return  $query->whereHas('ecommerce_item_details',function($q)use($brand_ids){
-                        return $q->whereHas('brand',function($q)use($brand_ids){
-                            return $q->whereIn('id',$brand_ids);
-                        });
+                });
+            })
+            ->whereHas('store', function($query)use($zone_id_arr ,$filter){
+                return $query->when(config('module.current_module_data'), function($query){
+                    return $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
+                        return $query->where('modules.id', config('module.current_module_data')['id']);
                     });
-                })
-                ->whereHas('store', function($query)use($zone_id ,$filter){
-                    return $query->when(config('module.current_module_data'), function($query){
-                        return $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
-                            return $query->where('modules.id', config('module.current_module_data')['id']);
-                        });
-                    })->whereIn('zone_id', json_decode($zone_id, true))
+                })->whereIn('zone_id', $zone_id_arr)
                     ->when($filter&&in_array('free_delivery',$filter),function ($qurey){
                         return $qurey->where('free_delivery',1);
                     })
@@ -1173,6 +1182,7 @@ class ProductLogic
         if(isset($category_id)&&($category_id != 0)){
             $category_id = explode(',', $category_id);
         }
+        $zone_id_arr = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
         $query = Item::active()->type($type)
         ->whereHas('pharmacy_item_details', function($query){
             $query->where('is_basic', 1);
@@ -1185,15 +1195,15 @@ class ProductLogic
         ->when(isset($product_id), function($q)use($product_id){
             $q->where('id', '!=', $product_id);
         })
-        ->whereHas('module.zones', function($query)use($zone_id){
-            $query->whereIn('zones.id', json_decode($zone_id, true));
+        ->whereHas('module.zones', function($query)use($zone_id_arr){
+            $query->whereIn('zones.id', $zone_id_arr);
         })
-        ->whereHas('store', function($query)use($zone_id){
+        ->whereHas('store', function($query)use($zone_id_arr){
             $query->when(config('module.current_module_data'), function($query){
                 $query->where('module_id', config('module.current_module_data')['id'])->whereHas('zone.modules',function($query){
                     $query->where('modules.id', config('module.current_module_data')['id']);
                 });
-            })->whereIn('zone_id', json_decode($zone_id, true));
+            })->whereIn('zone_id', $zone_id_arr);
         })
         ->when($min && $max, function($query)use($min,$max){
             $query->whereBetween('price',[$min,$max]);

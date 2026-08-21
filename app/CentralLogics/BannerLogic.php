@@ -11,11 +11,12 @@ class BannerLogic
 {
     public static function get_banners($zone_id, $featured = false)
     {
+        $zone_id_arr = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
         $moduleData = config('module.current_module_data');
         $moduleId = isset($moduleData['id']) ? $moduleData['id'] : 'default';
-        $cacheKey = 'banners_' . md5($zone_id . '_' . ($featured ? 'featured' : 'non_featured') . '_' . $moduleId);
+        $cacheKey = 'banners_' . md5((is_array($zone_id) ? implode('_', $zone_id) : $zone_id) . '_' . ($featured ? 'featured' : 'non_featured') . '_' . $moduleId);
 
-        $banners = Cache::remember($cacheKey, now()->addMinutes(20), function () use ($zone_id, $featured,$moduleId) {
+        $banners = Cache::remember($cacheKey, now()->addMinutes(20), function () use ($zone_id_arr, $featured,$moduleId) {
             $banners = Banner::active()
                 ->when($featured, function ($query) {
                     $query->featured();
@@ -24,10 +25,10 @@ class BannerLogic
                     $query->active();
                 })
                 ->where('created_by', 'admin')
-                ->where(function ($query) use ($zone_id) {
-                    $query->where(function ($query) use ($zone_id) {
+                ->where(function ($query) use ($zone_id_arr) {
+                    $query->where(function ($query) use ($zone_id_arr) {
                         $query->whereIn('type', ['store_wise', 'item_wise'])
-                            ->whereIn('zone_id', json_decode($zone_id, true));
+                            ->whereIn('zone_id', $zone_id_arr);
                     })->orWhere('type', 'default');
                 });
 
@@ -65,9 +66,9 @@ class BannerLogic
             }
             if ($banner->type == 'item_wise') {
                 $item = Item::active()
-                    ->when(config('module.current_module_data'), function ($query) use ($zone_id) {
-                        $query->whereHas('module.zones', function ($query) use ($zone_id) {
-                            $query->whereIn('zones.id', json_decode($zone_id, true));
+                    ->when(config('module.current_module_data'), function ($query) use ($zone_id_arr) {
+                        $query->whereHas('module.zones', function ($query) use ($zone_id_arr) {
+                            $query->whereIn('zones.id', $zone_id_arr);
                         });
                     })
                     ->find($banner->data);
