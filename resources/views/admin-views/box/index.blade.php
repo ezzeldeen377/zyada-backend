@@ -55,6 +55,28 @@
                                     </div>
                                     <input type="hidden" name="lang[]" value="{{ $lang }}">
                                 @endforeach
+
+                                <div class="form-group lang_form" id="default-form-desc">
+                                    <label class="input-label" for="description">{{ translate('messages.description') }} ({{ translate('messages.default') }})<span class="input-label-secondary text-danger">*</span></label>
+                                    <textarea name="description[]" class="form-control" placeholder="{{ translate('messages.description') }}" required></textarea>
+                                </div>
+                                @foreach (json_decode($language) as $lang)
+                                    <div class="form-group d-none lang_form" id="{{ $lang }}-form-desc">
+                                        <label class="input-label" for="description">{{ translate('messages.description') }} ({{ strtoupper($lang) }})</label>
+                                        <textarea name="description[]" class="form-control" placeholder="{{ translate('messages.description') }}"></textarea>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="form-group lang_form" id="default-form">
+                                    <label class="input-label" for="name">{{ translate('messages.name') }}</label>
+                                    <input type="text" name="name[]" class="form-control" placeholder="{{ translate('messages.name') }}" required>
+                                </div>
+                                <input type="hidden" name="lang[]" value="default">
+
+                                <div class="form-group lang_form" id="default-form-desc">
+                                    <label class="input-label" for="description">{{ translate('messages.description') }}<span class="input-label-secondary text-danger">*</span></label>
+                                    <textarea name="description[]" class="form-control" placeholder="{{ translate('messages.description') }}" required></textarea>
+                                </div>
                             @endif
 
                             <div class="form-group">
@@ -127,21 +149,7 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col-md-12">
-                            @if ($language)
-                                <div class="form-group lang_form" id="default-form-desc">
-                                    <label class="input-label">{{ translate('messages.description') }} ({{ translate('messages.default') }})</label>
-                                    <textarea name="description[]" class="form-control"></textarea>
-                                </div>
-                                @foreach (json_decode($language) as $lang)
-                                    <div class="form-group d-none lang_form" id="{{ $lang }}-form-desc">
-                                        <label class="input-label">{{ translate('messages.description') }} ({{ strtoupper($lang) }})</label>
-                                        <textarea name="description[]" class="form-control"></textarea>
-                                    </div>
-                                @endforeach
-                            @endif
-                        </div>
+                    </div>
                     </div>
 
                     <div class="btn--container justify-content-end">

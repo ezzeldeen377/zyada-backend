@@ -35,6 +35,7 @@ class BoxController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name.0' => 'required',
+            'description.0' => 'required',
             'store_id' => 'required',
             'price' => 'required|numeric|min:0',
             'available_count' => 'required|numeric|min:1',
@@ -42,6 +43,7 @@ class BoxController extends Controller
             'image' => 'required',
         ], [
             'name.0.required' => translate('messages.Name is required!'),
+            'description.0.required' => translate('messages.Description is required!'),
             'store_id.required' => translate('messages.Please select a store!'),
         ]);
 
@@ -89,10 +91,15 @@ class BoxController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name.0' => 'required',
+            'description.0' => 'required',
             'store_id' => 'required',
             'price' => 'required|numeric|min:0',
             'available_count' => 'required|numeric|min:0',
             'item_count' => 'required|numeric|min:1',
+        ], [
+            'name.0.required' => translate('messages.Name is required!'),
+            'description.0.required' => translate('messages.Description is required!'),
+            'store_id.required' => translate('messages.Please select a store!'),
         ]);
 
         if ($validator->fails()) {

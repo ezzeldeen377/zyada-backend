@@ -65,6 +65,28 @@
                                     </div>
                                     <input type="hidden" name="lang[]" value="{{ $lang }}">
                                 @endforeach
+
+                                <div class="form-group lang_form" id="default-form-desc">
+                                    <label class="input-label" for="description">{{ translate('messages.description') }} ({{ translate('messages.default') }})<span class="input-label-secondary text-danger">*</span></label>
+                                    <textarea name="description[]" class="form-control" placeholder="{{ translate('messages.description') }}" required>{{ $box->getRawOriginal('description') }}</textarea>
+                                </div>
+                                @foreach (json_decode($language) as $lang)
+                                    <div class="form-group d-none lang_form" id="{{ $lang }}-form-desc">
+                                        <label class="input-label" for="description">{{ translate('messages.description') }} ({{ strtoupper($lang) }})</label>
+                                        <textarea name="description[]" class="form-control" placeholder="{{ translate('messages.description') }}">{{ $translations[$lang]['description'] ?? '' }}</textarea>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="form-group lang_form" id="default-form">
+                                    <label class="input-label" for="name">{{ translate('messages.name') }}</label>
+                                    <input type="text" name="name[]" class="form-control" value="{{ $box->getRawOriginal('name') }}" placeholder="{{ translate('messages.name') }}" required>
+                                </div>
+                                <input type="hidden" name="lang[]" value="default">
+
+                                <div class="form-group lang_form" id="default-form-desc">
+                                    <label class="input-label" for="description">{{ translate('messages.description') }}<span class="input-label-secondary text-danger">*</span></label>
+                                    <textarea name="description[]" class="form-control" placeholder="{{ translate('messages.description') }}" required>{{ $box->getRawOriginal('description') }}</textarea>
+                                </div>
                             @endif
 
                             <div class="form-group">
@@ -103,7 +125,7 @@
                                 <center>
                                     <img class="img--176" id="viewer" src="{{ $box->image_full_url }}" data-onerror-image="{{ asset('public/assets/admin/img/upload-img.png') }}" alt="image" />
                                 </center>
-                                <label class="input-label">{{ translate('messages.image') }} <small class="text-danger">( {{ translate('messages.ratio') }} 1:1 )</small></label>
+                                <label class="input-label">{{ translate('messages.image') }} <small class="text-danger">* ( {{ translate('messages.ratio') }} 1:1 )</small></label>
                                 <div class="custom-file">
                                     <input type="file" name="image" id="customFileEg1" class="custom-file-input" accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*">
                                     <label class="custom-file-label" for="customFileEg1">{{ translate('messages.choose_file') }}</label>
@@ -136,21 +158,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            @if ($language)
-                                <div class="form-group lang_form" id="default-form-desc">
-                                    <label class="input-label">{{ translate('messages.description') }} ({{ translate('messages.default') }})</label>
-                                    <textarea name="description[]" class="form-control">{{ $box->getRawOriginal('description') }}</textarea>
-                                </div>
-                                @foreach (json_decode($language) as $lang)
-                                    <div class="form-group d-none lang_form" id="{{ $lang }}-form-desc">
-                                        <label class="input-label">{{ translate('messages.description') }} ({{ strtoupper($lang) }})</label>
-                                        <textarea name="description[]" class="form-control">{{ $translations[$lang]['description'] ?? '' }}</textarea>
-                                    </div>
-                                @endforeach
-                            @endif
                         </div>
                     </div>
 
