@@ -65,6 +65,11 @@
                             aria-disabled="true">{{ translate('messages.items') }}</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ request('tab') == 'box' ? 'active' : '' }}"
+                            href="{{ route('admin.store.view', ['store' => $store->id, 'tab' => 'box']) }}"
+                            aria-disabled="true">{{ translate('messages.mystery_box') }}</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request('tab') == 'reviews' ? 'active' : '' }}"
                             href="{{ route('admin.store.view', ['store' => $store->id, 'tab' => 'reviews']) }}"
                             aria-disabled="true">{{ translate('messages.reviews') }}</a>

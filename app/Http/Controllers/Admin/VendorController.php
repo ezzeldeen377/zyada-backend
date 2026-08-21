@@ -7,6 +7,7 @@ use App\Models\Zone;
 use App\Models\AddOn;
 use App\Models\Order;
 use App\Models\Store;
+use App\Models\Box;
 use App\Models\Module;
 use App\Models\Vendor;
 use App\Models\Message;
@@ -484,6 +485,17 @@ class VendorController extends Controller
 
 
 
+        } else if ($tab == 'box') {
+            $boxes = Box::where('store_id', $store->id)
+                ->when(isset($key), function ($q) use ($key) {
+                    $q->where(function ($q) use ($key) {
+                        foreach ($key as $value) {
+                            $q->orWhere('name', 'like', "%{$value}%");
+                        }
+                    });
+                })
+                ->latest()->paginate(config('default_pagination'));
+            return view('admin-views.vendor.view.box', compact('store', 'boxes'));
         }
         return view('admin-views.vendor.view.index', compact('store', 'wallet'));
     }

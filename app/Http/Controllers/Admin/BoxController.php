@@ -20,9 +20,15 @@ class BoxController extends Controller
     public function index(Request $request)
     {
         $boxes = Box::where('module_id', Config::get('module.current_module_id'))
+            ->when($request->has('store_id'), function ($q) use ($request) {
+                $q->where('store_id', $request->store_id);
+            })
             ->latest()
             ->paginate(config('default_pagination'));
-        return view('admin-views.box.index', compact('boxes'));
+
+        $selected_store = $request->has('store_id') ? Store::find($request->store_id) : null;
+
+        return view('admin-views.box.index', compact('boxes', 'selected_store'));
     }
 
     public function store(Request $request)

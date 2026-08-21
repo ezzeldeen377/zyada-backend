@@ -59,7 +59,11 @@
 
                             <div class="form-group">
                                 <label class="input-label" for="store_id">{{ translate('messages.store') }}</label>
-                                <select name="store_id" id="store_id" class="form-control js-select2-custom" required></select>
+                                <select name="store_id" id="store_id" class="form-control js-select2-custom" required>
+                                    @if(isset($selected_store) && $selected_store)
+                                        <option value="{{ $selected_store->id }}" selected>{{ $selected_store->name }}</option>
+                                    @endif
+                                </select>
                             </div>
 
                             <div class="row">
