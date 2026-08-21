@@ -402,7 +402,7 @@ if(in_array(config('module.current_module_type'),config('module.module_type') ))
         })
     }
 
-    $('.form-alert').on('click',function (){
+    $(document).on('click', '.form-alert', function (){
         let id = $(this).data('id')
         let message = $(this).data('message')
         Swal.fire({
@@ -421,6 +421,24 @@ if(in_array(config('module.current_module_type'),config('module.module_type') ))
             }
         })
     })
+
+    function form_alert(id, message) {
+        Swal.fire({
+            title: '{{ translate('messages.Are you sure?') }}',
+            text: message,
+            type: 'warning',
+            showCancelButton: true,
+            cancelButtonColor: 'default',
+            confirmButtonColor: '#FC6A57',
+            cancelButtonText: '{{ translate('messages.no') }}',
+            confirmButtonText: '{{ translate('messages.Yes') }}',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.value) {
+                $('#'+id).submit()
+            }
+        })
+    }
 
     $('.canceled-status').on('click',function (){
         let route = $(this).data('url');

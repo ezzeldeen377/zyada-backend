@@ -13,12 +13,15 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Brian2694\Toastr\Facades\Toastr;
 use Rap2hpoutre\FastExcel\FastExcel;
+use Illuminate\Support\Facades\Config;
 
 class BoxController extends Controller
 {
     public function index(Request $request)
     {
-        $boxes = Box::latest()->paginate(config('default_pagination'));
+        $boxes = Box::where('module_id', Config::get('module.current_module_id'))
+            ->latest()
+            ->paginate(config('default_pagination'));
         return view('admin-views.box.index', compact('boxes'));
     }
 
@@ -142,11 +145,12 @@ class BoxController extends Controller
     public function search(Request $request)
     {
         $key = explode(' ', $request['search']);
-        $boxes = Box::where(function ($q) use ($key) {
-            foreach ($key as $value) {
-                $q->orWhere('name', 'like', "%{$value}%");
-            }
-        })->limit(50)->get();
+        $boxes = Box::where('module_id', Config::get('module.current_module_id'))
+            ->where(function ($q) use ($key) {
+                foreach ($key as $value) {
+                    $q->orWhere('name', 'like', "%{$value}%");
+                }
+            })->limit(50)->get();
 
         return response()->json([
             'view' => view('admin-views.box.partials._table', compact('boxes'))->render(),

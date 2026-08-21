@@ -23,7 +23,7 @@
         <td>
             <div class="btn--container justify-content-center">
                 <a class="btn btn-sm btn--primary btn-outline-primary action-btn" href="{{ route('admin.box.edit', [$box['id']]) }}" title="{{ translate('messages.edit') }}"><i class="tio-edit"></i></a>
-                <a class="btn btn-sm btn--danger btn-outline-danger action-btn" href="javascript:" onclick="form_alert('box-{{ $box['id'] }}','{{ translate('messages.Want_to_delete_this_box') }}')" title="{{ translate('messages.delete') }}"><i class="tio-delete-outlined"></i></a>
+                <a class="btn btn-sm btn--danger btn-outline-danger action-btn form-alert" href="javascript:" data-id="box-{{ $box['id'] }}" data-message="{{ translate('messages.Want_to_delete_this_box') }}" title="{{ translate('messages.delete') }}"><i class="tio-delete-outlined"></i></a>
                 <form action="{{ route('admin.box.delete', ['id' => $box['id']]) }}" method="post" id="box-{{ $box['id'] }}">
                     @csrf @method('delete')
                 </form>
