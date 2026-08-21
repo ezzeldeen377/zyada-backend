@@ -24,8 +24,9 @@
                         </div>
                     </form>
 
-                    <a href="{{ route('admin.box.add-new', ['store_id' => $store->id]) }}" class="btn btn--primary pull-right"><i
-                            class="tio-add-circle"></i> {{ translate('messages.add_new_box') }}</a>
+                    <button type="button" class="btn btn--primary pull-right" data-toggle="modal" data-target="#add-box-modal">
+                        <i class="tio-add-circle"></i> {{ translate('messages.add_new_box') }}
+                    </button>
                 </div>
             </div>
             <div class="table-responsive datatable-custom">
@@ -111,4 +112,222 @@
             </div>
         </div>
     </div>
+
+    <!-- Add Box Modal for Store View -->
+    <div class="modal fade" id="add-box-modal" tabindex="-1" role="dialog" aria-labelledby="addBoxModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addBoxModalLabel">{{ translate('messages.add_new_box') }} - {{ $store->name }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('admin.box.store') }}" method="post" enctype="multipart/form-data" id="modal_box_form">
+                    @csrf
+                    <input type="hidden" name="store_id" value="{{ $store->id }}">
+                    <div class="modal-body">
+                        @php($language = \App\Models\BusinessSetting::where('key', 'language')->first())
+                        @php($language = $language->value ?? null)
+
+                        @if ($language)
+                            <ul class="nav nav-tabs mb-4">
+                                <li class="nav-item">
+                                    <a class="nav-link modal_lang_link active" href="#"
+                                       id="modal-default-link">{{ translate('messages.default') }}</a>
+                                </li>
+                                @foreach (json_decode($language) as $lang)
+                                    <li class="nav-item">
+                                        <a class="nav-link modal_lang_link" href="#"
+                                           id="modal-{{ $lang }}-link">{{ \App\CentralLogics\Helpers::get_language_name($lang) . '(' . strtoupper($lang) . ')' }}</a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                @if ($language)
+                                    <div class="modal_lang_form" id="modal-default-form">
+                                        <div class="form-group">
+                                            <label class="input-label" for="name">{{ translate('messages.name') }} ({{ translate('messages.default') }})</label>
+                                            <input type="text" name="name[]" class="form-control" placeholder="{{ translate('messages.name') }}" required>
+                                        </div>
+                                        <input type="hidden" name="lang[]" value="default">
+
+                                        <div class="form-group">
+                                            <label class="input-label" for="description">{{ translate('messages.description') }} ({{ translate('messages.default') }})<span class="input-label-secondary text-danger">*</span></label>
+                                            <textarea name="description[]" class="form-control" placeholder="{{ translate('messages.description') }}" required></textarea>
+                                        </div>
+                                    </div>
+                                    @foreach (json_decode($language) as $lang)
+                                        <div class="d-none modal_lang_form" id="modal-{{ $lang }}-form">
+                                            <div class="form-group">
+                                                <label class="input-label" for="name">{{ translate('messages.name') }} ({{ strtoupper($lang) }})</label>
+                                                <input type="text" name="name[]" class="form-control" placeholder="{{ translate('messages.name') }}">
+                                            </div>
+                                            <input type="hidden" name="lang[]" value="{{ $lang }}">
+
+                                            <div class="form-group">
+                                                <label class="input-label" for="description">{{ translate('messages.description') }} ({{ strtoupper($lang) }})</label>
+                                                <textarea name="description[]" class="form-control" placeholder="{{ translate('messages.description') }}"></textarea>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <div class="modal_lang_form" id="modal-default-form">
+                                        <div class="form-group">
+                                            <label class="input-label" for="name">{{ translate('messages.name') }}</label>
+                                            <input type="text" name="name[]" class="form-control" placeholder="{{ translate('messages.name') }}" required>
+                                        </div>
+                                        <input type="hidden" name="lang[]" value="default">
+
+                                        <div class="form-group">
+                                            <label class="input-label" for="description">{{ translate('messages.description') }}<span class="input-label-secondary text-danger">*</span></label>
+                                            <textarea name="description[]" class="form-control" placeholder="{{ translate('messages.description') }}" required></textarea>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="input-label" for="available_count">{{ translate('messages.available_count') }}</label>
+                                            <input type="number" name="available_count" class="form-control" placeholder="{{ translate('messages.available_count') }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="input-label" for="item_count">{{ translate('messages.item_count') }}</label>
+                                            <input type="number" name="item_count" class="form-control" placeholder="{{ translate('messages.item_count') }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label class="input-label" for="price">{{ translate('messages.price') }}</label>
+                                            <input type="number" step="0.01" name="price" class="form-control" placeholder="{{ translate('messages.price') }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <center>
+                                        <img class="img--176" id="modal_viewer" src="{{ asset('public/assets/admin/img/upload-img.png') }}" alt="image" />
+                                    </center>
+                                    <label class="input-label">{{ translate('messages.image') }} <small class="text-danger">* ( {{ translate('messages.ratio') }} 1:1 )</small></label>
+                                    <div class="custom-file">
+                                        <input type="file" name="image" id="modalCustomFileEg1" class="custom-file-input" accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*" required>
+                                        <label class="custom-file-label" for="modalCustomFileEg1">{{ translate('messages.choose_file') }}</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="input-label" for="start_date">{{ translate('messages.start_date') }}</label>
+                                            <input type="date" name="start_date" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="input-label" for="end_date">{{ translate('messages.end_date') }}</label>
+                                            <input type="date" name="end_date" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="input-label" for="pickup_time_from">{{ translate('messages.pickup_time_from') }}</label>
+                                            <input type="time" name="pickup_time_from" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="input-label" for="pickup_time_to">{{ translate('messages.pickup_time_to') }}</label>
+                                            <input type="time" name="pickup_time_to" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn--reset" data-dismiss="modal">{{ translate('messages.cancel') }}</button>
+                        <button type="submit" class="btn btn--primary">{{ translate('messages.submit') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
+
+@push('script_2')
+    <script>
+        $(".modal_lang_link").click(function (e) {
+            e.preventDefault();
+            $(".modal_lang_link").removeClass('active');
+            $(".modal_lang_form").addClass('d-none');
+            $(this).addClass('active');
+
+            let id = $(this).attr('id');
+            let lang = id.split('-')[1];
+            $("#modal-" + lang + "-form").removeClass('d-none');
+        });
+
+        function readModalURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#modal_viewer').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $("#modalCustomFileEg1").change(function () {
+            readModalURL(this);
+        });
+
+        $('#modal_box_form').on('submit', function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+            $.post({
+                url: '{{ route('admin.box.store') }}',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                beforeSend: function () {
+                    $('#loading').show();
+                },
+                success: function (data) {
+                    if (data.errors) {
+                        for (var i = 0; i < data.errors.length; i++) {
+                            toastr.error(data.errors[i].message, {
+                                CloseButton: true,
+                                ProgressBar: true
+                            });
+                        }
+                    } else {
+                        toastr.success(data.success, {
+                            CloseButton: true,
+                            ProgressBar: true
+                        });
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1500);
+                    }
+                },
+                complete: function () {
+                    $('#loading').hide();
+                }
+            });
+        });
+    </script>
+@endpush
