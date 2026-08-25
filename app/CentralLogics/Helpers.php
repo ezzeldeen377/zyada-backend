@@ -1290,6 +1290,11 @@ class Helpers
                 $product = \App\Models\Box::withoutGlobalScopes()->find($box_id ?? $item_details['id']);
                 $image_full_url = $product?->image_full_url ?? Helpers::get_full_url('box', $item_details['image'] ?? '', $item_details['storage'] ?? 'public', 'product');
                 $item_array['images_full_url'] = [];
+                if ($product) {
+                    $item_array['discount_type'] = $product->discount_type;
+                    $item_array['discount_amount'] = $product->discount_amount;
+                    $item_array['discounted_price'] = $product->discounted_price;
+                }
             } else {
                 $image_full_url = Helpers::get_full_url('product', $item_details['image'] ?? '', $item_details['storage'] ?? 'public', 'product');
                 $item_array['images_full_url'] = [];
