@@ -555,6 +555,11 @@ class Helpers
                 $item['tax_data'] = \Modules\TaxModule\Entities\Tax::whereIn('id', $item['tax_data'])->get(['id', 'name', 'tax_rate']);
                 unset($item['taxVats']);
 
+                $distance = null;
+                if ($latitude && $longitude && $item->store?->latitude && $item->store?->longitude) {
+                    $distance = self::calculate_distance($latitude, $longitude, $item->store->latitude, $item->store->longitude);
+                }
+                $item['distance'] = $distance;
 
                 unset($item['nutritions']);
                 unset($item['allergies']);
@@ -562,12 +567,6 @@ class Helpers
                 unset($item['pharmacy_item_details']);
                 unset($item['store']);
                 unset($item['rating']);
-
-                $distance = null;
-                if ($latitude && $longitude && $item->store?->latitude && $item->store?->longitude) {
-                    $distance = self::calculate_distance($latitude, $longitude, $item->store->latitude, $item->store->longitude);
-                }
-                $item['distance'] = $distance;
 
                 array_push($storage, $item);
             }
