@@ -64,7 +64,7 @@
                                         {{ $box->name }}
                                     </span>
                                 </td>
-                                <td>{{ \App\CentralLogics\Helpers::format_currency($box->price) }}</td>
+                                <td>{{ \App\CentralLogics\Helpers::format_currency($box->discounted_price) }}</td>
                                 <td>{{ $box->available_count }}</td>
                                 <td>{{ $box->item_count }}</td>
                                 <td>

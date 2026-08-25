@@ -10,7 +10,7 @@
             </span>
         </td>
         <td>{{ $box->store ? $box->store->name : translate('messages.store_deleted') }}</td>
-        <td>{{ \App\CentralLogics\Helpers::format_currency($box->price) }}</td>
+        <td>{{ \App\CentralLogics\Helpers::format_currency($box->discounted_price) }}</td>
         <td>{{ $box->available_count }}</td>
         <td>
             <label class="toggle-switch toggle-switch-sm" for="statusCheckbox{{ $box->id }}">

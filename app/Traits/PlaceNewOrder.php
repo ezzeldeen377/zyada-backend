@@ -1044,7 +1044,7 @@ trait PlaceNewOrder
                     ];
                 }
 
-                $price = $box->price;
+                $price = $box->discounted_price;
                 $or_d = [
                     'item_id' => null,
                     'item_campaign_id' => null,
@@ -1055,7 +1055,7 @@ trait PlaceNewOrder
                         'description' => $box->description,
                         'image' => $box->image,
                         'image_full_url' => $box->image_full_url ?? '',
-                        'price' => $box->price,
+                        'price' => $box->discounted_price,
                         'item_count' => $box->item_count,
                         'tax' => 0,
                     ]),
@@ -1282,7 +1282,7 @@ trait PlaceNewOrder
                         ];
                     }
 
-                    $price = $box->price;
+                    $price = $box->discounted_price;
                     $or_d = [
                         'item_id' => null,
                         'item_campaign_id' => null,
@@ -1293,7 +1293,7 @@ trait PlaceNewOrder
                             'description' => $box->description,
                             'image' => $box->image,
                             'image_full_url' => $box->image_full_url ?? '',
-                            'price' => $box->price,
+                            'price' => $box->discounted_price,
                             'item_count' => $box->item_count,
                             'tax' => 0,
                         ]),
@@ -1517,7 +1517,7 @@ trait PlaceNewOrder
                         ];
                     }
 
-                    $price = $box->price;
+                    $price = $box->discounted_price;
                     $or_d = [
                         'cart_id' => $c['id'],
                         'item_id' => null,
@@ -1529,7 +1529,7 @@ trait PlaceNewOrder
                             'description' => $box->description,
                             'image' => $box->image,
                             'image_full_url' => $box->image_full_url ?? '',
-                            'price' => $box->price,
+                            'price' => $box->discounted_price,
                             'item_count' => $box->item_count,
                             'tax' => 0,
                         ]),
