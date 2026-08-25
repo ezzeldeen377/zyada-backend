@@ -22,9 +22,9 @@ class CategoryController extends Controller
         try {
         $category_list_default_status =Helpers::get_business_settings('category_list_default_status') ?? 1;
         $category_list_sort_by_general = Helpers::getPriorityList(name: 'category_list_sort_by_general', type: 'general');
-            $zone_id=  $request->header('zoneId') ? json_decode($request->header('zoneId'), true) : [];
-            $zoneIds = implode(',', $zone_id);
-            $key = explode(' ', $search);
+            $zone_id = Helpers::format_zone_id($request->header('zoneId'));
+            $zoneIds = !empty($zone_id) ? implode(',', $zone_id) : '0';
+            $key = explode(' ', $search ?? '');
             $featured = $request->query('featured');
 
             // select('categories.*')

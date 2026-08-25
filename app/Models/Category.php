@@ -77,6 +77,11 @@ class Category extends Model
         return $this->hasMany(Item::class);
     }
 
+    public function boxes(): HasMany
+    {
+        return $this->hasMany(Box::class);
+    }
+
     public function scopeModule($query, $module_id)
     {
         return $query->where('module_id', $module_id);

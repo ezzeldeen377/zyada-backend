@@ -19,7 +19,8 @@ class BoxController extends Controller
 {
     public function index(Request $request)
     {
-        $boxes = Box::where('module_id', Config::get('module.current_module_id'))
+        $boxes = Box::with('category:id,name')
+            ->where('module_id', Config::get('module.current_module_id'))
             ->when($request->has('store_id'), function ($q) use ($request) {
                 $q->where('store_id', $request->store_id);
             })
@@ -71,6 +72,9 @@ class BoxController extends Controller
         $box->end_date = $request->end_date;
         $box->pickup_time_from = $request->pickup_time_from;
         $box->pickup_time_to = $request->pickup_time_to;
+        $box->category_id = $request->category_id;
+        $box->discount_type = $request->discount_type;
+        $box->discount_amount = $request->discount_amount ?? 0;
         $box->image = Helpers::upload('box/', 'png', $request->file('image'));
         $box->status = 1;
         $box->save();
@@ -125,6 +129,9 @@ class BoxController extends Controller
         $box->end_date = $request->end_date;
         $box->pickup_time_from = $request->pickup_time_from;
         $box->pickup_time_to = $request->pickup_time_to;
+        $box->category_id = $request->category_id;
+        $box->discount_type = $request->discount_type;
+        $box->discount_amount = $request->discount_amount ?? 0;
         $box->image = $request->has('image') ? Helpers::update('box/', $box->image, 'png', $request->file('image')) : $box->image;
         $box->save();
 
@@ -158,7 +165,8 @@ class BoxController extends Controller
     public function search(Request $request)
     {
         $key = explode(' ', $request['search']);
-        $boxes = Box::where('module_id', Config::get('module.current_module_id'))
+        $boxes = Box::with('category:id,name')
+            ->where('module_id', Config::get('module.current_module_id'))
             ->where(function ($q) use ($key) {
                 foreach ($key as $value) {
                     $q->orWhere('name', 'like', "%{$value}%");

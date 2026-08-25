@@ -462,6 +462,7 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>'localization'], function (
             Route::get('/{id}', 'BoxController@show');
             Route::get('reviews/{box_id}', 'BoxController@get_reviews');
             Route::get('rating/{box_id}', 'BoxController@get_rating');
+            Route::get('top-deals-today', 'BoxController@top_deals_today');
             Route::post('reviews/submit', 'BoxController@submit_review')->middleware('auth:api');
         });
 

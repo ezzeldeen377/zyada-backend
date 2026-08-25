@@ -10,8 +10,7 @@ class AdvertisementController extends Controller
 {
     public function get_adds(Request $request)
     {
-        $zone_ids= $request->header('zoneId');
-        $zone_ids=  json_decode($zone_ids, true)?? [];
+        $zone_ids = Helpers::format_zone_id($request->header('zoneId'));
 
         $cacheKey = 'advertisement_' . md5(implode('_', [
                 json_encode($zone_ids),

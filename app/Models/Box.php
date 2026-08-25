@@ -20,7 +20,9 @@ class Box extends Model
     protected $casts = [
         'store_id' => 'integer',
         'module_id' => 'integer',
+        'category_id' => 'integer',
         'price' => 'float',
+        'discount_amount' => 'float',
         'item_count' => 'integer',
         'available_count' => 'integer',
         'status' => 'boolean',
@@ -39,7 +41,7 @@ class Box extends Model
         'updated_at' => 'datetime',
     ];
 
-    protected $appends = ['image_full_url'];
+    protected $appends = ['image_full_url', 'discounted_price'];
 
     protected $with = ['translations', 'storage'];
 
@@ -58,6 +60,26 @@ class Box extends Model
         }
 
         return Helpers::get_full_url('box', $value, 'public');
+    }
+
+    /**
+     * Get the discounted price based on discount_type and discount_amount.
+     */
+    public function getDiscountedPriceAttribute()
+    {
+        if (!$this->discount_type || $this->discount_amount <= 0) {
+            return $this->price;
+        }
+
+        if ($this->discount_type === 'percent') {
+            return round($this->price - ($this->price * $this->discount_amount / 100), 2);
+        }
+
+        if ($this->discount_type === 'amount') {
+            return max(0, round($this->price - $this->discount_amount, 2));
+        }
+
+        return $this->price;
     }
 
     /**
@@ -141,6 +163,14 @@ class Box extends Model
     public function store()
     {
         return $this->belongsTo(Store::class);
+    }
+
+    /**
+     * Relationship with category.
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     /**

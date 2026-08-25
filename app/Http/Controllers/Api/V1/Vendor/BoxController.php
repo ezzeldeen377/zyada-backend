@@ -100,6 +100,9 @@ class BoxController extends Controller
         $box->end_date = $request->end_date;
         $box->pickup_time_from = $request->pickup_time_from;
         $box->pickup_time_to = $request->pickup_time_to;
+        $box->category_id = $request->category_id;
+        $box->discount_type = $request->discount_type;
+        $box->discount_amount = $request->discount_amount ?? 0;
         $box->status = true;
         $box->save();
 
@@ -218,6 +221,9 @@ class BoxController extends Controller
         if ($request->has('end_date')) $box->end_date = $request->end_date;
         if ($request->has('pickup_time_from')) $box->pickup_time_from = $request->pickup_time_from;
         if ($request->has('pickup_time_to')) $box->pickup_time_to = $request->pickup_time_to;
+        if ($request->has('category_id')) $box->category_id = $request->category_id;
+        if ($request->has('discount_type')) $box->discount_type = $request->discount_type;
+        if ($request->has('discount_amount')) $box->discount_amount = $request->discount_amount;
         
         $box->save();
 
@@ -320,7 +326,7 @@ class BoxController extends Controller
         $offset = $request->input('offset', 1);
 
         $boxes = Box::withoutGlobalScope(StoreScope::class)
-            ->with('storage', 'store', 'module')
+            ->with('storage', 'store', 'module', 'category:id,name')
             ->where('store_id', $vendor->stores[0]->id)
             ->latest()
             ->paginate($limit, ['*'], 'page', $offset);
@@ -344,7 +350,7 @@ class BoxController extends Controller
             ->withoutGlobalScope('translate')
             ->with(['translations' => function($query) {
                 return $query; // Get all translations for editing
-            }, 'storage', 'store', 'module'])
+            }, 'storage', 'store', 'module', 'category:id,name'])
             ->find($id);
 
         if (!$box) {

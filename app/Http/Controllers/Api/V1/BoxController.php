@@ -40,6 +40,7 @@ class BoxController extends Controller
 
         $zone_id = Helpers::format_zone_id($request->header('zoneId'));
         $coords = Helpers::getItemDistanceCoordinates($request);
+        $category_id = $request->query('category_id');
 
         $boxes = Box::active()
             ->available()
@@ -49,13 +50,16 @@ class BoxController extends Controller
                     $q->whereIn('zone_id', $zone_id);
                 });
             })
+            ->when($category_id, function ($query) use ($category_id) {
+                return $query->where('category_id', $category_id);
+            })
             ->when($store_id, function ($query) use ($store_id) {
                 return $query->where('store_id', $store_id);
             })
             ->when(!$store_id && !$all_boxes, function ($query) {
                 return $query->groupBy('store_id');
             })
-            ->with('store:id,name,logo,address,latitude,longitude')
+            ->with(['store:id,name,logo,address,latitude,longitude', 'category:id,name'])
             ->latest()
             ->paginate($limit, ['*'], 'page', $offset);
 
@@ -104,6 +108,7 @@ class BoxController extends Controller
             ->withCount('reviews')
             ->with([
                 'store:id,name,logo,address,latitude,longitude',
+                'category:id,name',
                 'reviews' => function ($query) {
                     $query->active()->with('customer:id,f_name,l_name,image')->latest()->limit(5);
                 }
@@ -286,5 +291,80 @@ class BoxController extends Controller
                 ]
             ], 500);
         }
+    }
+
+    /**
+     * Get top deals today — boxes ending soon or with low stock.
+     */
+    public function top_deals_today(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'limit' => 'nullable|integer|min:1|max:50',
+            'offset' => 'nullable|integer|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => Helpers::error_processor($validator)
+            ], 403);
+        }
+
+        $limit = $request->input('limit', 10);
+        $offset = $request->input('offset', 1);
+
+        $zone_id = Helpers::format_zone_id($request->header('zoneId'));
+        $coords = Helpers::getItemDistanceCoordinates($request);
+
+        $low_stock_threshold = 5;
+
+        $boxes = Box::active()
+            ->available()
+            ->module($request->header('moduleId'))
+            ->when(!empty($zone_id), function ($query) use ($zone_id) {
+                return $query->whereHas('store', function ($q) use ($zone_id) {
+                    $q->whereIn('zone_id', $zone_id);
+                });
+            })
+            ->where(function ($query) use ($low_stock_threshold) {
+                $query->whereBetween('end_date', [now(), now()->addDays(3)])
+                    ->orWhere('available_count', '<=', $low_stock_threshold);
+            })
+            ->with(['store:id,name,logo,address,latitude,longitude', 'category:id,name'])
+            ->orderBy('end_date', 'asc')
+            ->orderBy('available_count', 'asc')
+            ->paginate($limit, ['*'], 'page', $offset);
+
+        $boxes_data = collect($boxes->items())->map(function ($box) use ($coords) {
+            if ($box->store && $coords) {
+                $box->distance = Helpers::calculate_distance(
+                    $coords['latitude'], $coords['longitude'],
+                    $box->store->latitude, $box->store->longitude
+                );
+            } else {
+                $box->distance = null;
+            }
+
+            $ending_soon = $box->end_date && $box->end_date->isPast() == false && $box->end_date->lte(now()->addDays(3));
+            $low_stock = $box->available_count <= 5;
+
+            if ($ending_soon && $low_stock) {
+                $box->deal_type = 'both';
+            } elseif ($ending_soon) {
+                $box->deal_type = 'ending_soon';
+            } else {
+                $box->deal_type = 'low_stock';
+            }
+
+            return $box;
+        });
+
+        $data = [
+            'total_size' => $boxes->total(),
+            'limit' => $limit,
+            'offset' => $offset,
+            'boxes' => $boxes_data->values(),
+        ];
+
+        return response()->json($data, 200);
     }
 }
