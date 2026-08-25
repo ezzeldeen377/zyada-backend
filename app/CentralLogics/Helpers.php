@@ -162,6 +162,26 @@ class Helpers
         ];
     }
 
+    public static function getItemDistanceCoordinates($request)
+    {
+        $longitude = $request->header('longitude');
+        $latitude = $request->header('latitude');
+
+        if ($latitude && $longitude) {
+            return [
+                'latitude' => $latitude,
+                'longitude' => $longitude,
+            ];
+        }
+
+        $user = $request->user();
+        if ($user) {
+            return self::getUserAddressCoordinates($user);
+        }
+
+        return null;
+    }
+
     public static function cart_box_data_formatting($data)
     {
         $data['store_name'] = $data->store->name;

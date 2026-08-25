@@ -27,8 +27,7 @@ class ItemController extends Controller
 
     private function getUserAddressCoordinates(Request $request)
     {
-        $user = $request->user();
-        return Helpers::getUserAddressCoordinates($user);
+        return Helpers::getItemDistanceCoordinates($request);
     }
 
     public function get_latest_products(Request $request)

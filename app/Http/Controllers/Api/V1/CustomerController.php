@@ -291,7 +291,7 @@ class CustomerController extends Controller
                 return $q->popular();
             })
             ->limit(5)->get();
-        $coords = Helpers::getUserAddressCoordinates($request->user());
+        $coords = Helpers::getItemDistanceCoordinates($request);
         $products = Helpers::product_data_formatting($products, true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($products, 200);
     }

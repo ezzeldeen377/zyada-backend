@@ -14,8 +14,7 @@ class CategoryController extends Controller
 {
     private function getUserAddressCoordinates(Request $request)
     {
-        $user = $request->user();
-        return Helpers::getUserAddressCoordinates($user);
+        return Helpers::getItemDistanceCoordinates($request);
     }
 
     public function get_categories(Request $request,$search=null)

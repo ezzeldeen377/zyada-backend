@@ -132,7 +132,7 @@ class StoreController extends Controller
             });
         })
         ->active()->popular()->limit(10)->get();
-        $coords = $request ? Helpers::getUserAddressCoordinates($request->user()) : null;
+        $coords = $request ? Helpers::getItemDistanceCoordinates($request) : null;
         $items = Helpers::product_data_formatting($items, true, true, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
 
         return response()->json($items, 200);
