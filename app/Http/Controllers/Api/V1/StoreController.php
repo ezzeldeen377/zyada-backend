@@ -71,7 +71,8 @@ class StoreController extends Controller
         $zone_id = Helpers::format_zone_id($request->header('zoneId'));
         $longitude= $request->header('longitude');
         $latitude= $request->header('latitude');
-        $stores = StoreLogic::get_popular_stores($zone_id, $request['limit'], $request['offset'], $type,$longitude,$latitude);
+        $max_distance = $request->query('distance');
+        $stores = StoreLogic::get_popular_stores($zone_id, $request['limit'], $request['offset'], $type,$longitude,$latitude,$max_distance);
         $stores['stores'] = Helpers::store_data_formatting($stores['stores'], true);
 
         return response()->json($stores, 200);

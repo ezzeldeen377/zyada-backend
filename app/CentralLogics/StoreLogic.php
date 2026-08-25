@@ -268,7 +268,7 @@ class StoreLogic
         ];
     }
 
-    public static function get_popular_stores($zone_id, $limit = 50, $offset = 1, $type = 'all',$longitude=0,$latitude=0)
+    public static function get_popular_stores($zone_id, $limit = 50, $offset = 1, $type = 'all',$longitude=0,$latitude=0,$max_distance=null)
     {
         $popular_store_default_status = BusinessSetting::where('key', 'popular_store_default_status')->first()?->value ?? 1;
         $popular_store_sort_by_general = PriorityList::where('name', 'popular_store_sort_by_general')->where('type','general')->first()?->value ?? '';
@@ -293,6 +293,10 @@ class StoreLogic
             ->type($type)
             ->withCount('reviews')
             ->withCount('orders')->Active();
+
+            if($max_distance && is_numeric($max_distance)) {
+                $query->having('distance', '<=', $max_distance * 1000);
+            }
 
             if($popular_store_default_status == '1') {
                 $query = $query->orderBy('open', 'desc')
