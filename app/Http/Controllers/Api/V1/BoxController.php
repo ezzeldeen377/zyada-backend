@@ -38,11 +38,17 @@ class BoxController extends Controller
         $store_id = $store_id ?? $request->store_id;
         $all_boxes = $request->query('all_boxes') == 'true';
 
+        $zone_id = Helpers::format_zone_id($request->header('zoneId'));
         $coords = Helpers::getItemDistanceCoordinates($request);
 
         $boxes = Box::active()
             ->available()
             ->module($request->header('moduleId'))
+            ->when(!empty($zone_id), function ($query) use ($zone_id) {
+                return $query->whereHas('store', function ($q) use ($zone_id) {
+                    $q->whereIn('zone_id', $zone_id);
+                });
+            })
             ->when($store_id, function ($query) use ($store_id) {
                 return $query->where('store_id', $store_id);
             })
@@ -80,8 +86,16 @@ class BoxController extends Controller
      */
     public function show(Request $request, $id)
     {
+        $zone_id = Helpers::format_zone_id($request->header('zoneId'));
+
         $box = Box::active()
             ->available()
+            ->module($request->header('moduleId'))
+            ->when(!empty($zone_id), function ($query) use ($zone_id) {
+                return $query->whereHas('store', function ($q) use ($zone_id) {
+                    $q->whereIn('zone_id', $zone_id);
+                });
+            })
             ->withAvg('reviews', 'quality_rating')
             ->withAvg('reviews', 'value_rating')
             ->withAvg('reviews', 'packaging_rating')
