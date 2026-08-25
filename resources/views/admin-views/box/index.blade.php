@@ -113,6 +113,35 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="form-group">
+                                <label class="input-label" for="category_id">{{ translate('messages.category') }}</label>
+                                <select name="category_id" id="category_id" class="form-control js-select2-custom">
+                                    <option value="">{{ translate('messages.select_category') }}</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="input-label" for="discount_type">{{ translate('messages.discount_type') }}</label>
+                                        <select name="discount_type" id="discount_type" class="form-control">
+                                            <option value="">{{ translate('messages.no_discount') }}</option>
+                                            <option value="percent">{{ translate('messages.percent') }}</option>
+                                            <option value="amount">{{ translate('messages.amount') }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="input-label" for="discount_amount">{{ translate('messages.discount_amount') }}</label>
+                                        <input type="number" step="0.01" name="discount_amount" class="form-control" value="0" placeholder="{{ translate('messages.discount_amount') }}">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-md-6">
@@ -278,6 +307,8 @@
                     }
                 }
             });
+
+            $('#category_id').select2();
         });
 
         $(".lang_link").click(function (e) {

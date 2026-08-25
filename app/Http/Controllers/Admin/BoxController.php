@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Box;
+use App\Models\Category;
 use App\Models\Store;
 use App\Models\Translation;
 use App\CentralLogics\Helpers;
@@ -29,7 +30,11 @@ class BoxController extends Controller
 
         $selected_store = $request->has('store_id') ? Store::find($request->store_id) : null;
 
-        return view('admin-views.box.index', compact('boxes', 'selected_store'));
+        $categories = Category::active()
+            ->module(Config::get('module.current_module_id'))
+            ->get(['id', 'name']);
+
+        return view('admin-views.box.index', compact('boxes', 'selected_store', 'categories'));
     }
 
     public function store(Request $request)
@@ -88,7 +93,12 @@ class BoxController extends Controller
     public function edit($id)
     {
         $box = Box::withoutGlobalScope('translate')->findOrFail($id);
-        return view('admin-views.box.edit', compact('box'));
+
+        $categories = Category::active()
+            ->module(Config::get('module.current_module_id'))
+            ->get(['id', 'name']);
+
+        return view('admin-views.box.edit', compact('box', 'categories'));
     }
 
     public function update(Request $request, $id)
