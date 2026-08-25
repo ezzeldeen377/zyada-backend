@@ -101,7 +101,7 @@ class BoxController extends Controller
         $box->pickup_time_from = $request->pickup_time_from;
         $box->pickup_time_to = $request->pickup_time_to;
         $box->category_id = $request->category_id;
-        $box->discount_type = $request->discount_type;
+        $box->discount_type = $request->discount_type ?: null;
         $box->discount_amount = $request->discount_amount ?? 0;
         $box->status = true;
         $box->save();
@@ -222,7 +222,7 @@ class BoxController extends Controller
         if ($request->has('pickup_time_from')) $box->pickup_time_from = $request->pickup_time_from;
         if ($request->has('pickup_time_to')) $box->pickup_time_to = $request->pickup_time_to;
         if ($request->has('category_id')) $box->category_id = $request->category_id;
-        if ($request->has('discount_type')) $box->discount_type = $request->discount_type;
+        if ($request->has('discount_type')) $box->discount_type = $request->discount_type ?: null;
         if ($request->has('discount_amount')) $box->discount_amount = $request->discount_amount;
         
         $box->save();

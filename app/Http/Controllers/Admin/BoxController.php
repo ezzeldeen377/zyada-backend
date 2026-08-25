@@ -78,7 +78,7 @@ class BoxController extends Controller
         $box->pickup_time_from = $request->pickup_time_from;
         $box->pickup_time_to = $request->pickup_time_to;
         $box->category_id = $request->category_id;
-        $box->discount_type = $request->discount_type;
+        $box->discount_type = $request->discount_type ?: null;
         $box->discount_amount = $request->discount_amount ?? 0;
         $box->image = Helpers::upload('box/', 'png', $request->file('image'));
         $box->status = 1;
@@ -140,7 +140,7 @@ class BoxController extends Controller
         $box->pickup_time_from = $request->pickup_time_from;
         $box->pickup_time_to = $request->pickup_time_to;
         $box->category_id = $request->category_id;
-        $box->discount_type = $request->discount_type;
+        $box->discount_type = $request->discount_type ?: null;
         $box->discount_amount = $request->discount_amount ?? 0;
         $box->image = $request->has('image') ? Helpers::update('box/', $box->image, 'png', $request->file('image')) : $box->image;
         $box->save();
