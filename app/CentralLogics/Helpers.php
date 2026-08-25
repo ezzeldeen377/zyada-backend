@@ -196,7 +196,6 @@ class Helpers
         $data['discount_type'] = $data->discount_type;
         $data['rating_count'] = 0;
         $data['avg_rating'] = 0;
-        $data['price'] = $data->discounted_price;
         
         unset($data['store']);
         unset($data['module']);
