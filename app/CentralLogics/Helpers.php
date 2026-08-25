@@ -192,8 +192,8 @@ class Helpers
         $data['add_ons'] = [];
         $data['variations'] = [];
         $data['food_variations'] = [];
-        $data['discount'] = 0;
-        $data['discount_type'] = null;
+        $data['discount'] = $data->discount_amount ?? 0;
+        $data['discount_type'] = $data->discount_type;
         $data['rating_count'] = 0;
         $data['avg_rating'] = 0;
         $data['price'] = $data->discounted_price;
