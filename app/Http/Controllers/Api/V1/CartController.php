@@ -156,6 +156,7 @@ class CartController extends Controller
                 $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox', 'App\ModelsBox']);
                 $data->model = $isBox ? 'Box' : 'Item';                
                 if ($isBox) {
+                    $data->price = $data->item->discounted_price;
                     $data->item = Helpers::cart_box_data_formatting($data->item);
                 } else {
                     $data->item = Helpers::cart_product_data_formatting(
@@ -246,6 +247,7 @@ class CartController extends Controller
                 $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox', 'App\ModelsBox']);
                 $data->model = $isBox ? 'Box' : 'Item';
                 if ($isBox) {
+                    $data->price = $data->item->discounted_price;
                     $data->item = Helpers::cart_box_data_formatting($data->item);
                 } else {
                     $data->item = Helpers::cart_product_data_formatting(
@@ -290,9 +292,10 @@ class CartController extends Controller
             $isBox = in_array($data->item_type, ['Box', 'App\Models\Box', 'AppModelsBox', 'App\ModelsBox']);
             $data->model = $isBox ? 'Box' : 'Item';
             
-            if ($isBox) {
-                $data->item = Helpers::cart_box_data_formatting($data->item);
-            } else {
+                if ($isBox) {
+                    $data->price = $data->item->discounted_price;
+                    $data->item = Helpers::cart_box_data_formatting($data->item);
+                } else {
                 $data->item = Helpers::cart_product_data_formatting($data->item, $data->variation,$data->add_on_ids,
                 $data->add_on_qtys, false, app()->getLocale());
             }
