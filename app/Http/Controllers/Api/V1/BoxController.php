@@ -38,6 +38,8 @@ class BoxController extends Controller
         $store_id = $store_id ?? $request->store_id;
         $all_boxes = $request->query('all_boxes') == 'true';
 
+        $coords = Helpers::getItemDistanceCoordinates($request);
+
         $boxes = Box::active()
             ->available()
             ->module($request->header('moduleId'))
@@ -47,15 +49,27 @@ class BoxController extends Controller
             ->when(!$store_id && !$all_boxes, function ($query) {
                 return $query->groupBy('store_id');
             })
-            ->with('store:id,name,logo,address')
+            ->with('store:id,name,logo,address,latitude,longitude')
             ->latest()
             ->paginate($limit, ['*'], 'page', $offset);
+
+        $boxes_data = collect($boxes->items())->map(function ($box) use ($coords) {
+            if ($box->store && $coords) {
+                $box->distance = Helpers::calculate_distance(
+                    $coords['latitude'], $coords['longitude'],
+                    $box->store->latitude, $box->store->longitude
+                );
+            } else {
+                $box->distance = null;
+            }
+            return $box;
+        });
 
         $data = [
             'total_size' => $boxes->total(),
             'limit' => $limit,
             'offset' => $offset,
-            'boxes' => $boxes->items(),
+            'boxes' => $boxes_data->values(),
         ];
 
         return response()->json($data, 200);
@@ -64,7 +78,7 @@ class BoxController extends Controller
     /**
      * Get box details by ID — includes reviews and rating averages.
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $box = Box::active()
             ->available()
@@ -88,6 +102,16 @@ class BoxController extends Controller
                     ['code' => 'box', 'message' => translate('messages.box_not_found')]
                 ]
             ], 404);
+        }
+
+        $coords = Helpers::getItemDistanceCoordinates($request);
+        if ($box->store && $coords) {
+            $box->distance = Helpers::calculate_distance(
+                $coords['latitude'], $coords['longitude'],
+                $box->store->latitude, $box->store->longitude
+            );
+        } else {
+            $box->distance = null;
         }
 
         return response()->json($box, 200);
