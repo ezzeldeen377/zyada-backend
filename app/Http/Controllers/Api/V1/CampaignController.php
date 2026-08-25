@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Validator;
 
 class CampaignController extends Controller
 {
+    private function getUserAddressCoordinates(Request $request)
+    {
+        $user = $request->user();
+        return Helpers::getUserAddressCoordinates($user);
+    }
+
     public function get_basic_campaigns(Request $request){
         if (!$request->hasHeader('zoneId')) {
             $errors = [];
@@ -132,7 +138,8 @@ class CampaignController extends Controller
             }
 
             $campaigns =  $query->get();
-            $campaigns= Helpers::product_data_formatting($campaigns, true, false, app()->getLocale());
+            $coords = $this->getUserAddressCoordinates($request);
+            $campaigns= Helpers::product_data_formatting($campaigns, true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
             return response()->json($campaigns, 200);
         } catch (\Exception $e) {
             return response()->json([], 200);

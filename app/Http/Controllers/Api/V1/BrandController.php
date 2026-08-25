@@ -13,6 +13,12 @@ use Illuminate\Support\Facades\Validator;
 
 class BrandController extends Controller
 {
+    private function getUserAddressCoordinates(Request $request)
+    {
+        $user = $request->user();
+        return Helpers::getUserAddressCoordinates($user);
+    }
+
     public function get_brands(Request $request,$search=null)
     {
 
@@ -185,7 +191,8 @@ class BrandController extends Controller
             'offset' => $offset,
             'products' => $paginator->items()
         ];
-        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($data, 200);
     }
 }

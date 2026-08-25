@@ -120,7 +120,7 @@ class StoreController extends Controller
         return response()->json($stores, 200);
     }
 
-    public function get_popular_store_items($id)
+    public function get_popular_store_items($id, ?Request $request = null)
     {
         $items = Item::
         when(is_numeric($id),function ($qurey) use($id){
@@ -132,7 +132,8 @@ class StoreController extends Controller
             });
         })
         ->active()->popular()->limit(10)->get();
-        $items = Helpers::product_data_formatting($items, true, true, app()->getLocale());
+        $coords = $request ? Helpers::getUserAddressCoordinates($request->user()) : null;
+        $items = Helpers::product_data_formatting($items, true, true, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
 
         return response()->json($items, 200);
     }

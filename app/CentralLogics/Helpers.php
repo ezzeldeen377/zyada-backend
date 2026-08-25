@@ -128,6 +128,40 @@ class Helpers
         return $data;
     }
 
+    public static function calculate_distance($lat1, $lng1, $lat2, $lng2)
+    {
+        $earthRadius = 6371;
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2)
+            + cos(deg2rad($lat1)) * cos(deg2rad($lat2))
+            * sin($dLng / 2) * sin($dLng / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return round($earthRadius * $c, 2);
+    }
+
+    public static function getUserAddressCoordinates($user)
+    {
+        if (!$user) {
+            return null;
+        }
+
+        $address = $user->addresses()->first();
+
+        if (!$address || empty($address->latitude) || empty($address->longitude)) {
+            return null;
+        }
+
+        return [
+            'latitude' => $address->latitude,
+            'longitude' => $address->longitude,
+        ];
+    }
+
     public static function cart_box_data_formatting($data)
     {
         $data['store_name'] = $data->store->name;
@@ -343,14 +377,19 @@ class Helpers
         return $data;
     }
 
-    public static function productListDataFormatting($data)
+    public static function productListDataFormatting($data, $latitude = null, $longitude = null)
     {
-        return collect($data)->map(function ($item) {
+        return collect($data)->map(function ($item) use ($latitude, $longitude) {
             $discount = self::product_discount_calculate($item, $item->price, $item->store, true);
             $module_type = $item->store?->module_type;
             $has_variant = $module_type == 'food' ? $item->food_variations : $item->variations;
             $has_variant = is_string($has_variant) ? json_decode($has_variant, true) : $has_variant;
             $has_variant = is_array($has_variant) ? count($has_variant) : 0;
+
+            $distance = null;
+            if ($latitude && $longitude && $item->store?->latitude && $item->store?->longitude) {
+                $distance = self::calculate_distance($latitude, $longitude, $item->store->latitude, $item->store->longitude);
+            }
 
             return [
                 'id' => (int)$item->id,
@@ -387,11 +426,12 @@ class Helpers
                 'module_type' => $module_type,
                 'halal_tag_status' => (int)($item->store->storeConfig->halal_tag_status ?? 0),
                 'free_delivery' => $item->store?->free_delivery,
+                'distance' => $distance,
             ];
         })->toArray();
     }
 
-    public static function product_data_formatting($data, $multi_data = false, $trans = false, $local = 'en', $temp_product = false)
+    public static function product_data_formatting($data, $multi_data = false, $trans = false, $local = 'en', $temp_product = false, $latitude = null, $longitude = null)
     {
         $storage = [];
         if ($multi_data == true) {
@@ -502,6 +542,13 @@ class Helpers
                 unset($item['pharmacy_item_details']);
                 unset($item['store']);
                 unset($item['rating']);
+
+                $distance = null;
+                if ($latitude && $longitude && $item->store?->latitude && $item->store?->longitude) {
+                    $distance = self::calculate_distance($latitude, $longitude, $item->store->latitude, $item->store->longitude);
+                }
+                $item['distance'] = $distance;
+
                 array_push($storage, $item);
             }
             $data = $storage;
@@ -608,6 +655,11 @@ class Helpers
             $data['tax_data'] = \Modules\TaxModule\Entities\Tax::whereIn('id', $data['tax_data'])->get(['id', 'name', 'tax_rate']);
             unset($data['taxVats']);
 
+            $distance = null;
+            if ($latitude && $longitude && $data->store?->latitude && $data->store?->longitude) {
+                $distance = self::calculate_distance($latitude, $longitude, $data->store->latitude, $data->store->longitude);
+            }
+            $data['distance'] = $distance;
 
             unset($data['pharmacy_item_details']);
             unset($data['store']);

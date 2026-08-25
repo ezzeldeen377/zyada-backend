@@ -11,6 +11,12 @@ use Illuminate\Support\Facades\Validator;
 
 class FlashSaleController extends Controller
 {
+    private function getUserAddressCoordinates(Request $request)
+    {
+        $user = $request->user();
+        return Helpers::getUserAddressCoordinates($user);
+    }
+
     public function get_flash_sales(Request $request){
         if (!$request->hasHeader('zoneId')) {
             $errors = [];
@@ -34,8 +40,9 @@ class FlashSaleController extends Controller
             })
             ->running()->active()->first();
             if ($flash_sales) {
-                $flash_sales->activeProducts->each(function ($activeProduct) {
-                    $activeProduct->item = Helpers::product_data_formatting($activeProduct->item, false, false, app()->getLocale());
+                $coords = $this->getUserAddressCoordinates($request);
+                $flash_sales->activeProducts->each(function ($activeProduct) use ($coords) {
+                    $activeProduct->item = Helpers::product_data_formatting($activeProduct->item, false, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
                 });
             }
             return response()->json($flash_sales, 200);
@@ -82,8 +89,9 @@ class FlashSaleController extends Controller
 
             ->paginate($limit, ['*'], 'page', $offset);
             if ($flash_sale_items) {
-                $flash_sale_items->each(function ($activeProduct) {
-                    $activeProduct->item = Helpers::product_data_formatting($activeProduct->item, false, false, app()->getLocale());
+                $coords = $this->getUserAddressCoordinates($request);
+                $flash_sale_items->each(function ($activeProduct) use ($coords) {
+                    $activeProduct->item = Helpers::product_data_formatting($activeProduct->item, false, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
                 });
             }
             $data =  [

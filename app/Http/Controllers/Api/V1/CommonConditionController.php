@@ -13,6 +13,12 @@ use Illuminate\Support\Facades\Validator;
 
 class CommonConditionController extends Controller
 {
+    private function getUserAddressCoordinates(Request $request)
+    {
+        $user = $request->user();
+        return Helpers::getUserAddressCoordinates($user);
+    }
+
     public function get_conditions(Request $request,$search=null)
     {
         try {
@@ -123,7 +129,8 @@ class CommonConditionController extends Controller
             'offset' => $offset,
             'products' => $paginator->items()
         ];
-        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($data, 200);
     }
     public function getCommonConditionList(){

@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
+    private function getUserAddressCoordinates(Request $request)
+    {
+        $user = $request->user();
+        return Helpers::getUserAddressCoordinates($user);
+    }
 
     public function get_categories(Request $request,$search=null)
     {
@@ -144,7 +149,8 @@ class CategoryController extends Controller
         $type = $request->query('type', 'all');
 
         $data = CategoryLogic::products($id, $zone_id, $request['limit'], $request['offset'], $type);
-        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($data, 200);
     }
 
@@ -173,7 +179,8 @@ class CategoryController extends Controller
         $category_ids = $request['category_ids']?json_decode($request['category_ids']):'';
 
         $data = CategoryLogic::category_products($category_ids, $zone_id, $request['limit'], $request['offset'], $type);
-        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($data, 200);
     }
 
@@ -250,7 +257,8 @@ class CategoryController extends Controller
         $zone_id= $request->header('zoneId');
 
         try {
-            return response()->json(Helpers::product_data_formatting(CategoryLogic::all_products($id, $zone_id), true, false, app()->getLocale()), 200);
+            $coords = $this->getUserAddressCoordinates($request);
+            return response()->json(Helpers::product_data_formatting(CategoryLogic::all_products($id, $zone_id), true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null), 200);
         } catch (\Exception $e) {
             return response()->json([], 200);
         }
@@ -279,7 +287,8 @@ class CategoryController extends Controller
         $type = $request->query('type', 'all');
 
         $data = CategoryLogic::featured_category_products($zone_id, $request['limit'], $request['offset'], $type);
-        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($data, 200);
     }
 

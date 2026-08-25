@@ -25,6 +25,12 @@ use Illuminate\Support\Facades\Validator;
 class ItemController extends Controller
 {
 
+    private function getUserAddressCoordinates(Request $request)
+    {
+        $user = $request->user();
+        return Helpers::getUserAddressCoordinates($user);
+    }
+
     public function get_latest_products(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -56,7 +62,8 @@ class ItemController extends Controller
 
         $items = ProductLogic::get_latest_products($zone_id, $request['limit'], $request['offset'], $request['store_id'], $request['category_id'], $type,$min,$max,$product_id,$filter,$rating_count);
         $items['categories'] = $items['categories'];
-        $items['products'] = Helpers::product_data_formatting($items['products'], true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $items['products'] = Helpers::product_data_formatting($items['products'], true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($items, 200);
     }
 
@@ -79,7 +86,8 @@ class ItemController extends Controller
 
         $items = ProductLogic::get_new_products($zone_id, $type,$min,$max,$product_id,$limit,$offset);
         $items['categories'] = $items['categories'];
-        $items['products'] = Helpers::product_data_formatting($items['products'], true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $items['products'] = Helpers::product_data_formatting($items['products'], true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($items, 200);
     }
 
@@ -240,7 +248,8 @@ class ItemController extends Controller
             'categories'=>$categories
         ];
 
-        $data['products'] = Helpers::product_data_formatting($data['products'], true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $data['products'] = Helpers::product_data_formatting($data['products'], true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($data, 200);
     }
 
@@ -365,7 +374,8 @@ class ItemController extends Controller
 
         $limit_per_store = $request->has('all_items') ? false : true;
         $items = ProductLogic::popular_products($zone_id, $request['limit']??25, $request['offset']??1, $type,$category_ids, $filter, $min_price, $max_price, $rating_count,$request['search'], limit_per_store: $limit_per_store);
-        $items['products'] = Helpers::productListDataFormatting($items['products']);
+        $coords = $this->getUserAddressCoordinates($request);
+        $items['products'] = Helpers::productListDataFormatting($items['products'], $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($items, 200);
     }
 
@@ -393,7 +403,8 @@ class ItemController extends Controller
         $items = ProductLogic::most_reviewed_products($zone_id, $request['limit']??25, $request['offset']??1, $type,$category_ids, $filter ,$min_price, $max_price, $rating_count, limit_per_store: $limit_per_store);
         $items['categories'] = $items['categories'];
 
-        $items['products'] = Helpers::productListDataFormatting($items['products']);
+        $coords = $this->getUserAddressCoordinates($request);
+        $items['products'] = Helpers::productListDataFormatting($items['products'], $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($items, 200);
     }
 
@@ -420,7 +431,8 @@ class ItemController extends Controller
 
         $limit_per_store = $request->has('all_items') ? false : true;
         $items = ProductLogic::discounted_products(zone_id:$zone_id, limit: $request['limit']??25, offset: $request['offset']??1, type: $type, category_ids: $category_ids, filter:$filter,min: $min_price, max:$max_price, rating_count:$rating_count,search:$request['search']??null, limit_per_store: $limit_per_store);
-        $items['products'] = Helpers::productListDataFormatting($items['products']);
+        $coords = $this->getUserAddressCoordinates($request);
+        $items['products'] = Helpers::productListDataFormatting($items['products'], $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($items, 200);
     }
 
@@ -447,11 +459,12 @@ class ItemController extends Controller
         $recommended = $request->query('recommended');
 
         $items = ProductLogic::cart_suggest_products($zone_id, $request['store_id'], $request['limit'], $request['offset'], $type,$recommended);
-        $items['items'] = Helpers::product_data_formatting($items['items'], true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $items['items'] = Helpers::product_data_formatting($items['items'], true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($items, 200);
     }
 
-    public function get_product($id)
+    public function get_product($id, ?Request $request = null)
     {
         try {
 
@@ -490,7 +503,8 @@ class ItemController extends Controller
                 ->select(DB::raw('MIN(price) AS min_price, MAX(price) AS max_price'))
                 ->get(['min_price','max_price'])->toArray();
             }
-            $item = Helpers::product_data_formatting($item, false, true, app()->getLocale());
+            $coords = $request ? $this->getUserAddressCoordinates($request) : null;
+            $item = Helpers::product_data_formatting($item, false, true, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
             $item['store_details'] = $store;
             return response()->json($item, 200);
         } catch (\Exception $e) {
@@ -512,7 +526,8 @@ class ItemController extends Controller
         $zone_id= $request->header('zoneId');
         if (Item::find($id)) {
             $items = ProductLogic::get_related_products($zone_id,$id);
-            $items = Helpers::product_data_formatting($items, true, false, app()->getLocale());
+            $coords = $this->getUserAddressCoordinates($request);
+            $items = Helpers::product_data_formatting($items, true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
             return response()->json($items, 200);
         }
         return response()->json([
@@ -531,7 +546,8 @@ class ItemController extends Controller
         $zone_id= $request->header('zoneId');
         if (Item::find($id)) {
             $items = ProductLogic::get_related_store_products($zone_id,$id);
-            $items = Helpers::product_data_formatting($items, true, false, app()->getLocale());
+            $coords = $this->getUserAddressCoordinates($request);
+            $items = Helpers::product_data_formatting($items, true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
             return response()->json($items, 200);
         }
         return response()->json([
@@ -554,14 +570,16 @@ class ItemController extends Controller
 
         $zone_id= $request->header('zoneId');
         $items = ProductLogic::recommended_items($zone_id, $request->store_id,$request['limit'], $request['offset'], $type, $filter);
-        $items['items'] = Helpers::product_data_formatting($items['items'], true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $items['items'] = Helpers::product_data_formatting($items['items'], true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($items, 200);
     }
 
-    public function get_set_menus()
+    public function get_set_menus(?Request $request = null)
     {
         try {
-            $items = Helpers::product_data_formatting(Item::active()->with(['rating'])->where(['set_menu' => 1, 'status' => 1])->get(), true, false, app()->getLocale());
+            $coords = $request ? $this->getUserAddressCoordinates($request) : null;
+            $items = Helpers::product_data_formatting(Item::active()->with(['rating'])->where(['set_menu' => 1, 'status' => 1])->get(), true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
             return response()->json($items, 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -861,7 +879,8 @@ class ItemController extends Controller
             'offset' => $offset,
             'products' => $paginator->items()
         ];
-        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($data, 200);
     }
 
@@ -893,7 +912,8 @@ class ItemController extends Controller
 
         $items = ProductLogic::get_popular_basic_products($zone_id, $limit, $offset, $type, $request['store_id'], $request['category_id'], $min,$max,$product_id);
         $items['categories'] = $items['categories'];
-        $items['products'] = Helpers::product_data_formatting($items['products'], true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $items['products'] = Helpers::product_data_formatting($items['products'], true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($items, 200);
     }
 
@@ -951,7 +971,8 @@ class ItemController extends Controller
             ];
         }
 
-        $items['products'] = Helpers::product_data_formatting($items['products'], true, false, app()->getLocale());
+        $coords = $this->getUserAddressCoordinates($request);
+        $items['products'] = Helpers::product_data_formatting($items['products'], true, false, app()->getLocale(), false, $coords['latitude'] ?? null, $coords['longitude'] ?? null);
         return response()->json($items, 200);
     }
 
