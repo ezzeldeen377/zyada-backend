@@ -1295,6 +1295,8 @@ class Helpers
                 $item_array['discounted_price'] = $product->discounted_price ?? $item_details['discounted_price'] ?? $item_array['price'];
                 $item_array['original_price'] = $product->price ?? $item_details['price'] ?? $item_array['price'];
                 $item_array['discount'] = $item_array['original_price'] - $item_array['discounted_price'];
+                $item_details['discount'] = $item_array['discount'];
+                $item_array['item_details'] = $item_details;
             } else {
                 $image_full_url = Helpers::get_full_url('product', $item_details['image'] ?? '', $item_details['storage'] ?? 'public', 'product');
                 $item_array['images_full_url'] = [];
