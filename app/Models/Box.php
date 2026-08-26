@@ -41,7 +41,7 @@ class Box extends Model
         'updated_at' => 'datetime',
     ];
 
-    protected $appends = ['image_full_url', 'discounted_price'];
+    protected $appends = ['image_full_url', 'discounted_price', 'discount'];
 
     protected $with = ['translations', 'storage'];
 
@@ -80,6 +80,14 @@ class Box extends Model
         }
 
         return $this->price;
+    }
+
+    /**
+     * Get the discount value (matches Item model's discount field).
+     */
+    public function getDiscountAttribute()
+    {
+        return $this->discount_amount ?? 0;
     }
 
     /**
