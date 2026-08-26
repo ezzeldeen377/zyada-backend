@@ -1044,9 +1044,8 @@ trait PlaceNewOrder
                     ];
                 }
 
-                $price = $box->discounted_price;
-                $original_price = $box->price;
-                $discount_amount = $original_price - $price;
+                $price = $box->price;
+                $discount_amount = $box->discounted_price < $box->price ? $box->price - $box->discounted_price : 0;
                 $or_d = [
                     'item_id' => null,
                     'item_campaign_id' => null,
@@ -1057,10 +1056,10 @@ trait PlaceNewOrder
                         'description' => $box->description,
                         'image' => $box->image,
                         'image_full_url' => $box->image_full_url ?? '',
-                        'price' => $original_price,
+                        'price' => $price,
                         'discount_type' => $box->discount_type,
                         'discount' => $box->discount,
-                        'discounted_price' => $price,
+                        'discounted_price' => $box->discounted_price,
                         'item_count' => $box->item_count,
                         'tax' => 0,
                         'store_id' => $box->store_id,
@@ -1087,7 +1086,8 @@ trait PlaceNewOrder
                     'updated_at' => now()
                 ];
 
-                $product_price += $price * $or_d['quantity'];
+                $store_discount_amount += $discount_amount * $c['quantity'];
+                $product_price += $price * $c['quantity'];
                 $order_details[] = $or_d;
                 continue; // Skip to next cart item
             }
@@ -1292,9 +1292,8 @@ trait PlaceNewOrder
                         ];
                     }
 
-                    $price = $box->discounted_price;
-                    $original_price = $box->price;
-                    $discount_amount = $original_price - $price;
+                    $price = $box->price;
+                    $discount_amount = $box->discounted_price < $box->price ? $box->price - $box->discounted_price : 0;
                     $or_d = [
                         'item_id' => null,
                         'item_campaign_id' => null,
@@ -1305,10 +1304,10 @@ trait PlaceNewOrder
                             'description' => $box->description,
                             'image' => $box->image,
                             'image_full_url' => $box->image_full_url ?? '',
-                            'price' => $original_price,
+                            'price' => $price,
                             'discount_type' => $box->discount_type,
                             'discount' => $box->discount,
-                            'discounted_price' => $price,
+                            'discounted_price' => $box->discounted_price,
                             'item_count' => $box->item_count,
                             'tax' => 0,
                             'store_id' => $box->store_id,
@@ -1335,7 +1334,8 @@ trait PlaceNewOrder
                         'updated_at' => now()
                     ];
 
-                    $product_price += $price * $or_d['quantity'];
+                    $store_discount_amount += $discount_amount * $c['quantity'];
+                    $product_price += $price * $c['quantity'];
                     $order_details[] = $or_d;
                     continue; // Skip to next cart item
                 }
@@ -1537,9 +1537,8 @@ trait PlaceNewOrder
                         ];
                     }
 
-                    $price = $box->discounted_price;
-                    $original_price = $box->price;
-                    $discount_amount = $original_price - $price;
+                    $price = $box->price;
+                    $discount_amount = $box->discounted_price < $box->price ? $box->price - $box->discounted_price : 0;
                     $or_d = [
                         'cart_id' => $c['id'],
                         'item_id' => null,
@@ -1551,10 +1550,10 @@ trait PlaceNewOrder
                             'description' => $box->description,
                             'image' => $box->image,
                             'image_full_url' => $box->image_full_url ?? '',
-                            'price' => $original_price,
+                            'price' => $price,
                             'discount_type' => $box->discount_type,
                             'discount' => $box->discount,
-                            'discounted_price' => $price,
+                            'discounted_price' => $box->discounted_price,
                             'item_count' => $box->item_count,
                             'tax' => 0,
                             'store_id' => $box->store_id,
@@ -1581,7 +1580,8 @@ trait PlaceNewOrder
                         'updated_at' => now()
                     ];
 
-                    $product_price += $price * $or_d['quantity'];
+                    $store_discount_amount += $discount_amount * $c['quantity'];
+                    $product_price += $price * $c['quantity'];
                     $order_details[] = $or_d;
                     continue; // Skip to next cart item
                 }
