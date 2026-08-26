@@ -1045,6 +1045,8 @@ trait PlaceNewOrder
                 }
 
                 $price = $box->discounted_price;
+                $original_price = $box->price;
+                $discount_amount = $original_price - $price;
                 $or_d = [
                     'item_id' => null,
                     'item_campaign_id' => null,
@@ -1055,7 +1057,10 @@ trait PlaceNewOrder
                         'description' => $box->description,
                         'image' => $box->image,
                         'image_full_url' => $box->image_full_url ?? '',
-                        'price' => $box->discounted_price,
+                        'price' => $original_price,
+                        'discount_type' => $box->discount_type,
+                        'discount_amount' => $box->discount_amount,
+                        'discounted_price' => $price,
                         'item_count' => $box->item_count,
                         'tax' => 0,
                     ]),
@@ -1065,8 +1070,8 @@ trait PlaceNewOrder
                     'tax_amount' => 0,
                     'tax_status' => 'excluded',
                     'discount_on_product_by' => 'vendor',
-                    'discount_type' => 'amount',
-                    'discount_on_item' => 0,
+                    'discount_type' => $box->discount_type ?? 'amount',
+                    'discount_on_item' => round($discount_amount, config('round_up_to_digit')),
                     'discount_percentage' => 0,
                     'variant' => json_encode([]),
                     'variation' => json_encode([]),
@@ -1283,6 +1288,8 @@ trait PlaceNewOrder
                     }
 
                     $price = $box->discounted_price;
+                    $original_price = $box->price;
+                    $discount_amount = $original_price - $price;
                     $or_d = [
                         'item_id' => null,
                         'item_campaign_id' => null,
@@ -1293,7 +1300,10 @@ trait PlaceNewOrder
                             'description' => $box->description,
                             'image' => $box->image,
                             'image_full_url' => $box->image_full_url ?? '',
-                            'price' => $box->discounted_price,
+                            'price' => $original_price,
+                            'discount_type' => $box->discount_type,
+                            'discount_amount' => $box->discount_amount,
+                            'discounted_price' => $price,
                             'item_count' => $box->item_count,
                             'tax' => 0,
                         ]),
@@ -1303,8 +1313,8 @@ trait PlaceNewOrder
                         'tax_amount' => 0,
                         'tax_status' => 'excluded',
                         'discount_on_product_by' => 'vendor',
-                        'discount_type' => 'amount',
-                        'discount_on_item' => 0,
+                        'discount_type' => $box->discount_type ?? 'amount',
+                        'discount_on_item' => round($discount_amount, config('round_up_to_digit')),
                         'discount_percentage' => 0,
                         'variant' => json_encode([]),
                         'variation' => json_encode([]),
@@ -1518,6 +1528,8 @@ trait PlaceNewOrder
                     }
 
                     $price = $box->discounted_price;
+                    $original_price = $box->price;
+                    $discount_amount = $original_price - $price;
                     $or_d = [
                         'cart_id' => $c['id'],
                         'item_id' => null,
@@ -1529,7 +1541,10 @@ trait PlaceNewOrder
                             'description' => $box->description,
                             'image' => $box->image,
                             'image_full_url' => $box->image_full_url ?? '',
-                            'price' => $box->discounted_price,
+                            'price' => $original_price,
+                            'discount_type' => $box->discount_type,
+                            'discount_amount' => $box->discount_amount,
+                            'discounted_price' => $price,
                             'item_count' => $box->item_count,
                             'tax' => 0,
                         ]),
@@ -1539,8 +1554,8 @@ trait PlaceNewOrder
                         'tax_amount' => 0,
                         'tax_status' => 'excluded',
                         'discount_on_product_by' => 'vendor',
-                        'discount_type' => 'amount',
-                        'discount_on_item' => 0,
+                        'discount_type' => $box->discount_type ?? 'amount',
+                        'discount_on_item' => round($discount_amount, config('round_up_to_digit')),
                         'discount_percentage' => 0,
                         'variant' => json_encode([]),
                         'variation' => json_encode([]),

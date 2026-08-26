@@ -838,6 +838,13 @@
                                                                     {{ $detail['quantity'] }} x
                                                                     {{ \App\CentralLogics\Helpers::format_currency($detail['price']) }}
                                                                 </h6>
+                                                                @if(($detail->discount_on_item ?? 0) > 0)
+                                                                    <small class="text-success">
+                                                                        {{ translate('messages.discount') }}:
+                                                                        -{{ \App\CentralLogics\Helpers::format_currency($detail['discount_on_item'] * $detail['quantity']) }}
+                                                                        ({{ $detail->discount_type === 'percent' ? $detail->discount_type : translate('messages.amount') }})
+                                                                    </small>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     </div>

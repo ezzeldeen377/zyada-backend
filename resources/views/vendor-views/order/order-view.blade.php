@@ -496,6 +496,56 @@
                                             @php($product_price += $amount)
                                             @php($store_discount_amount += $detail['discount_on_item'] * $detail['quantity'])
                                             <!-- End Media -->
+                                        @elseif(isset($detail->box_id))
+                                            @php($detail->box = json_decode($detail->item_details, true))
+                                            @php($box = \App\Models\Box::withoutGlobalScopes()->find($detail->box['id']))
+                                            <!-- Media -->
+                                            <tr>
+                                                <td>
+                                                    <div>
+                                                        {{ $key + 1 }}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="media media--sm">
+                                                        <div class="avatar avatar-xl mr-3">
+                                                            <img class="img-fluid onerror-image"
+                                                            src="{{ $box?->image_full_url ?? asset('public/assets/admin/img/160x160/img2.jpg') }}"
+                                                                 data-onerror-image="{{ asset('public/assets/admin/img/160x160/img2.jpg') }}"
+                                                                alt="Image Description">
+                                                        </div>
+                                                        <div class="media-body">
+                                                            <div>
+                                                                <strong
+                                                                    class="line--limit-1">{{ Str::limit($detail->box['name'] ?? '', 25, '...') }}</strong>
+
+                                                                <h6>
+                                                                    {{ $detail['quantity'] }} x
+                                                                    {{ \App\CentralLogics\Helpers::format_currency($detail['price']) }}
+                                                                </h6>
+                                                                @if(($detail->discount_on_item ?? 0) > 0)
+                                                                    <small class="text-success">
+                                                                        {{ translate('messages.discount') }}:
+                                                                        -{{ \App\CentralLogics\Helpers::format_currency($detail['discount_on_item'] * $detail['quantity']) }}
+                                                                    </small>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                @if ($order->store && $order->store->module->module_type == 'food')
+                                                    <td></td>
+                                                @endif
+                                                <td>
+                                                    <div class="text-right">
+                                                        @php($amount = $detail['price'] * $detail['quantity'])
+                                                        <h5>{{ \App\CentralLogics\Helpers::format_currency($amount) }}</h5>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            @php($product_price += $amount)
+                                            @php($store_discount_amount += $detail['discount_on_item'] * $detail['quantity'])
+                                            <!-- End Media -->
                                         @endif
                                     @endforeach
                                 </tbody>
