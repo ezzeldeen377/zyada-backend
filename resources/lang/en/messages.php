@@ -8932,7 +8932,4 @@ Smartly or Earn. ',
   'Store_Contract_Template' => 'Store Contract Template',
   'If_enabled,_vendors_must_upload_a_signed_contract_during_registration.' => 'If enabled, vendors must upload a signed contract during registration.',
   'If_disabled,_contract_upload_is_optional_for_vendors.' => 'If disabled, contract upload is optional for vendors.',
-  'Store Contract' => 'Store Contract',
-  'pdf, doc. File size : max 5 MB' => 'pdf, doc. File size : max 5 MB',
-  'Store contract PDF is required' => 'Store contract PDF is required',
 );
