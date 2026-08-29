@@ -149,6 +149,8 @@ class ConfigController extends Controller
             'parcel_cancellation_basic_setup',
             'parcel_return_time_fee',
             'openai_config',
+            'store_contract_required',
+            'store_contract_template',
         ];
 
         $vehicle_distance_min = 0;
@@ -421,6 +423,9 @@ class ConfigController extends Controller
             'parcel_cancellation_basic_setup' => isset($settings['parcel_cancellation_basic_setup']) ? json_decode($settings['parcel_cancellation_basic_setup']) : null,
             'parcel_return_time_fee' => isset($settings['parcel_return_time_fee']) ? json_decode($settings['parcel_return_time_fee']) : null,
             'open_ai_status' => (int)$openAIStatus,
+
+            'store_contract_required' => (int)(isset($settings['store_contract_required']) ? $settings['store_contract_required'] : 0),
+            'store_contract_template_url' => isset($settings['store_contract_template']) && $settings['store_contract_template'] ? asset('business/' . $settings['store_contract_template']) : null,
         ]);
     }
 

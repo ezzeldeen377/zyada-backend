@@ -142,6 +142,10 @@ class VendorController extends Controller
         $store->tin_expire_date = $request->tin_expire_date;
         $extension = $request->has('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
         $store->tin_certificate_image = Helpers::upload('store/', $extension, $request->file('tin_certificate_image'));
+        if ($request->hasFile('store_contract_pdf')) {
+            $contractExtension = $request->file('store_contract_pdf')->getClientOriginalExtension();
+            $store->store_contract_pdf = Helpers::upload('store/', $contractExtension, $request->file('store_contract_pdf'));
+        }
         $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
         $store->module_id = Config::get('module.current_module_id');
         try {
@@ -252,6 +256,10 @@ class VendorController extends Controller
         $store->tin_expire_date = $request->tin_expire_date;
         $extension = $request->has('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
         $store->tin_certificate_image = $request->has('tin_certificate_image') ? Helpers::update('store/', $store->tin_certificate_image, $extension, $request->file('tin_certificate_image')) : $store->tin_certificate_image;
+        if ($request->hasFile('store_contract_pdf')) {
+            $contractExtension = $request->file('store_contract_pdf')->getClientOriginalExtension();
+            $store->store_contract_pdf = Helpers::update('store/', $store->store_contract_pdf, $contractExtension, $request->file('store_contract_pdf'));
+        }
         $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
         $store->save();
 

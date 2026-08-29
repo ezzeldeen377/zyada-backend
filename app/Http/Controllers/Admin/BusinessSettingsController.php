@@ -285,6 +285,19 @@ class BusinessSettingsController extends Controller
             'value' => $request['product_gallery'],
         ]);
 
+        Helpers::businessUpdateOrInsert(['key' => 'store_contract_required'], [
+            'value' => $request['store_contract_required'] ?? 0,
+        ]);
+
+        if ($request->hasFile('store_contract_template')) {
+            $file = $request->file('store_contract_template');
+            $fileName = 'contract_template.' . $file->getClientOriginalExtension();
+            $file->move(public_path('business'), $fileName);
+            Helpers::businessUpdateOrInsert(['key' => 'store_contract_template'], [
+                'value' => $fileName,
+            ]);
+        }
+
         Toastr::success(translate('messages.successfully_updated_to_changes_restart_app'));
 
         return back();

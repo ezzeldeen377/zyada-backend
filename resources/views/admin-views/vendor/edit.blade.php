@@ -269,9 +269,84 @@
                                                                 class="btn btn--primary delivery-time">{{ translate('done') }}</button>
                                                         </div>
                                                     </div>
-                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @php($store_contract_required = \App\Models\BusinessSetting::where('key', 'store_contract_required')->first())
+                                @if($store_contract_required && $store_contract_required->value)
+                                <div class="col-md-4 col-xxl-3">
+                                    <div class="bg--secondary rounded p-20 h-100 single-document-uploaderwrap">
+                                        <div class="d-flex align-items-center gap-1 justify-content-between mb-20">
+                                            <div>
+                                                <h4 class="mb-1 fz--14px">{{ translate('Store Contract') }} <span class="text-danger">*</span></h4>
+                                                <p class="fz-12px mb-0">
+                                                    {{ translate('pdf, doc. File size : max 5 MB') }}</p>
+                                            </div>
+                                            <div class="d-flex gap-3 align-items-center">
+                                                <button type="button" id="contract_doc_edit_btn"
+                                                    class="w-30px h-30 rounded d-flex align-items-center justify-content-center btn--primary btn px-3 icon-btn">
+                                                    <i class="tio-edit"></i>
+                                                </button>
                                             </div>
                                         </div>
+                                        <div class="error-wrapper">
+                                            <div class="d-flex justify-content-center" id="contract-pdf-container">
+                                                <div class="document-upload-wrapper d-none" id="contract-doc-upload-wrapper">
+                                                    <input type="file" name="store_contract_pdf"
+                                                        class="document_input" accept=".pdf, .doc, .docx">
+                                                    <div class="textbox">
+                                                        <img width="40" height="40" class="svg"
+                                                            src="{{ asset('public/assets/admin/img/doc-uploaded.png') }}"
+                                                            alt="">
+                                                        <p class="fs-12 mb-0">
+                                                            {{ translate('messages.Select_a_file_or') }} <span
+                                                                class="font-semibold">{{ translate('messages.Drag & Drop') }}</span>
+                                                            {{ translate('messages.here') }}</p>
+                                                    </div>
+                                                </div>
+                                                @if($store->store_contract_pdf)
+                                                <div class="pdf-single" data-file-name="{{ $store->store_contract_pdf }}"
+                                                    data-file-url="{{ $store->store_contract_pdf_full_url ?? asset('public/assets/admin/img/upload-cloud.png') }}">
+                                                    <div class="pdf-frame">
+                                                        @php($contractImgPath = $store->store_contract_pdf_full_url ?? asset('public/assets/admin/img/upload-cloud.png'))
+                                                        @if (Str::endsWith($contractImgPath, ['.pdf', '.doc', '.docx']))
+                                                            @php($contractImgPath = asset('public/assets/admin/img/document.svg'))
+                                                        @endif
+                                                        <img class="pdf-thumbnail-alt" src="{{ $contractImgPath }}"
+                                                            alt="File Thumbnail">
+                                                    </div>
+                                                    <div class="overlay">
+                                                        <div class="pdf-info">
+                                                            @if (Str::endsWith($contractImgPath, ['.pdf', '.doc', '.docx']))
+                                                                <img src="{{ asset('public/assets/admin/img/document.svg') }}"
+                                                                    width="34" alt="File Type Logo">
+                                                            @else
+                                                                <img src="{{ asset('public/assets/admin/img/picture.svg') }}"
+                                                                    width="34" alt="File Type Logo">
+                                                            @endif
+                                                            <div class="file-name-wrapper">
+                                                                <span
+                                                                    class="file-name js-filename-truncate">{{ $store->store_contract_pdf }}</span>
+                                                                <span
+                                                                    class="opacity-50">{{ translate('Click to view the file') }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @else
+                                                <div class="pdf-single" data-file-name=""
+                                                    data-file-url="{{ asset('public/assets/admin/img/upload-cloud.png') }}">
+                                                    <div class="pdf-frame">
+                                                        <img class="pdf-thumbnail-alt" src="{{ asset('public/assets/admin/img/upload-cloud.png') }}"
+                                                            alt="File Thumbnail">
+                                                    </div>
+                                                </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
                                     </div>
                                 </div>
                             </div>

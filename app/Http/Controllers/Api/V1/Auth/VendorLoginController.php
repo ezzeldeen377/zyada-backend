@@ -134,6 +134,9 @@ class VendorLoginController extends Controller
             return response()->json(['errors' => Helpers::error_processor('self-registration', translate('messages.store_self_registration_disabled'))]);
         }
 
+        $contractRequired = BusinessSetting::where('key', 'store_contract_required')->first();
+        $isContractRequired = isset($contractRequired) && $contractRequired->value == '1';
+
         $validator = Validator::make($request->all(), [
             'f_name' => 'required|max:100',
             'l_name' => 'nullable|max:100',
@@ -149,6 +152,7 @@ class VendorLoginController extends Controller
             'module_id' => 'required',
             'logo' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             'cover_photo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+            'store_contract_pdf' => $isContractRequired ? 'required|file|max:5120|mimes:pdf,doc,docx' : 'nullable|file|max:5120|mimes:pdf,doc,docx',
         ],[
             'password.required' => translate('The password is required'),
             'password.min_length' => translate('The password must be at least :min characters long'),
@@ -157,6 +161,7 @@ class VendorLoginController extends Controller
             'password.numbers' => translate('The password must contain numbers'),
             'password.symbols' => translate('The password must contain symbols'),
             'password.uncompromised' => translate('The password is compromised. Please choose a different one'),
+            'store_contract_pdf.required' => translate('Store contract PDF is required'),
         ]);
 
         if($request->zone_id)
@@ -210,6 +215,10 @@ class VendorLoginController extends Controller
         $store->tin_expire_date = $request->tin_expire_date == 'null' ? null : $request->tin_expire_date;
         $extension = $request->file('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
         $store->tin_certificate_image = Helpers::upload('store/', $extension, $request->file('tin_certificate_image'));
+        if ($request->hasFile('store_contract_pdf')) {
+            $contractExtension = $request->file('store_contract_pdf')->getClientOriginalExtension();
+            $store->store_contract_pdf = Helpers::upload('store/', $contractExtension, $request->file('store_contract_pdf'));
+        }
         $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
         $store->module_id = $request->module_id;
         $store->status = 0;

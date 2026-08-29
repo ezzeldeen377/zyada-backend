@@ -143,6 +143,7 @@ class Store extends Model
         'tin',
         'tin_expire_date',
         'tin_certificate_image',
+        'store_contract_pdf',
     ];
 
     /**
@@ -190,7 +191,7 @@ class Store extends Model
     /**
      * @var string[]
      */
-    protected $appends = ['gst_status','gst_code','logo_full_url','cover_photo_full_url','meta_image_full_url','tin_certificate_image_full_url'];
+    protected $appends = ['gst_status','gst_code','logo_full_url','cover_photo_full_url','meta_image_full_url','tin_certificate_image_full_url','store_contract_pdf_full_url'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -312,6 +313,21 @@ class Store extends Model
         if (count($this->storage) > 0) {
             foreach ($this->storage as $storage) {
                 if ($storage['key'] == 'tin_certificate_image') {
+                    return Helpers::get_full_url('store',$value,$storage['value']);
+                }
+            }
+        }
+
+        return Helpers::get_full_url('store',$value,'public');
+    }
+    public function getStoreContractPdfFullUrlAttribute(){
+        $value = $this->store_contract_pdf;
+        if (!$value) {
+            return null;
+        }
+        if (count($this->storage) > 0) {
+            foreach ($this->storage as $storage) {
+                if ($storage['key'] == 'store_contract_pdf') {
                     return Helpers::get_full_url('store',$value,$storage['value']);
                 }
             }
@@ -853,6 +869,19 @@ class Store extends Model
                     'data_type' => get_class($model),
                     'data_id' => $model->id,
                     'key' => 'meta_image',
+                ], [
+                    'value' => $value,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+            if($model->isDirty('store_contract_pdf')){
+                $value = Helpers::getDisk();
+
+                DB::table('storages')->updateOrInsert([
+                    'data_type' => get_class($model),
+                    'data_id' => $model->id,
+                    'key' => 'store_contract_pdf',
                 ], [
                     'value' => $value,
                     'created_at' => now(),

@@ -539,6 +539,44 @@
                                         </div>
                                     </div>
                                 </div>
+                                @php($store_contract_required = \App\Models\BusinessSetting::where('key', 'store_contract_required')->first())
+                                @if($store_contract_required && $store_contract_required->value)
+                                <div class="col-md-4 col-xxl-3">
+                                    <div class="bg--secondary rounded p-20 h-100 single-document-uploaderwrap">
+                                        <div class="d-flex align-items-center gap-1 justify-content-between mb-20">
+                                            <div>
+                                                <h4 class="mb-1 fz--14px">{{ translate('Store Contract') }} <span class="text-danger">*</span></h4>
+                                                <p class="fz-12px mb-0">
+                                                    {{ translate('pdf, doc. File size : max 5 MB') }}</p>
+                                            </div>
+                                            <div class="d-flex gap-3 align-items-center">
+                                                <button type="button" id="contract_doc_edit_btn"
+                                                    class="w-30px h-30 rounded d-flex align-items-center justify-content-center btn--primary btn px-3 icon-btn">
+                                                    <i class="tio-edit"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="form-group error-wrapper">
+                                            <div class="d-flex justify-content-center mb-2" id="contract-pdf-container">
+                                                <div class="document-upload-wrapper" id="contract-doc-upload-wrapper">
+                                                    <input type="file" name="store_contract_pdf"
+                                                        class="document_input" accept=".pdf, .doc, .docx"
+                                                        data-max-size="5mb">
+                                                    <div class="textbox">
+                                                        <img width="40" height="40" class="svg"
+                                                            src="{{ asset('public/assets/admin/img/doc-uploaded.png') }}"
+                                                            alt="">
+                                                        <p class="fs-12 mb-0">
+                                                            {{ translate('messages.Select_a_file_or') }} <span
+                                                                class="font-semibold">{{ translate('messages.Drag & Drop') }}</span>
+                                                            {{ translate('messages.here') }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>

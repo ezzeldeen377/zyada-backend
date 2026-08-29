@@ -340,6 +340,54 @@
                     </div>
                 </div>
             @endif
+            @if($store->store_contract_pdf)
+            <div class="col-sm-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title m-0 d-flex align-items-center">
+                            <span class="card-header-icon mr-2">
+                                <i class="tio-file-text"></i>
+                            </span>
+                            <span class="ml-1">{{ translate('Store Contract') }}</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="resturant--info-address flex-sm-nowrap flex-wrap gap-2">
+                            <div class="pdf-single cus-document-responsive"
+                                data-pdf-url="{{ $store->store_contract_pdf_full_url ?? asset('public/assets/admin/img/upload-cloud.png') }}">
+                                <div class="pdf-frame">
+                                    @php($contractImgPath = $store->store_contract_pdf_full_url ?? asset('public/assets/admin/img/upload-cloud.png'))
+                                    @if (Str::endsWith($contractImgPath, ['.pdf', '.doc', '.docx']))
+                                        @php($contractImgPath = asset('public/assets/admin/img/document.svg'))
+                                    @endif
+                                    <img class="pdf-thumbnail-alt" src="{{ $contractImgPath }}"
+                                        alt="File Thumbnail">
+                                </div>
+                                <div class="overlay">
+                                    <a href="javascript:void(0);" class="download-btn" title="">
+                                        <i class="tio-download-to"></i>
+                                    </a>
+                                    <div class="pdf-info d-flex gap-10px align-items-center">
+                                        @if (Str::endsWith($contractImgPath, ['.pdf', '.doc', '.docx']))
+                                            <img src="{{ asset('public/assets/admin/img/document.svg') }}"
+                                                width="34" alt="File Type Logo">
+                                        @else
+                                            <img src="{{ asset('public/assets/admin/img/picture.svg') }}"
+                                                width="34" alt="File Type Logo">
+                                        @endif
+                                        <div class="fs-13 text--title d-flex flex-column">
+                                            <span class="file-name js-filename-truncate">{{ $store->store_contract_pdf }}</span>
+                                            <span
+                                                class="opacity-50">{{ translate('Click to view the file') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
         @else
             <div class="store-details-banner mb-1 position-relative rounded-10">
             @if (isset($store->vendor->rejection_note))

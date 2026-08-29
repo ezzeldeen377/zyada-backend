@@ -358,6 +358,68 @@
                             </div>
                             </div>
 
+                            <!-- Store Contract Settings -->
+                            <div class="row mt-4">
+                                <div class="col-lg-12">
+                                    <h5 class="mb-3"><i class="tio-file-text"></i> {{ translate('Store_Contract_Settings') }}</h5>
+                                </div>
+                                <div class="col-lg-4 col-sm-6">
+                                    @php($store_contract_required = \App\Models\BusinessSetting::where('key', 'store_contract_required')->first())
+                                    @php($store_contract_required = $store_contract_required ? $store_contract_required->value : 0)
+                                    <div class="form-group mb-0">
+                                        <label
+                                            class="toggle-switch h--45px toggle-switch-sm d-flex justify-content-between border rounded px-3 py-0 form-control">
+                                            <span class="pr-1 d-flex align-items-center switch--label">
+                                                <span class="line--limit-1">
+                                                    {{ translate('Store_Contract_Required') }}
+                                                </span>
+                                                <span class="form-label-secondary text-danger d-flex"
+                                                      data-toggle="tooltip" data-placement="right"
+                                                      data-original-title="{{ translate('If_enabled,_vendors_must_upload_a_signed_contract_during_registration.') }}"><img
+                                                        src="{{ asset('/public/assets/admin/img/info-circle.svg') }}"
+                                                        alt="{{ translate('Store_Contract_Required') }}"> *
+                                                </span>
+                                            </span>
+                                        <input type="checkbox"
+                                               data-id="store_contract_required"
+                                               data-type="toggle"
+                                               data-image-on="{{ asset('/public/assets/admin/img/modal/store-reg-on.png') }}"
+                                               data-image-off="{{ asset('/public/assets/admin/img/modal/store-reg-off.png') }}"
+                                               data-title-on="{{translate('Want_to_enable')}} <strong>{{translate('Store_Contract_Required')}}</strong>"
+                                               data-title-off="{{translate('Want_to_disable')}} <strong>{{translate('Store_Contract_Required')}}</strong>"
+                                               data-text-on="<p>{{ translate('If_enabled,_vendors_must_upload_a_signed_contract_during_registration.') }}</p>"
+                                               data-text-off="<p>{{ translate('If_disabled,_contract_upload_is_optional_for_vendors.') }}</p>"
+                                               class="status toggle-switch-input dynamic-checkbox-toggle"
+                                                value="1"
+                                               name="store_contract_required" id="store_contract_required"
+                                            {{ $store_contract_required == 1 ? 'checked' : '' }}>
+                                        <span class="toggle-switch-label text">
+                                                <span class="toggle-switch-indicator"></span>
+                                            </span>
+                                    </label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-sm-6">
+                                    @php($store_contract_template = \App\Models\BusinessSetting::where('key', 'store_contract_template')->first())
+                                    <div class="form-group mb-0">
+                                        <label class="input-label text-capitalize">
+                                            {{ translate('Store_Contract_Template') }}
+                                        </label>
+                                        <div class="custom-file">
+                                            <input type="file" name="store_contract_template" class="custom-file-input"
+                                                   accept=".pdf,.doc,.docx" id="store_contract_template">
+                                            <label class="custom-file-label" for="store_contract_template">
+                                                {{ $store_contract_template && $store_contract_template->value ? $store_contract_template->value : translate('Choose_file') }}
+                                            </label>
+                                        </div>
+                                        @if($store_contract_template && $store_contract_template->value)
+                                            <small class="text-muted">{{ translate('Current') }}: {{ $store_contract_template->value }}</small>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End Store Contract Settings -->
+
 
                             <div class="btn--container justify-content-end mt-20">
                                 <button type="reset" class="btn btn--reset">{{ translate('messages.reset') }}</button>
