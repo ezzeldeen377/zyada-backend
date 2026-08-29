@@ -425,7 +425,7 @@ class ConfigController extends Controller
             'open_ai_status' => (int)$openAIStatus,
 
             'store_contract_required' => (int)(isset($settings['store_contract_required']) ? $settings['store_contract_required'] : 0),
-            'store_contract_template_url' => isset($settings['store_contract_template']) && $settings['store_contract_template'] ? asset('business/' . $settings['store_contract_template']) : null,
+            'store_contract_template_url' => isset($settings['store_contract_template']) && $settings['store_contract_template'] ? Helpers::get_full_url('business', $settings['store_contract_template'], 'public') : null,
         ]);
     }
 

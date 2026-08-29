@@ -290,9 +290,13 @@ class BusinessSettingsController extends Controller
         ]);
 
         if ($request->hasFile('store_contract_template')) {
+            $oldTemplate = BusinessSetting::where('key', 'store_contract_template')->first();
+            if ($oldTemplate && $oldTemplate->value && Storage::disk('public')->exists('business/' . $oldTemplate->value)) {
+                Storage::disk('public')->delete('business/' . $oldTemplate->value);
+            }
             $file = $request->file('store_contract_template');
-            $fileName = 'contract_template.' . $file->getClientOriginalExtension();
-            $file->move(public_path('business'), $fileName);
+            $extension = $file->getClientOriginalExtension();
+            $fileName = Helpers::upload('business/', $extension, $file);
             Helpers::businessUpdateOrInsert(['key' => 'store_contract_template'], [
                 'value' => $fileName,
             ]);
