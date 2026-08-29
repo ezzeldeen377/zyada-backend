@@ -30,16 +30,24 @@ class BoxController extends Controller
             'translations' => 'required',
             'price' => 'required|numeric|min:0',
             'item_count' => 'required|integer|min:1',
-            'available_count' => 'required|integer|min:0',
-            'image' => 'nullable|image|max:2048',
+            'available_count' => 'required|integer|min:1',
+            'image' => 'required|image|max:2048',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'pickup_time_from' => 'nullable|date_format:H:i',
             'pickup_time_to' => 'nullable|date_format:H:i',
+            'category_id' => 'required',
+            'discount_type' => 'nullable|in:amount,percent',
+            'discount_amount' => 'required|numeric|min:0',
         ], [
             'translations.required' => translate('messages.translations_required'),
             'price.required' => translate('messages.price_required'),
             'item_count.required' => translate('messages.item_count_required'),
+            'available_count.required' => translate('messages.available_count_required'),
+            'available_count.min' => translate('messages.available_count_required'),
+            'image.required' => translate('messages.image_required'),
+            'category_id.required' => translate('messages.category_required'),
+            'discount_amount.required' => translate('messages.discount_required'),
         ]);
 
         if ($validator->fails()) {
@@ -142,19 +150,33 @@ class BoxController extends Controller
 
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer',
-            'price' => 'numeric|min:0',
-            'item_count' => 'integer|min:1',
-            'available_count' => 'integer|min:0',
+            'translations' => 'required',
+            'price' => 'required|numeric|min:0',
+            'item_count' => 'required|integer|min:1',
+            'available_count' => 'required|integer|min:0',
             'image' => 'nullable|image|max:2048',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'pickup_time_from' => 'nullable|date_format:H:i',
             'pickup_time_to' => 'nullable|date_format:H:i',
-            'translations' => 'sometimes',
+            'category_id' => 'required',
+            'discount_type' => 'nullable|in:amount,percent',
+            'discount_amount' => 'required|numeric|min:0',
+        ], [
+            'id.required' => translate('messages.id_required'),
+            'translations.required' => translate('messages.translations_required'),
+            'price.required' => translate('messages.price_required'),
+            'item_count.required' => translate('messages.item_count_required'),
+            'category_id.required' => translate('messages.category_required'),
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+            return response()->json(['errors' => Helpers::error_processor($validator)], 402);
+        }
+
+        $data = json_decode($request->translations, true);
+        if (!is_array($data) || count($data) < 1) {
+            return response()->json(['errors' => [['code' => 'translations', 'message' => translate('messages.Name and description in english is required')]]], 402);
         }
 
         $box = Box::withoutGlobalScope(StoreScope::class)
@@ -169,67 +191,40 @@ class BoxController extends Controller
             ], 404);
         }
 
+        $name = $data[0]['value'] ?? '';
+        $description = $data[1]['value'] ?? ($data[0]['value'] ?? '');
+
+        $box->name = $name;
+        $box->description = $description;
+        $box->price = $request->price;
+        $box->item_count = $request->item_count;
+        $box->available_count = $request->available_count;
+        $box->category_id = $request->category_id;
+        $box->discount_type = $request->discount_type ?: null;
+        $box->discount_amount = $request->discount_amount ?? 0;
+        $box->start_date = $request->start_date;
+        $box->end_date = $request->end_date;
+        $box->pickup_time_from = $request->pickup_time_from;
+        $box->pickup_time_to = $request->pickup_time_to;
+
         if ($request->hasFile('image')) {
             $box->image = Helpers::update('box/', $box->image, 'png', $request->file('image'));
         }
 
-        if ($request->has('translations')) {
-            $translations = json_decode($request->translations, true);
-            if (is_array($translations)) {
-                // Extract name and description for the main model
-                $name = '';
-                $description = '';
-                foreach ($translations as $tm) {
-                    if ($tm['locale'] == 'default' || $tm['locale'] == 'en') {
-                        if ($tm['key'] == 'name') {
-                            $name = $tm['value'];
-                        }
-                        if ($tm['key'] == 'description') {
-                            $description = $tm['value'];
-                        }
-                    }
-                }
-
-                if (empty($name)) {
-                    $name = $translations[0]['value'] ?? $box->name;
-                }
-                if (empty($description)) {
-                    $description = $translations[1]['value'] ?? ($translations[0]['value'] ?? $box->description);
-                }
-
-                $box->name = $name;
-                $box->description = $description;
-
-                foreach ($translations as $item) {
-                    Translation::updateOrInsert(
-                        [
-                            'translationable_type' => 'App\Models\Box',
-                            'translationable_id' => $box->id,
-                            'locale' => $item['locale'],
-                            'key' => $item['key']
-                        ],
-                        ['value' => $item['value']]
-                    );
-                }
-            }
-        }
-
-        if ($request->has('price')) $box->price = $request->price;
-        if ($request->has('item_count')) $box->item_count = $request->item_count;
-        if ($request->has('available_count')) $box->available_count = $request->available_count;
-        if ($request->has('start_date')) $box->start_date = $request->start_date;
-        if ($request->has('end_date')) $box->end_date = $request->end_date;
-        if ($request->has('pickup_time_from')) $box->pickup_time_from = $request->pickup_time_from;
-        if ($request->has('pickup_time_to')) $box->pickup_time_to = $request->pickup_time_to;
-        if ($request->has('category_id')) $box->category_id = $request->category_id;
-        if ($request->has('discount_type')) $box->discount_type = $request->discount_type ?: null;
-        if ($request->has('discount_amount')) $box->discount_amount = $request->discount_amount;
-        
         $box->save();
+
+        foreach ($data as $key => $i) {
+            $data[$key]['translationable_type'] = 'App\Models\Box';
+            $data[$key]['translationable_id'] = $box->id;
+        }
+        Translation::where('translationable_type', 'App\Models\Box')
+            ->where('translationable_id', $box->id)
+            ->delete();
+        Translation::insert($data);
 
         return response()->json([
             'message' => translate('messages.box_updated_successfully'),
-            'box' => Helpers::box_data_formatting($box, false, true, app()->getLocale()),
+            'box' => Helpers::box_data_formatting($box->withoutRelations(), false, true, app()->getLocale()),
         ], 200);
     }
 

@@ -8926,4 +8926,8 @@ Smartly or Earn. ',
   'Store_Contract_Template' => 'قالب عقد المتجر',
   'If_enabled,_vendors_must_upload_a_signed_contract_during_registration.' => 'إذا تم التمكين، يجب على البائعين تحميل عقد موقّع أثناء التسجيل.',
   'If_disabled,_contract_upload_is_optional_for_vendors.' => 'إذا تم التعطيل، يكون تحميل العقد اختياريًا للبائعين.',
+  'available_count_required' => 'العدد المتاح مطلوب',
+  'image_required' => 'الصورة مطلوبة',
+  'discount_required' => 'الخصم مطلوب',
+  'id_required' => 'المعرف مطلوب',
 );

@@ -8932,4 +8932,8 @@ Smartly or Earn. ',
   'Store_Contract_Template' => 'Store Contract Template',
   'If_enabled,_vendors_must_upload_a_signed_contract_during_registration.' => 'If enabled, vendors must upload a signed contract during registration.',
   'If_disabled,_contract_upload_is_optional_for_vendors.' => 'If disabled, contract upload is optional for vendors.',
+  'available_count_required' => 'Available count is required',
+  'image_required' => 'Image is required',
+  'discount_required' => 'Discount is required',
+  'id_required' => 'ID is required',
 );
