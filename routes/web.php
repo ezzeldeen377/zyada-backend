@@ -30,9 +30,7 @@ use Illuminate\Support\Facades\Http;
 
 
 Route::post('/subscribeToTopic', [FirebaseController::class, 'subscribeToTopic']);
-Route::get('/', function () {
-    return redirect('/login/admin');
-})->name('home');
+Route::get('/', 'HomeController@index')->name('home');
 Route::get('lang/{locale}', 'HomeController@lang')->name('lang');
 Route::get('terms-and-conditions', 'HomeController@terms_and_conditions')->name('terms-and-conditions');
 Route::get('about-us', 'HomeController@about_us')->name('about-us');
