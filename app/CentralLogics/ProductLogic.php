@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\PriorityList;
 use App\Models\FlashSaleItem;
 use App\Models\BusinessSetting;
+use Illuminate\Support\Facades\DB;
 
 
 class ProductLogic
@@ -552,13 +553,14 @@ class ProductLogic
             }
 
             $paginator = $query->paginate($limit, ['*'], 'page', $offset);
+            $items = $paginator->items();
 
             return [
                 'total_size' => $paginator->total(),
                 'limit' => $limit,
                 'offset' => $offset,
-                'products' => $paginator->items(),
-                'categories' => self::getCategoryData($query),
+                'products' => $items,
+                'categories' => self::getCategoryData($items),
             ];
 
 
@@ -579,11 +581,12 @@ class ProductLogic
 
 
         $query = Item::select(['items.*'])->with('store')
-            ->withAvg('reviews', 'quality_rating')
-            ->withAvg('reviews', 'value_rating')
-            ->withAvg('reviews', 'packaging_rating')
-            ->withAvg('reviews', 'service_rating')
-            ->withAvg('reviews', 'usability_rating')
+            ->selectRaw('(SELECT ROUND(AVG(r.quality_rating),1) FROM reviews r WHERE r.item_id = items.id) as reviews_avg_quality_rating')
+            ->selectRaw('(SELECT ROUND(AVG(r.value_rating),1) FROM reviews r WHERE r.item_id = items.id) as reviews_avg_value_rating')
+            ->selectRaw('(SELECT ROUND(AVG(r.packaging_rating),1) FROM reviews r WHERE r.item_id = items.id) as reviews_avg_packaging_rating')
+            ->selectRaw('(SELECT ROUND(AVG(r.service_rating),1) FROM reviews r WHERE r.item_id = items.id) as reviews_avg_service_rating')
+            ->selectRaw('(SELECT ROUND(AVG(r.usability_rating),1) FROM reviews r WHERE r.item_id = items.id) as reviews_avg_usability_rating')
+            ->selectRaw('(SELECT COUNT(*) FROM reviews r WHERE r.item_id = items.id) as reviews_count')
             ->whereHas('store', function($query)use($zone_id){
                 $zone_id_arr = is_array($zone_id) ? $zone_id : (json_decode($zone_id, true) ?? []);
                 $query->whereIn('zone_id', $zone_id_arr);
@@ -596,8 +599,10 @@ class ProductLogic
                     ->from('stores')
                     ->whereColumn('stores.id', 'items.store_id');
             }, 'temp_available')
-            ->withCount('reviews')->active()->type($type)
-             ->having('reviews_count' ,'>',0);
+            ->active()->type($type)
+            ->whereExists(function ($q) {
+                $q->select(DB::raw(1))->from('reviews')->whereColumn('reviews.item_id', 'items.id');
+            });
 
             $query =self::filterQurey($query,$filter,$min??0,$max,$category_ids,$rating_count,$withCount, $search);
 
@@ -629,12 +634,13 @@ class ProductLogic
             }
 
             $paginator = $query->paginate($limit, ['*'], 'page', $offset);
+            $items = $paginator->items();
             return [
                 'total_size' => $paginator->total(),
                 'limit' => $limit,
                 'offset' => $offset,
-                'products' => $paginator->items(),
-                'categories' => self::getCategoryData($query),
+                'products' => $items,
+                'categories' => self::getCategoryData($items),
             ];
 
     }
@@ -712,12 +718,13 @@ class ProductLogic
             }
 
             $paginator = $query->paginate($limit, ['*'], 'page', $offset);
+            $items = $paginator->items();
         return [
             'total_size' =>  $paginator->total(),
             'limit' => $limit,
             'offset' => $offset,
-            'products' => $paginator->items(),
-            'categories' => self::getCategoryData($query),
+            'products' => $items,
+            'categories' => self::getCategoryData($items),
         ];
     }
 
@@ -790,27 +797,31 @@ class ProductLogic
             return $query;
     }
 
-    private static function getCategoryData($query){
-        $item_categories = $query->pluck('category_ids')->toArray();
-            $item_categories = array_reduce($item_categories, function($carry, $jsonString) {
-                $items = json_decode($jsonString, true);
-                $filtered = array_filter($items, fn($item) => $item['position'] == 1);
-                $carry = array_merge($carry, array_column($filtered, 'id'));
-                return $carry;
-            }, []);
-
-            $item_categories = array_unique($item_categories);
-            $categories = Category::
-            whereIn('id',$item_categories)
-            ->orderBy('priority','desc')->select('id','name','image')->get()
+    private static function getCategoryData($items){
+        $item_categories = [];
+        foreach ($items as $item) {
+            $decoded = is_string($item->category_ids) ? json_decode($item->category_ids, true) : $item->category_ids;
+            if (!is_array($decoded)) continue;
+            foreach ($decoded as $cat) {
+                if (isset($cat['position']) && $cat['position'] == 1 && isset($cat['id'])) {
+                    $item_categories[] = $cat['id'];
+                }
+            }
+        }
+        $item_categories = array_unique($item_categories);
+        if (empty($item_categories)) {
+            return collect();
+        }
+        return Category::
+            whereIn('id', $item_categories)
+            ->orderBy('priority', 'desc')->select('id', 'name', 'image')->get()
             ->map(function ($category) {
-            return [
-                'id' => $category->id,
-                'name' => $category->name,
-                'image_full_url' => $category->image_full_url
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'image_full_url' => $category->image_full_url
                 ];
             });
-            return $categories;
     }
 
     public static function brand_products($zone_id, $limit = null, $offset = null, $type = 'all', $category_ids = null, $filter = null,$min=false, $max=false, $rating_count = null, $brand_ids = null)
