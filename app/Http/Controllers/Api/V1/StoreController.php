@@ -12,7 +12,9 @@ use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Review;
+use App\Models\Zone;
 use Illuminate\Support\Facades\DB;
+use MatanYadaev\EloquentSpatial\Objects\Point;
 
 class StoreController extends Controller
 {
@@ -344,21 +346,60 @@ class StoreController extends Controller
 
         return response()->json($stores, 200);
     }
-      public function get_nearby_stores(Request $request)
+    public function get_nearby_stores(Request $request)
     {
-        if (!$request->hasHeader('zoneId')) {
+        $latitude = $request->query('lat', $request->header('latitude'));
+        $longitude = $request->query('lng', $request->header('longitude'));
+
+        if (is_null($latitude) || is_null($longitude) || !is_numeric($latitude) || !is_numeric($longitude)) {
             $errors = [];
-            array_push($errors, ['code' => 'zoneId', 'message' => translate('messages.zone_id_required')]);
+            array_push($errors, ['code' => 'coordinates', 'message' => translate('messages.latitude_and_longitude_required')]);
             return response()->json([
                 'errors' => $errors
             ], 403);
         }
+
+        $latitude = (float) $latitude;
+        $longitude = (float) $longitude;
+        $radius = (float) $request->query('radius', 10);
         $type = $request->query('type', 'all');
-        $zone_id= $request->header('zoneId');
-        $longitude= $request->header('longitude');
-        $latitude= $request->header('latitude');
-        $stores = StoreLogic::get_nearby_stores($zone_id, $request['limit'], $request['offset'], $type, $longitude, $latitude);
+        $limit = (int) $request->query('limit', $request['limit'] ?? 50);
+        $offset = (int) $request->query('offset', $request['offset'] ?? 1);
+
+        $rawZoneId = $request->query('zone_id', $request->header('zoneId'));
+        $zone_ids = Helpers::format_zone_id($rawZoneId);
+
+        $inZone = true;
+        if (!empty($zone_ids)) {
+            $inZone = Zone::whereIn('id', $zone_ids)
+                ->whereContains('coordinates', new Point($latitude, $longitude, POINT_SRID))
+                ->exists();
+
+            if (!$inZone && ($request->boolean('strict_check') || $request->query('strict'))) {
+                $errors = [];
+                array_push($errors, ['code' => 'coordinates_out_of_zone', 'message' => translate('messages.coordinates_out_of_zone')]);
+                return response()->json([
+                    'errors' => $errors
+                ], 403);
+            }
+        } else {
+            $zone_ids = Zone::whereContains('coordinates', new Point($latitude, $longitude, POINT_SRID))
+                ->pluck('id')
+                ->toArray();
+            $inZone = !empty($zone_ids);
+        }
+
+        $stores = StoreLogic::get_nearby_stores($zone_ids, $limit, $offset, $type, $longitude, $latitude, $radius);
         $stores['stores'] = Helpers::store_data_formatting($stores['stores'], true);
+
+        foreach ($stores['stores'] as &$store) {
+            if (isset($store['distance'])) {
+                $store['distance'] = (float) round($store['distance'], 2);
+            }
+        }
+        unset($store);
+
+        $stores['zone_valid'] = $inZone;
 
         return response()->json($stores, 200);
     }

@@ -8936,4 +8936,5 @@ Smartly or Earn. ',
   'image_required' => 'Image is required',
   'discount_required' => 'Discount is required',
   'id_required' => 'ID is required',
+  'latitude_and_longitude_required' => 'Latitude and longitude required',
 );

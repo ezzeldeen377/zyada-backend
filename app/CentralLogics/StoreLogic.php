@@ -994,30 +994,53 @@ class StoreLogic
         ];
     }
      public static function get_nearby_stores(
-    $zone_id,
-    $limit = 50,
-    $offset = 1,
-    $type = 'all',
-    $longitude = 0,
-    $latitude = 0
-) {
-    $query = Store::withOpen($longitude ?? 0, $latitude ?? 0)
-        ->withCount(['items', 'campaigns'])
-        ->with(['discount' => function ($q) {
-            return $q->validate();
-        }])
-        ->Active()
-        ->type($type)
-        ->orderBy('distance');
+        $zone_id,
+        $limit = 50,
+        $offset = 1,
+        $type = 'all',
+        $longitude = 0,
+        $latitude = 0,
+        $radius = 10
+    ) {
+        $zone_id = Helpers::format_zone_id($zone_id);
 
-    $paginator = $query->paginate($limit ?? 50, ['*'], 'page', $offset ?? 1);
+        $query = Store::withOpenKm($longitude ?? 0, $latitude ?? 0)
+            ->withCount(['items', 'campaigns'])
+            ->with(['discount' => function ($q) {
+                return $q->validate();
+            }])
+            ->whereHas('module', function ($query) {
+                return $query->active();
+            })
+            ->Active()
+            ->opened()
+            ->type($type);
 
-    return [
-        'total_size' => $paginator->total(),
-        'limit'      => $limit ?? 50,
-        'offset'     => $offset ?? 1,
-        'stores'     => $paginator->items(),
-    ];
-}
+        if (config('module.current_module_data')) {
+            $query = $query->whereHas('zone.modules', function ($query) {
+                return $query->where('modules.id', config('module.current_module_data')['id']);
+            })->module(config('module.current_module_data')['id'])
+            ->when(!config('module.current_module_data')['all_zone_service'], function ($query) use ($zone_id) {
+                return !empty($zone_id) ? $query->whereIn('zone_id', $zone_id) : $query;
+            });
+        } elseif (!empty($zone_id)) {
+            $query = $query->whereIn('zone_id', $zone_id);
+        }
+
+        if ($radius && is_numeric($radius)) {
+            $query->having('distance', '<=', (float) $radius);
+        }
+
+        $query = $query->orderBy('distance', 'asc');
+
+        $paginator = $query->paginate($limit ?? 50, ['*'], 'page', $offset ?? 1);
+
+        return [
+            'total_size' => $paginator->total(),
+            'limit'      => (int) ($limit ?? 50),
+            'offset'     => (int) ($offset ?? 1),
+            'stores'     => $paginator->items(),
+        ];
+    }
 
 }
