@@ -122,8 +122,8 @@ class TelrPaymentController extends Controller
             return $this->payment_response($payment, 'success');
         }
 
-        if ($result !== 'success') {
-            return $this->payment_response($payment, $result === 'cancel' ? 'cancel' : 'fail');
+        if (!self::shouldVerifyTelrReturn($result)) {
+            return $this->payment_response($payment, 'cancel');
         }
 
         $reference = $reference ?: $payment->transaction_id;
@@ -159,6 +159,11 @@ class TelrPaymentController extends Controller
         if ($payment && function_exists($payment->success_hook)) {
             call_user_func($payment->success_hook, $payment);
         }
+    }
+
+    public static function shouldVerifyTelrReturn(string $result): bool
+    {
+        return in_array($result, ['success', 'fail'], true);
     }
 
     private function matchesPayment(PaymentRequest $payment, mixed $amount, mixed $currency): bool

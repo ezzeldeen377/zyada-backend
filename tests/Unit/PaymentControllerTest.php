@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\TelrPaymentController;
 use App\Models\Order;
 use PHPUnit\Framework\TestCase;
 
@@ -32,5 +33,11 @@ class PaymentControllerTest extends TestCase
         $this->assertTrue(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100019'], $order));
         $this->assertFalse(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100020'], $order));
         $this->assertFalse(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100019'], null));
+    }
+
+    public function test_telr_declined_returns_are_verified_but_cancellations_are_not(): void
+    {
+        $this->assertTrue(TelrPaymentController::shouldVerifyTelrReturn('fail'));
+        $this->assertFalse(TelrPaymentController::shouldVerifyTelrReturn('cancel'));
     }
 }
