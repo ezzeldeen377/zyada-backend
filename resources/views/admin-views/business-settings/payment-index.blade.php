@@ -264,6 +264,16 @@
                                     </div>
                                 @endif
 
+                                @if($payment['key_name'] == 'telr')
+                                    <div class="form-floating mb-2">
+                                        <label for="Telr_Webhook_Url" class="form-label">{{translate('Telr Webhook URL')}}</label>
+                                        <input id="Telr_Webhook_Url" type="text"
+                                               class="form-control"
+                                               readonly
+                                               value="{{route('telr.webhook')}}">
+                                    </div>
+                                @endif
+
                                 <div class="form-floating mb-2" >
                                     <label for="payment_gateway_title-{{$payment_key}}"
                                            class="form-label">{{translate('payment_gateway_title')}}</label>

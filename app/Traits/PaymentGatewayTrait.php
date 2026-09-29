@@ -193,6 +193,13 @@ trait PaymentGatewayTrait
                 "JOD" => "Jordanian Dinar",
                 "LBP" => "Lebanese Pound"
             ],
+            "telr" => [
+                "AED" => "United Arab Emirates Dirham",
+                "EGP" => "Egyptian Pound",
+                "SAR" => "Saudi Riyal",
+                "USD" => "United States Dollar",
+                "EUR" => "Euro"
+            ],
             "paytm" => [
                 "INR" => "Indian Rupee"
             ],

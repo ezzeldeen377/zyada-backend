@@ -842,7 +842,7 @@ class BusinessSettingsController extends Controller
                 }
             }
         }
-        $data_values = Setting::whereIn('settings_type', ['payment_config'])->whereIn('key_name', ['ssl_commerz', 'paypal', 'stripe', 'razor_pay', 'senang_pay', 'paytabs', 'paystack', 'paymob_accept', 'paytm', 'flutterwave', 'liqpay', 'bkash', 'mercadopago'])->get();
+        $data_values = Setting::whereIn('settings_type', ['payment_config'])->whereIn('key_name', ['ssl_commerz', 'paypal', 'stripe', 'razor_pay', 'senang_pay', 'paytabs', 'paystack', 'paymob_accept', 'paytm', 'flutterwave', 'liqpay', 'bkash', 'mercadopago', 'telr'])->get();
 
         return view('admin-views.business-settings.payment-index', compact('published_status', 'payment_url', 'data_values'));
     }
@@ -1201,7 +1201,7 @@ class BusinessSettingsController extends Controller
         $request['status'] = $request->status ?? 0;
 
         $validation = [
-            'gateway' => 'required|in:ssl_commerz,paypal,stripe,razor_pay,senang_pay,paytabs,paystack,paymob_accept,paytm,flutterwave,liqpay,bkash,mercadopago',
+            'gateway' => 'required|in:ssl_commerz,paypal,stripe,razor_pay,senang_pay,paytabs,paystack,paymob_accept,paytm,flutterwave,liqpay,bkash,mercadopago,telr',
             'mode' => 'required|in:live,test',
         ];
 
@@ -1294,6 +1294,13 @@ class BusinessSettingsController extends Controller
                 'app_secret' => 'required_if:status,1',
                 'username' => 'required_if:status,1',
                 'password' => 'required_if:status,1',
+            ];
+        } elseif ($request['gateway'] == 'telr') {
+            $additional_data = [
+                'status' => 'required|in:1,0',
+                'store_id' => 'required_if:status,1|integer|min:1',
+                'authkey' => 'required_if:status,1|string|max:255',
+                'panels' => 'nullable|string|max:255',
             ];
         }
 

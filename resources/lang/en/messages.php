@@ -1821,6 +1821,8 @@
   'senang_pay' => 'Senang pay',
   'mercadopago' => 'Mercadopago',
   'paymob_accept' => 'Paymob accept',
+  'telr' => 'Telr',
+  'Telr Webhook URL' => 'Telr Webhook URL',
   'callback' => 'Callback',
   'bkash' => 'Bkash',
   'paytabs' => 'Paytabs',
