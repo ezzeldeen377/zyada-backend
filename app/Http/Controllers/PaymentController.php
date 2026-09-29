@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Order;
+use App\Models\PaymentRequest;
 use Illuminate\Http\Request;
 use App\Models\BusinessSetting;
 use App\Library\Payer;
@@ -139,13 +140,50 @@ class PaymentController extends Controller
         return response()->json(['message' => 'Payment succeeded'], 200);
     }
 
-    public function fail()
+    public function fail(Request $request)
     {
         $order = Order::where(['id' => session('order_id'), 'user_id'=>session('customer_id')])->first();
+
+        // Telr can confirm the payment through its webhook after the browser
+        // has already reached the declined/failed return URL. Reconcile that
+        // delayed confirmation before reporting a failure to the client.
+        $tokenData = self::paymentTokenData($request->input('token'));
+        if (($tokenData['payment_method'] ?? null) === 'telr' && !empty($tokenData['attribute_id'])) {
+            $payment = PaymentRequest::where('attribute_id', (int) $tokenData['attribute_id'])
+                ->where('payment_method', 'telr')
+                ->where('is_paid', 1)
+                ->latest('created_at')
+                ->first();
+
+            if ($payment) {
+                if (isset($order) && $order->callback != null) {
+                    return redirect($order->callback . '&status=success');
+                }
+
+                return response()->json(['message' => 'Payment succeeded'], 200);
+            }
+        }
+
         if (isset($order) && $order->callback != null) {
             return redirect($order->callback . '&status=fail');
         }
         return response()->json(['message' => 'Payment failed'], 403);
+    }
+
+    public static function paymentTokenData(?string $token): array
+    {
+        if (!$token) {
+            return [];
+        }
+
+        $decoded = base64_decode($token, true);
+        if (!is_string($decoded)) {
+            return [];
+        }
+
+        parse_str(str_replace('&&', '&', $decoded), $data);
+
+        return is_array($data) ? $data : [];
     }
     public function cancel(Request $request)
     {
