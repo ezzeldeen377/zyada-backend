@@ -1300,6 +1300,7 @@ class BusinessSettingsController extends Controller
                 'status' => 'required|in:1,0',
                 'store_id' => 'required_if:status,1|integer|min:1',
                 'authkey' => 'required_if:status,1|string|max:255',
+                'webhook_secret' => 'required_if:status,1|string|max:255',
                 'panels' => 'nullable|string|max:255',
             ];
         }

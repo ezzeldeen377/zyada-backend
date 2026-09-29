@@ -13,6 +13,7 @@ class TelrPaymentServiceTest extends TestCase
         return new TelrPaymentService([
             'store_id' => '1234',
             'authkey' => 'secret-key',
+            'webhook_secret' => 'webhook-secret',
             'mode' => 'test',
             'panels' => 'card,applepay',
         ]);
@@ -79,7 +80,7 @@ class TelrPaymentServiceTest extends TestCase
             'tran_authcode' => 'AUTH',
             'tran_authmessage' => 'Authorised',
         ];
-        $webhook['tran_check'] = TelrPaymentService::signWebhook($webhook, 'secret-key');
+        $webhook['tran_check'] = TelrPaymentService::signWebhook($webhook, 'webhook-secret');
 
         $this->assertTrue($this->service()->verifyWebhook($webhook));
         $webhook['tran_amount'] = '99.00';

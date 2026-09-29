@@ -114,7 +114,12 @@ class TelrPaymentService
             return false;
         }
 
-        return hash_equals(self::signWebhook($webhook, $this->required('authkey')), $provided);
+        $secret = trim((string) ($this->config['webhook_secret'] ?? ''));
+        if ($secret === '') {
+            $secret = $this->required('authkey');
+        }
+
+        return hash_equals(self::signWebhook($webhook, $secret), $provided);
     }
 
     public static function signWebhook(array $webhook, string $secret): string

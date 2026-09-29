@@ -17,6 +17,7 @@ return new class extends Migration
             'status' => 0,
             'store_id' => '',
             'authkey' => '',
+            'webhook_secret' => '',
             'panels' => 'card',
         ];
 
