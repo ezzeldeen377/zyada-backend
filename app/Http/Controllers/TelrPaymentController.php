@@ -99,7 +99,7 @@ class TelrPaymentController extends Controller
         }
 
         $authorised = $this->telr->isAuthorisedTransaction($data);
-        Log::info('Telr webhook transaction received.', [
+        $this->telrLog('info', 'Telr webhook transaction received.', [
             'payment_id' => $payment->id,
             'transaction_reference' => $data['tran_ref'] ?? null,
             'status' => $data['tran_status'] ?? null,
@@ -138,7 +138,7 @@ class TelrPaymentController extends Controller
         try {
             $response = $this->telr->check((string) $reference);
             $order = (array) data_get($response, 'order', []);
-            Log::warning('Telr return decision', [
+            $this->telrLog('warning', 'Telr return decision', [
                 'payment_id' => $payment->id,
                 'attribute_id' => $payment->attribute_id,
                 'result' => $result,
@@ -184,6 +184,15 @@ class TelrPaymentController extends Controller
     public static function shouldVerifyTelrReturn(string $result): bool
     {
         return in_array($result, ['success', 'fail'], true);
+    }
+
+    private function telrLog(string $level, string $message, array $context = []): void
+    {
+        try {
+            Log::log($level, $message, $context);
+        } catch (\Throwable) {
+            // Diagnostics must never change the payment outcome.
+        }
     }
 
     private function matchesPayment(PaymentRequest $payment, mixed $amount, mixed $currency): bool
