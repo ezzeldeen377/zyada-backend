@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Http\Controllers\PaymentController;
+use App\Models\Order;
 use PHPUnit\Framework\TestCase;
 
 class PaymentControllerTest extends TestCase
@@ -21,5 +22,15 @@ class PaymentControllerTest extends TestCase
     public function test_payment_token_data_ignores_non_string_tokens(): void
     {
         $this->assertSame([], PaymentController::paymentTokenData(['malformed']));
+    }
+
+    public function test_telr_token_must_match_the_session_order(): void
+    {
+        $order = new Order();
+        $order->id = 100019;
+
+        $this->assertTrue(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100019'], $order));
+        $this->assertFalse(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100020'], $order));
+        $this->assertFalse(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100019'], null));
     }
 }
