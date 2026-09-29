@@ -149,7 +149,8 @@ class PaymentController extends Controller
         // delayed confirmation before reporting a failure to the client.
         $tokenData = self::paymentTokenData($request->input('token'));
         $sessionOrderId = session('order_id');
-        if (!$order && $sessionOrderId === null && !empty($tokenData['attribute_id'])) {
+        $signedTelrToken = self::hasValidTelrTokenSignature($tokenData, (string) config('app.key'));
+        if (!$order && $sessionOrderId === null && $signedTelrToken && !empty($tokenData['attribute_id'])) {
             $order = Order::find((int) $tokenData['attribute_id']);
         }
         if (($tokenData['payment_method'] ?? null) === 'telr'
@@ -197,8 +198,29 @@ class PaymentController extends Controller
     {
         return $order !== null
             && !empty($tokenData['attribute_id'])
+            && is_scalar($tokenData['attribute_id'])
             && ($sessionOrderId === null || (string) $sessionOrderId === (string) $order->id)
             && (string) $tokenData['attribute_id'] === (string) $order->id;
+    }
+
+    public static function hasValidTelrTokenSignature(array $tokenData, string $secret): bool
+    {
+        foreach (['payment_method', 'attribute_id', 'transaction_reference', 'token_signature'] as $key) {
+            if (!isset($tokenData[$key]) || !is_scalar($tokenData[$key])) {
+                return false;
+            }
+        }
+
+        if ((string) $tokenData['payment_method'] !== 'telr') {
+            return false;
+        }
+
+        $payload = 'payment_method=' . $tokenData['payment_method']
+            . '&&attribute_id=' . $tokenData['attribute_id']
+            . '&&transaction_reference=' . $tokenData['transaction_reference'];
+        $expected = hash_hmac('sha256', $payload, $secret);
+
+        return hash_equals($expected, (string) $tokenData['token_signature']);
     }
     public function cancel(Request $request)
     {

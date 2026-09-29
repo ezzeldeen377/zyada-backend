@@ -34,7 +34,23 @@ class PaymentControllerTest extends TestCase
         $this->assertTrue(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100019'], $order, null));
         $this->assertFalse(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100019'], $order, '100020'));
         $this->assertFalse(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100020'], $order));
+        $this->assertFalse(PaymentController::telrTokenMatchesOrder(['attribute_id' => ['100019']], $order));
         $this->assertFalse(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100019'], null));
+    }
+
+    public function test_signed_telr_token_requires_a_valid_signature(): void
+    {
+        $data = [
+            'payment_method' => 'telr',
+            'attribute_id' => '100019',
+            'transaction_reference' => '030126798359',
+        ];
+        $payload = 'payment_method=telr&&attribute_id=100019&&transaction_reference=030126798359';
+        $data['token_signature'] = hash_hmac('sha256', $payload, 'test-secret');
+
+        $this->assertTrue(PaymentController::hasValidTelrTokenSignature($data, 'test-secret'));
+        $data['attribute_id'] = '100020';
+        $this->assertFalse(PaymentController::hasValidTelrTokenSignature($data, 'test-secret'));
     }
 
     public function test_telr_declined_returns_are_verified_but_cancellations_are_not(): void
