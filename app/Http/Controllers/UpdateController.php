@@ -256,7 +256,8 @@ class UpdateController extends Controller
                 'liqpay',
                 'paytm',
                 'bkash',
-                'paytabs'];
+                'paytabs',
+                'telr'];
 
             $data = BusinessSetting::whereIn('key', $gateway)->pluck('value', 'key')->toArray();
 
@@ -360,6 +361,13 @@ class UpdateController extends Controller
                         'app_secret' => $decoded_value['api_secret'],
                         'username' => $decoded_value['username'],
                         'password' => $decoded_value['password'],
+                    ];
+                } elseif ($gateway == 'telr') {
+                    $additional_data = [
+                        'status' => $decoded_value['status'] ?? 0,
+                        'store_id' => $decoded_value['store_id'] ?? '',
+                        'authkey' => $decoded_value['authkey'] ?? '',
+                        'panels' => $decoded_value['panels'] ?? 'card',
                     ];
                 }
 

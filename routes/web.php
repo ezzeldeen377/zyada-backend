@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PaytmController;
 use App\Http\Controllers\LiqPayController;
 use App\Http\Controllers\PaymobController;
+use App\Http\Controllers\TelrPaymentController;
 use App\Http\Controllers\PaytabsController;
 use App\Http\Controllers\FirebaseController;
 use App\Http\Controllers\PaystackController;
@@ -193,8 +194,22 @@ if (!$is_published) {
             Route::any('callback', [PaytabsController::class, 'callback'])->name('callback');
             Route::any('response', [PaytabsController::class, 'response'])->name('response');
         });
+
     });
 }
+
+//TELR HOSTED PAYMENT PAGE
+Route::group(['prefix' => 'payment/telr', 'as' => 'telr.'], function () {
+    Route::get('pay', [TelrPaymentController::class, 'pay'])->name('pay');
+    Route::any('authorised', [TelrPaymentController::class, 'authorised'])->name('authorised')
+        ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+    Route::any('declined', [TelrPaymentController::class, 'declined'])->name('declined')
+        ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+    Route::any('cancelled', [TelrPaymentController::class, 'cancelled'])->name('cancelled')
+        ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('webhook', [TelrPaymentController::class, 'webhook'])->name('webhook')
+        ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+});
 
 
 Route::get('/test', function () {
