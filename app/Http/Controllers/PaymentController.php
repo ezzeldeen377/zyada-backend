@@ -148,8 +148,12 @@ class PaymentController extends Controller
         // has already reached the declined/failed return URL. Reconcile that
         // delayed confirmation before reporting a failure to the client.
         $tokenData = self::paymentTokenData($request->input('token'));
+        $sessionOrderId = session('order_id');
+        if (!$order && $sessionOrderId === null && !empty($tokenData['attribute_id'])) {
+            $order = Order::find((int) $tokenData['attribute_id']);
+        }
         if (($tokenData['payment_method'] ?? null) === 'telr'
-            && self::telrTokenMatchesOrder($tokenData, $order)
+            && self::telrTokenMatchesOrder($tokenData, $order, $sessionOrderId)
         ) {
             $payment = PaymentRequest::where('attribute_id', (int) $tokenData['attribute_id'])
                 ->where('attribute', 'order')
@@ -189,10 +193,11 @@ class PaymentController extends Controller
         return is_array($data) ? $data : [];
     }
 
-    public static function telrTokenMatchesOrder(array $tokenData, ?Order $order): bool
+    public static function telrTokenMatchesOrder(array $tokenData, ?Order $order, mixed $sessionOrderId = null): bool
     {
         return $order !== null
             && !empty($tokenData['attribute_id'])
+            && ($sessionOrderId === null || (string) $sessionOrderId === (string) $order->id)
             && (string) $tokenData['attribute_id'] === (string) $order->id;
     }
     public function cancel(Request $request)

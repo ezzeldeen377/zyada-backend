@@ -31,6 +31,8 @@ class PaymentControllerTest extends TestCase
         $order->id = 100019;
 
         $this->assertTrue(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100019'], $order));
+        $this->assertTrue(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100019'], $order, null));
+        $this->assertFalse(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100019'], $order, '100020'));
         $this->assertFalse(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100020'], $order));
         $this->assertFalse(PaymentController::telrTokenMatchesOrder(['attribute_id' => '100019'], null));
     }
