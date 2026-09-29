@@ -12,4 +12,8 @@ class PaymentRequest extends Model
     use HasFactory;
 
     protected $table = 'payment_requests';
+
+    protected $fillable = [
+        'transaction_id',
+    ];
 }
