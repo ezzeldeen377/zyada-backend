@@ -150,6 +150,7 @@ class PaymentController extends Controller
         $tokenData = self::paymentTokenData($request->input('token'));
         if (($tokenData['payment_method'] ?? null) === 'telr' && !empty($tokenData['attribute_id'])) {
             $payment = PaymentRequest::where('attribute_id', (int) $tokenData['attribute_id'])
+                ->where('attribute', 'order')
                 ->where('payment_method', 'telr')
                 ->where('is_paid', 1)
                 ->latest('created_at')
@@ -170,9 +171,9 @@ class PaymentController extends Controller
         return response()->json(['message' => 'Payment failed'], 403);
     }
 
-    public static function paymentTokenData(?string $token): array
+    public static function paymentTokenData(mixed $token): array
     {
-        if (!$token) {
+        if (!is_string($token) || $token === '') {
             return [];
         }
 

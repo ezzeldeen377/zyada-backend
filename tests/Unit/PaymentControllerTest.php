@@ -17,4 +17,9 @@ class PaymentControllerTest extends TestCase
             'transaction_reference' => '030126798359',
         ], PaymentController::paymentTokenData($token));
     }
+
+    public function test_payment_token_data_ignores_non_string_tokens(): void
+    {
+        $this->assertSame([], PaymentController::paymentTokenData(['malformed']));
+    }
 }
