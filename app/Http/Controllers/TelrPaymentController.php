@@ -98,7 +98,15 @@ class TelrPaymentController extends Controller
             return response()->json(['message' => 'Payment data mismatch.'], 400);
         }
 
-        if ($this->telr->isAuthorisedTransaction($data)) {
+        $authorised = $this->telr->isAuthorisedTransaction($data);
+        Log::info('Telr webhook transaction received.', [
+            'payment_id' => $payment->id,
+            'transaction_reference' => $data['tran_ref'] ?? null,
+            'status' => $data['tran_status'] ?? null,
+            'authorised' => $authorised,
+        ]);
+
+        if ($authorised) {
             $this->settle($payment, $data['tran_ref'] ?? $payment->transaction_id);
         }
 
@@ -130,6 +138,18 @@ class TelrPaymentController extends Controller
         try {
             $response = $this->telr->check((string) $reference);
             $order = (array) data_get($response, 'order', []);
+            Log::warning('Telr return decision', [
+                'payment_id' => $payment->id,
+                'attribute_id' => $payment->attribute_id,
+                'result' => $result,
+                'reference' => $reference,
+                'telr_status' => data_get($response, 'order.status.code'),
+                'telr_amount' => data_get($response, 'order.amount'),
+                'local_amount' => $payment->payment_amount,
+                'telr_currency' => data_get($response, 'order.currency'),
+                'local_currency' => $payment->currency_code,
+                'is_paid_before_check' => $payment->is_paid,
+            ]);
             if (! $this->telr->isPaid($response) || ! $this->matchesPayment($payment, $order['amount'] ?? null, $order['currency'] ?? null)) {
                 return $this->payment_response($payment, 'fail');
             }
