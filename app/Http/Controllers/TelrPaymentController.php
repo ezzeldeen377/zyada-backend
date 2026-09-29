@@ -116,6 +116,12 @@ class TelrPaymentController extends Controller
             abort(404);
         }
 
+        // A verified Telr webhook can settle the payment before the browser returns.
+        // Never turn an already-paid request into a failure on the return path.
+        if ($payment->is_paid) {
+            return $this->payment_response($payment, 'success');
+        }
+
         if ($result !== 'success') {
             return $this->payment_response($payment, $result === 'cancel' ? 'cancel' : 'fail');
         }
