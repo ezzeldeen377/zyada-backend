@@ -113,8 +113,8 @@ class VendorMysteryBoxManagementTest extends TestCase
             'discount_amount' => 15,
             'start_date' => '2026-10-05',
             'end_date' => '2026-10-06',
-            'pickup_time_from' => '09:00',
-            'pickup_time_to' => '11:00',
+            'pickup_time_from' => '09:00:00',
+            'pickup_time_to' => '11:00:00',
             'image' => UploadedFile::fake()->image('updated-mystery-box.png'),
         ]);
 
