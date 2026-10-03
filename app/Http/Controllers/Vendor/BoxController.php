@@ -167,8 +167,8 @@ class BoxController extends Controller
             'discount_amount' => 'nullable|numeric|min:0',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'pickup_time_from' => 'nullable|date_format:H:i',
-            'pickup_time_to' => 'nullable|date_format:H:i',
+            'pickup_time_from' => 'nullable|date_format:H:i,H:i:s',
+            'pickup_time_to' => 'nullable|date_format:H:i,H:i:s',
         ]);
     }
 
@@ -187,8 +187,8 @@ class BoxController extends Controller
         $box->discount_amount = $request->discount_amount ?? 0;
         $box->start_date = $this->normalizedDate($request->start_date);
         $box->end_date = $this->normalizedDate($request->end_date);
-        $box->pickup_time_from = $request->pickup_time_from;
-        $box->pickup_time_to = $request->pickup_time_to;
+        $box->pickup_time_from = $this->normalizedTime($request->pickup_time_from);
+        $box->pickup_time_to = $this->normalizedTime($request->pickup_time_to);
     }
 
     private function syncTranslations(Request $request, Box $box): void
@@ -200,5 +200,10 @@ class BoxController extends Controller
     private function normalizedDate(?string $date): ?string
     {
         return $date ? Carbon::parse($date)->toDateString() : null;
+    }
+
+    private function normalizedTime(?string $time): ?string
+    {
+        return $time ? Carbon::parse($time)->format('H:i') : null;
     }
 }
