@@ -28,6 +28,8 @@ class VendorMysteryBoxManagementTest extends TestCase
         DB::purge('sqlite');
         DB::reconnect('sqlite');
 
+        view()->getFinder()->prependLocation(base_path('tests/Fixtures/views'));
+
         $this->createFixtureSchema();
     }
 
@@ -67,7 +69,7 @@ class VendorMysteryBoxManagementTest extends TestCase
             'image' => UploadedFile::fake()->image('mystery-box.png'),
         ]);
 
-        $response->assertSuccessful();
+        $response->assertRedirect(route('vendor.box.add-new'));
         $this->assertDatabaseHas('boxes', [
             'store_id' => $store->id,
             'module_id' => $module->id,
@@ -76,6 +78,71 @@ class VendorMysteryBoxManagementTest extends TestCase
             'description' => 'A default-language description',
         ]);
         $this->assertDatabaseMissing('boxes', ['store_id' => $otherStore->id, 'name' => 'A default-language box']);
+        $this->assertDatabaseHas('translations', [
+            'translationable_type' => Box::class,
+            'locale' => 'ar',
+            'key' => 'name',
+            'value' => 'صندوق عربي',
+        ]);
+        $this->assertDatabaseHas('translations', [
+            'translationable_type' => Box::class,
+            'locale' => 'ar',
+            'key' => 'description',
+            'value' => 'وصف عربي',
+        ]);
+        $this->assertNotNull(Box::where('name', 'A default-language box')->value('image'));
+    }
+
+    public function test_vendor_can_update_a_current_store_box_and_persist_editable_fields(): void
+    {
+        [$vendor, $store, $module] = $this->vendorWithStore();
+        $originalCategory = $this->categoryFor($module);
+        $newCategory = $this->categoryFor($module);
+        $box = $this->boxFor($store, $module, ['category_id' => $originalCategory->id]);
+        Storage::fake('public');
+
+        $response = $this->asVendor($vendor)->post(route('vendor.box.update', $box), [
+            'category_id' => $newCategory->id,
+            'name' => ['Updated box', 'صندوق محدث'],
+            'description' => ['Updated description', 'وصف محدث'],
+            'lang' => ['default', 'ar'],
+            'price' => 33.5,
+            'item_count' => 3,
+            'available_count' => 0,
+            'discount_type' => 'percent',
+            'discount_amount' => 15,
+            'start_date' => '2026-10-05',
+            'end_date' => '2026-10-06',
+            'pickup_time_from' => '09:00',
+            'pickup_time_to' => '11:00',
+            'image' => UploadedFile::fake()->image('updated-mystery-box.png'),
+        ]);
+
+        $response->assertRedirect(route('vendor.box.add-new'));
+        $this->assertDatabaseHas('boxes', [
+            'id' => $box->id,
+            'store_id' => $store->id,
+            'module_id' => $module->id,
+            'category_id' => $newCategory->id,
+            'name' => 'Updated box',
+            'description' => 'Updated description',
+            'price' => 33.5,
+            'item_count' => 3,
+            'available_count' => 0,
+            'discount_type' => 'percent',
+            'discount_amount' => 15,
+            'pickup_time_from' => '09:00',
+            'pickup_time_to' => '11:00',
+        ]);
+        $this->assertSame('2026-10-05', $box->fresh()->start_date->toDateString());
+        $this->assertSame('2026-10-06', $box->fresh()->end_date->toDateString());
+        $this->assertDatabaseHas('translations', [
+            'translationable_type' => Box::class,
+            'translationable_id' => $box->id,
+            'locale' => 'ar',
+            'key' => 'name',
+            'value' => 'صندوق محدث',
+        ]);
     }
 
     public function test_vendor_cannot_edit_a_box_from_another_store(): void
@@ -100,12 +167,32 @@ class VendorMysteryBoxManagementTest extends TestCase
         $this->assertDatabaseHas('boxes', ['id' => $foreignBox->id, 'status' => 1]);
     }
 
+    public function test_vendor_cannot_update_a_box_from_another_store(): void
+    {
+        [$vendor, $store, $module] = $this->vendorWithStore();
+        $foreignBox = $this->boxFor($this->storeFor($vendor, $module), $module, ['name' => 'Protected box']);
+        $category = $this->categoryFor($module);
+
+        $response = $this->asVendor($vendor)->post(route('vendor.box.update', $foreignBox), [
+            'category_id' => $category->id,
+            'name' => ['Changed'],
+            'description' => ['Changed description'],
+            'lang' => ['default'],
+            'price' => 50,
+            'item_count' => 1,
+            'available_count' => 1,
+        ]);
+
+        $response->assertNotFound();
+        $this->assertDatabaseHas('boxes', ['id' => $foreignBox->id, 'name' => 'Protected box']);
+    }
+
     public function test_vendor_cannot_delete_a_box_from_another_store(): void
     {
         [$vendor, $store, $module] = $this->vendorWithStore();
         $foreignBox = $this->boxFor($this->storeFor($vendor, $module), $module);
 
-        $response = $this->asVendor($vendor)->delete(route('vendor.box.delete'), ['id' => $foreignBox->id]);
+        $response = $this->asVendor($vendor)->delete(route('vendor.box.delete', $foreignBox));
 
         $response->assertNotFound();
         $this->assertDatabaseHas('boxes', ['id' => $foreignBox->id]);
@@ -141,6 +228,26 @@ class VendorMysteryBoxManagementTest extends TestCase
 
         $response->assertRedirect();
         $this->assertDatabaseHas('boxes', ['id' => $box->id, 'status' => 1]);
+    }
+
+    public function test_item_section_disabled_redirects_and_prevents_box_update(): void
+    {
+        [$vendor, $store, $module] = $this->vendorWithStore(['item_section' => false]);
+        $category = $this->categoryFor($module);
+        $box = $this->boxFor($store, $module, ['name' => 'Unchanged box']);
+
+        $response = $this->asVendor($vendor)->post(route('vendor.box.update', $box), [
+            'category_id' => $category->id,
+            'name' => ['Changed box'],
+            'description' => ['Changed description'],
+            'lang' => ['default'],
+            'price' => 50,
+            'item_count' => 1,
+            'available_count' => 1,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('boxes', ['id' => $box->id, 'name' => 'Unchanged box']);
     }
 
     /** @return array{Vendor, Store, Module} */
@@ -287,6 +394,12 @@ class VendorMysteryBoxManagementTest extends TestCase
             $table->integer('item_count')->default(1);
             $table->integer('available_count')->default(0);
             $table->boolean('status')->default(true);
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->string('pickup_time_from')->nullable();
+            $table->string('pickup_time_to')->nullable();
+            $table->string('discount_type')->nullable();
+            $table->decimal('discount_amount', 10, 2)->default(0);
             $table->timestamps();
         });
         $schema->create('translations', function (Blueprint $table) {
@@ -311,5 +424,27 @@ class VendorMysteryBoxManagementTest extends TestCase
             $table->text('value')->nullable();
             $table->timestamps();
         });
+        $schema->create('currencies', function (Blueprint $table) {
+            $table->id();
+            $table->string('country')->nullable();
+            $table->string('currency_code');
+            $table->string('currency_symbol');
+            $table->decimal('exchange_rate', 20, 10)->default(1);
+            $table->timestamps();
+        });
+
+        DB::table('business_settings')->insert([
+            ['key' => 'language', 'value' => '[]', 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'currency', 'value' => 'USD', 'created_at' => now(), 'updated_at' => now()],
+            ['key' => 'currency_symbol_position', 'value' => 'left', 'created_at' => now(), 'updated_at' => now()],
+        ]);
+        DB::table('currencies')->insert([
+            'country' => 'United States',
+            'currency_code' => 'USD',
+            'currency_symbol' => '$',
+            'exchange_rate' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }

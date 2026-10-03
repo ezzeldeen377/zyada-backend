@@ -181,6 +181,7 @@ class BoxController extends Controller
 
         $box = Box::withoutGlobalScope(StoreScope::class)
             ->withoutGlobalScope('translate')
+            ->where('store_id', $request->vendor->stores[0]->id)
             ->find($request->id);
 
         if (!$box) {
@@ -252,6 +253,7 @@ class BoxController extends Controller
 
         $box = Box::withoutGlobalScope(StoreScope::class)
             ->withoutGlobalScope('translate')
+            ->where('store_id', $request->vendor->stores[0]->id)
             ->find($request->id);
 
         if (!$box) {
@@ -293,7 +295,9 @@ class BoxController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $box = Box::withoutGlobalScope(StoreScope::class)->find($request->id);
+        $box = Box::withoutGlobalScope(StoreScope::class)
+            ->where('store_id', $request->vendor->stores[0]->id)
+            ->find($request->id);
 
         if (!$box) {
             return response()->json([
@@ -346,6 +350,7 @@ class BoxController extends Controller
             ->with(['translations' => function($query) {
                 return $query; // Get all translations for editing
             }, 'storage', 'store', 'module', 'category:id,name'])
+            ->where('store_id', $request->vendor->stores[0]->id)
             ->find($id);
 
         if (!$box) {

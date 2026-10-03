@@ -158,6 +158,15 @@ Route::group(['namespace' => 'Vendor', 'as' => 'vendor.'], function () {
 
         });
 
+        Route::group(['prefix' => 'box', 'as' => 'box.', 'middleware' => ['module:item', 'subscription:item']], function () {
+            Route::get('add-new', 'BoxController@index')->name('add-new');
+            Route::post('store', 'BoxController@store')->name('store');
+            Route::get('edit/{id}', 'BoxController@edit')->name('edit');
+            Route::post('update/{id}', 'BoxController@update')->name('update');
+            Route::get('status/{id}/{status}', 'BoxController@status')->name('status');
+            Route::delete('delete/{id}', 'BoxController@delete')->name('delete');
+        });
+
         Route::group(['prefix' => 'banner', 'as' => 'banner.', 'middleware' => ['module:banner','subscription:banner']], function () {
             Route::get('list', 'BannerController@list')->name('list');
             Route::post('store', 'BannerController@store')->name('store');

@@ -352,6 +352,15 @@
                         <!-- End Food -->
                     @endif
                     <!-- AddOn -->
+                    @if (\App\CentralLogics\Helpers::employee_module_permission_check('item') && $store_data->item_section)
+                        <li class="navbar-vertical-aside-has-menu {{ Request::is('vendor-panel/box*') ? 'active' : '' }}">
+                            <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{ route('vendor.box.add-new') }}"
+                                title="{{ translate('messages.mystery_box') }}">
+                                <i class="tio-gift nav-icon"></i>
+                                <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{ translate('messages.mystery_box') }}</span>
+                            </a>
+                        </li>
+                    @endif
                     @if (\App\CentralLogics\Helpers::employee_module_permission_check('addon'))
                         <li
                             class="navbar-vertical-aside-has-menu {{ Request::is('vendor-panel/addon*') ? 'active' : '' }}">
