@@ -8,6 +8,7 @@ use App\Models\Box;
 use App\Models\Category;
 use App\Scopes\StoreScope;
 use Brian2694\Toastr\Facades\Toastr;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -184,8 +185,8 @@ class BoxController extends Controller
         $box->category_id = $request->category_id;
         $box->discount_type = $request->discount_type ?: null;
         $box->discount_amount = $request->discount_amount ?? 0;
-        $box->start_date = $request->start_date;
-        $box->end_date = $request->end_date;
+        $box->start_date = $this->normalizedDate($request->start_date);
+        $box->end_date = $this->normalizedDate($request->end_date);
         $box->pickup_time_from = $request->pickup_time_from;
         $box->pickup_time_to = $request->pickup_time_to;
     }
@@ -194,5 +195,10 @@ class BoxController extends Controller
     {
         Helpers::add_or_update_translations($request, 'name', 'name', 'Box', $box->id, $box->name);
         Helpers::add_or_update_translations($request, 'description', 'description', 'Box', $box->id, $box->description);
+    }
+
+    private function normalizedDate(?string $date): ?string
+    {
+        return $date ? Carbon::parse($date)->toDateString() : null;
     }
 }
