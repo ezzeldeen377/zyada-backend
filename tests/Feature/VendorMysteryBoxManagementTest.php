@@ -34,7 +34,7 @@ class VendorMysteryBoxManagementTest extends TestCase
     public function test_an_authenticated_vendor_sees_only_boxes_from_their_current_store(): void
     {
         [$vendor, $store, $module] = $this->vendorWithStore();
-        $otherStore = $this->storeFor($this->vendor(), $module);
+        $otherStore = $this->storeFor($vendor, $module);
         $currentBox = $this->boxFor($store, $module, ['name' => 'Current store box']);
         $otherBox = $this->boxFor($otherStore, $module, ['name' => 'Other store box']);
 
@@ -51,7 +51,7 @@ class VendorMysteryBoxManagementTest extends TestCase
     public function test_store_ignores_a_submitted_store_id_and_uses_the_current_store_module_category_and_default_language_fields(): void
     {
         [$vendor, $store, $module] = $this->vendorWithStore();
-        $otherStore = $this->storeFor($this->vendor(), $module);
+        $otherStore = $this->storeFor($vendor, $module);
         $category = $this->categoryFor($module);
         Storage::fake('public');
 
@@ -81,7 +81,7 @@ class VendorMysteryBoxManagementTest extends TestCase
     public function test_vendor_cannot_edit_a_box_from_another_store(): void
     {
         [$vendor, $store, $module] = $this->vendorWithStore();
-        $foreignBox = $this->boxFor($this->storeFor($this->vendor(), $module), $module, ['name' => 'Protected box']);
+        $foreignBox = $this->boxFor($this->storeFor($vendor, $module), $module, ['name' => 'Protected box']);
 
         $response = $this->asVendor($vendor)->get(route('vendor.box.edit', $foreignBox));
 
@@ -92,7 +92,7 @@ class VendorMysteryBoxManagementTest extends TestCase
     public function test_vendor_cannot_toggle_status_for_a_box_from_another_store(): void
     {
         [$vendor, $store, $module] = $this->vendorWithStore();
-        $foreignBox = $this->boxFor($this->storeFor($this->vendor(), $module), $module, ['status' => true]);
+        $foreignBox = $this->boxFor($this->storeFor($vendor, $module), $module, ['status' => true]);
 
         $response = $this->asVendor($vendor)->get(route('vendor.box.status', [$foreignBox, 0]));
 
@@ -103,7 +103,7 @@ class VendorMysteryBoxManagementTest extends TestCase
     public function test_vendor_cannot_delete_a_box_from_another_store(): void
     {
         [$vendor, $store, $module] = $this->vendorWithStore();
-        $foreignBox = $this->boxFor($this->storeFor($this->vendor(), $module), $module);
+        $foreignBox = $this->boxFor($this->storeFor($vendor, $module), $module);
 
         $response = $this->asVendor($vendor)->delete(route('vendor.box.delete'), ['id' => $foreignBox->id]);
 
