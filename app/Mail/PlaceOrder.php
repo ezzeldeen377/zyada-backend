@@ -16,9 +16,26 @@ class PlaceOrder extends Mailable
     use Queueable, SerializesModels;
 
     protected $order_id;
-    public function __construct($order_id)
+    protected bool $paymentConfirmation;
+
+    public function __construct($order_id, bool $paymentConfirmation = false)
     {
         $this->order_id = $order_id;
+        $this->paymentConfirmation = $paymentConfirmation;
+    }
+
+    public function subjectLine(): string
+    {
+        return $this->paymentConfirmation
+            ? 'Payment confirmation & receipt'
+            : translate('Order_Placed');
+    }
+
+    public function confirmationMessage(): ?string
+    {
+        return $this->paymentConfirmation
+            ? 'Your payment has been confirmed. This email is your payment receipt and is sent immediately after payment is received, no later than 24 hours after receipt.'
+            : null;
     }
 
     /**
@@ -43,6 +60,12 @@ class PlaceOrder extends Mailable
         $body = Helpers::text_variable_data_format( value:$data['body']??'',user_name:$user_name??'',store_name:$store_name??'',delivery_man_name:$delivery_man_name??'',order_id:$order_id??'');
         $footer_text = Helpers::text_variable_data_format( value:$data['footer_text']??'',user_name:$user_name??'',store_name:$store_name??'',delivery_man_name:$delivery_man_name??'',order_id:$order_id??'');
         $copyright_text = Helpers::text_variable_data_format( value:$data['copyright_text']??'',user_name:$user_name??'',store_name:$store_name??'',delivery_man_name:$delivery_man_name??'',order_id:$order_id??'');
-        return $this->subject(translate('Order_Placed'))->view('email-templates.new-email-format-'.$template, ['company_name'=>$company_name,'data'=>$data,'title'=>$title,'body'=>$body,'footer_text'=>$footer_text,'copyright_text'=>$copyright_text,'order'=>$order ,'url' => $url]);
+
+        if ($confirmationMessage = $this->confirmationMessage()) {
+            $title = 'Payment confirmed';
+            $body = '<p>' . $confirmationMessage . '</p>' . $body;
+        }
+
+        return $this->subject($this->subjectLine())->view('email-templates.new-email-format-'.$template, ['company_name'=>$company_name,'data'=>$data,'title'=>$title,'body'=>$body,'footer_text'=>$footer_text,'copyright_text'=>$copyright_text,'order'=>$order ,'url' => $url]);
     }
 }

@@ -11,6 +11,7 @@ use App\CentralLogics\OrderLogic;
 use App\Models\AccountTransaction;
 use Illuminate\Support\Facades\DB;
 use App\Mail\OrderVerificationMail;
+use App\Services\OrderPaymentReceipt;
 use App\CentralLogics\CustomerLogic;
 use Illuminate\Support\Facades\Mail;
 use App\Models\SubscriptionBillingAndRefundHistory;
@@ -134,6 +135,7 @@ if (! function_exists('order_place')) {
         OrderLogic::update_unpaid_order_payment(order_id:$order->id, payment_method:$data->payment_method);
         try {
             Helpers::send_order_notification($order);
+            OrderPaymentReceipt::send($order);
             $address = json_decode($order->delivery_address, true);
 
 
