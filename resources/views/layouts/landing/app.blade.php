@@ -38,9 +38,10 @@
             }
         </style>
     @endif
+    <link rel="stylesheet" href="{{ asset('public/assets/landing/css/zyada.css') }}?v={{ filemtime(public_path('assets/landing/css/zyada.css')) }}" />
 </head>
 
-<body>
+<body class="zyada-landing {{ Request::is('/') ? 'zyada-home' : 'zyada-inner' }}">
 
     @php($fixed_link = \App\Models\DataSetting::where(['key'=>'fixed_link','type'=>'admin_landing_page'])->first())
     @php($fixed_link = isset($fixed_link->value)?json_decode($fixed_link->value, true):null)
@@ -124,7 +125,7 @@
                             <a class="cmn--btn me-xl-auto py-2" href="{{ $fixed_link['web_app_url'] }}" target="_blank">{{ translate('messages.browse_web') }}</a>
                         </div>
                     @endif
-                    @if (isset($toggle_dm_registration) || isset($toggle_store_registration))
+                    @if (!empty($toggle_store_registration))
                     <div class="dropdown--btn-hover position-relative">
                         <a class="dropdown--btn header--btn text-capitalize d-flex align-items-center" href="javascript:void(0)">
                             <span class="me-1">{{ translate('Join us') }}</span>
@@ -141,16 +142,6 @@
                                 <a class="" href="{{ route('restaurant.create') }}">
                                     {{ translate('messages.vendor_registration') }}
                                 </a>
-                            </li>
-                            @if ($toggle_dm_registration)
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                            @endif
-                        @endif
-                        @if ($toggle_dm_registration)
-                            <li><a class=""
-                                    href="{{ route('deliveryman.create') }}">{{ translate('messages.deliveryman_registration') }}</a>
                             </li>
                         @endif
                         </ul>

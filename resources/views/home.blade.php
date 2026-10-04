@@ -7,19 +7,39 @@
     @php($landing_page_links =   \App\CentralLogics\Helpers::get_business_settings('landing_page_links'))
     <!-- ==== Banner Section Starts Here ==== -->
     <section class="banner-section position-relative">
-        <div class="container">
+        <div class="container zyada-hero-grid">
             <div class="banner-content wow fadeInUp">
+                <div class="zyada-eyebrow"><span aria-hidden="true"></span>{{ $business_name }}</div>
                 <h1 class="title">{{ $landing_data['fixed_header_title'] }}</h1>
-                <img class="w-100 onerror-image" data-onerror-image="{{ asset('public/assets/admin/img/160x160/img2.jpg') }}"
-                    src="{{ \App\CentralLogics\Helpers::logoFullUrl()}}"
-                    alt="">
                 <div class="text">
                     {{ $landing_data['fixed_header_sub_title'] }}
                 </div>
+                <div class="zyada-hero-actions">
+                    @php($hero_app_links = $landing_data['download_user_app_links'] ?? [])
+                    @if (($hero_app_links['playstore_url_status'] ?? '0') == '1' && !empty($hero_app_links['playstore_url']))
+                        <a class="zyada-store-link" href="{{ $hero_app_links['playstore_url'] }}">
+                            <img src="{{ asset('public/assets/landing/img/google.svg') }}" alt="Google Play">
+                        </a>
+                    @endif
+                    @if (($hero_app_links['apple_store_url_status'] ?? '0') == '1' && !empty($hero_app_links['apple_store_url']))
+                        <a class="zyada-store-link" href="{{ $hero_app_links['apple_store_url'] }}">
+                            <img src="{{ asset('public/assets/landing/img/apple.svg') }}" alt="App Store">
+                        </a>
+                    @endif
+                </div>
             </div>
-        </div>
-        <div class="px-xl-5 d-flex justify-content-center text-base banner-svg-img">
-            <img src="{{asset('public/assets/landing/img/main-banner.svg')}}" class="svg" alt="">
+            <div class="zyada-hero-scene" aria-hidden="true">
+                <div class="zyada-renewal-ring"></div>
+                <div class="zyada-hero-illustration">
+                    <img src="{{asset('public/assets/landing/img/zyada-food.svg')}}" alt="">
+                </div>
+                <div class="zyada-rescue-box">
+                    <img class="onerror-image" data-onerror-image="{{ asset('public/assets/admin/img/160x160/img2.jpg') }}"
+                         src="{{ \App\CentralLogics\Helpers::logoFullUrl() }}" alt="">
+                </div>
+                <span class="zyada-hero-seal">{{ $business_name }}</span>
+                <span class="zyada-hero-leaf"></span>
+            </div>
         </div>
     </section>
     <!-- ==== Banner Section Ends Here ==== -->
@@ -36,7 +56,7 @@
                 </p>
             </div>
             <div class="nav--tabs-wrapper">
-                @php($modules = \App\Models\Module::Active()->get())
+                @php($modules = \App\Models\Module::Active()->where('module_type', '!=', 'parcel')->get())
                 <div class="nav--tabs">
                     <div class="owl-theme owl-carousel" id="sync2">
                         @foreach ($modules as $key => $item)
@@ -99,128 +119,7 @@
     @endif
     <!-- ==== Main Category Section Ends Here ==== -->
 
-    <!-- ==== Learn Feature Section Starts Here ==== -->
-    <section class="learn-feature-section"
-        style="background: url({{ asset('public/assets/landing/img/learn-feature-bg.svg') }}) no-repeat center center / cover">
-        <div class="container position-relative">
-            <div class="row gy-5 gx-0 gx-xl-4 align-items-center">
-                <div class=" col-lg-6 pe-lg-5">
-                    <div class="learn-feature-content wow fadeInUp">
-                        <div class="section-header text-start mb-0">
-                            <h2 class="title">
-                                {{ $landing_data['feature_title'] }}
-
-                            </h2>
-                            <div class="text">
-                                {{ $landing_data['feature_short_description'] }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @php($feature = $landing_data['features'])
-                <?php
-                $array1 = array_slice($feature, 0, ceil(count($feature) / 2));
-                $array2 = array_slice($feature, ceil(count($feature) / 2));
-                ?>
-                @if (isset($feature) && ($x = count($feature) > 0))
-
-                    <div class="col-lg-6">
-                        <div class="learn-feature-wrapper py-5">
-                            <div class="row g-4 learn-feature-item-group">
-                                <div class="col-6">
-                                    <div class="row gy-4 gy-sm-5">
-                                        <!-- Item -->
-                                        @foreach ($array1 as $item)
-                                            <div class="col-12">
-                                                <div class="learn-feature-item">
-                                                    <div class="learn-feature-icon">
-                                                        <img src="{{ $item['image_full_url'] }}"
-                                                            alt="{{ $item['title'] ?? '' }}">
-                                                    </div>
-                                                    <div class="learn-feature-item-content">
-                                                        <h5 class="subttle">{{ $item['title'] ?? '' }}</h5>
-                                                        <div class="text">
-                                                            {{ $item['sub_title'] ?? '' }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                        <!-- Item End-->
-                                    </div>
-                                </div>
-
-                                <div class="col-6">
-                                    <div class="row gy-4 gy-sm-5 mt-5 pt-5">
-                                        @foreach ($array2 as $item)
-                                            <div class="col-12">
-                                                <div class="learn-feature-item">
-                                                    <div class="learn-feature-icon">
-                                                        <img src="{{ $item['image_full_url'] }}"
-                                                            alt="{{ $item['title'] ?? '' }}">
-                                                    </div>
-                                                    <div class="learn-feature-item-content">
-                                                        <h5 class="subttle">{{ $item['title'] ?? '' }}</h5>
-                                                        <div class="text">
-                                                            {{ $item['sub_title'] ?? '' }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </section>
-    <!-- ==== Learn Feature Section Ends Here ==== -->
-
-    <!-- ==== Delivery Area Section Starts Here ==== -->
-    @if ($landing_data['available_zone_status'] && $landing_data['available_zone_list'])
-        <section class="delivery-area-section">
-            <div class="container">
-                <div class="row text-center gy-4 flex-wrap-reverse align-items-center">
-                    <div class="col-lg-5 col-xl-6 text-lg-start">
-                        <div class="section-header text-lg-start wow fadeInUp">
-                            <h2 class="title">
-                                {{-- <span>Available delivery</span> <span class="text--base">areas / Zone</span> --}}
-                                <span>{{ $landing_data['available_zone_title'] }}</span>
-
-                            </h2>
-                        </div>
-                        <div class="text">
-                            {{ $landing_data['available_zone_short_description'] }}
-                        </div>
-                        <div class="zone-list-container">
-                            <div class="zone-list-wrapper mt-4">
-                                <div class="zone-list">
-                                    @foreach ($landing_data['available_zone_list'] as $zone)
-                                        @if (count($zone['modules']->toArray()) > 0)
-                                            <span class="item" data-bs-trigger="hover" data-bs-toggle="popover"
-                                                data-bs-placement="top" title="{{ $zone['display_name'] }}"
-                                                data-bs-content="{{ count($zone['modules']->toArray()) > 0 ? implode(', ', $zone['modules']->toArray()) . ' ' . translate('are_available.') : translate('right_now_no_module_available.') }}">
-                                                {{ $zone['display_name'] }}
-                                            </span>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="col-lg-7 col-xl-6 text-lg-end">
-                        <img src="{{ $landing_data['available_zone_image_full_url'] }}" alt=""
-                            class="img-fluid w-100 mw-450">
-                    </div>
-                </div>
-            </div>
-        </section>
-    @endif
-    <!-- ==== Delivery Area Section Ends Here ==== -->
+    @include('partials.zyada-pickup-steps')
 
     <!-- ==== Refer Section Starts Here ==== -->
     <section class="refer-section pb-80">
@@ -883,64 +782,6 @@
                 </div>
             </div>
             <!-- Earn Money Item -->
-            @php($join_as_dm = $landing_data['dm_app_earning_links'])
-            <div class="earn-item wow fadeInUp">
-                <div class="earn-item-img"
-                    style="background: url({{ \App\CentralLogics\Helpers::get_full_url('earning', isset($landing_data['earning_delivery_image']) ? $landing_data['earning_delivery_image'] : null, isset($landing_data['earning_delivery_image_storage']) ? $landing_data['earning_delivery_image_storage'] : 'public') }}) no-repeat center center / cover;">
-                    <div class="position-relative dropdown text-capitalize z-2">
-
-                        @if (isset($join_as_dm['playstore_url_status']) &&
-                                $join_as_dm['playstore_url_status'] == '1' &&
-                                isset($join_as_dm['apple_store_url_status']) &&
-                                $join_as_dm['apple_store_url_status'] == '1')
-                            <button type="button" class="cmn--btn border-0" data-bs-toggle="dropdown">
-                                {{ translate('Deliveryman App') }}
-                                <svg class="ms-2" width="12" height="7" viewBox="0 0 12 7"
-                                    fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M6.00224 5.46105L1.33333 0.415128C1.21002 0.290383 1 0.0787335 1 0.0787335C1 0.0787335 0.708488 -0.0458817 0.584976 0.0788632L0.191805 0.475841C0.0680976 0.600389 7.43292e-08 0.766881 7.22135e-08 0.9443C7.00978e-08 1.12172 0.0680976 1.28801 0.191805 1.41266L5.53678 6.80682C5.66068 6.93196 5.82624 7.00049 6.00224 7C6.17902 7.00049 6.34439 6.93206 6.46839 6.80682L11.8082 1.41768C11.9319 1.29303 12 1.12674 12 0.949223C12 0.771804 11.9319 0.605509 11.8082 0.480765L11.415 0.0838844C11.1591 -0.174368 10.9225 0.222512 10.6667 0.480765L6.00224 5.46105Z"
-                                        fill="#ffffff"></path>
-                                </svg>
-                            </button>
-
-                            <div class="dropdown-menu p-0">
-                                <a href="{{ isset($join_as_dm['playstore_url']) ? $join_as_dm['playstore_url'] : '' }}"
-                                    class="dropdown-item">
-                                    <img src="{{ asset('/public/assets/landing/img/google-play.png') }}"
-                                        alt="">
-                                    {{ translate('google_play') }}
-                                </a>
-
-                                <a href="{{ isset($join_as_dm['apple_store_url']) ? $join_as_dm['apple_store_url'] : '' }}"
-                                    class="dropdown-item">
-                                    <img src="{{ asset('/public/assets/landing/img/apple-store.png') }}"
-                                        alt="">
-                                    {{ translate('apple_store') }}
-                                </a>
-                            </div>
-                        @elseif(isset($join_as_dm['playstore_url_status']) && $join_as_dm['playstore_url_status'] == '1')
-                            <a type="button"
-                                href="{{ isset($join_as_dm['playstore_url']) ? $join_as_dm['playstore_url'] : '' }}"
-                                class="cmn--btn border-0">
-                                {{ translate('Deliveryman App') }}
-                            </a>
-                        @elseif(isset($join_as_dm['apple_store_url_status']) && $join_as_dm['apple_store_url_status'] == '1')
-                            <a type="button"
-                                href="{{ isset($join_as_dm['apple_store_url']) ? $join_as_dm['apple_store_url'] : '' }}"
-                                class="cmn--btn border-0">
-                                {{ translate('Deliveryman App') }}
-                            </a>
-                        @endif
-
-                    </div>
-                </div>
-                <div class="earn-item-cont">
-                    <div>
-                        <h4 class="subtitle">{{ translate('messages.Become a smart') }}</h4>
-                        <h3 class="title">{{ translate('messages.Deliveryman') }}</h3>
-                    </div>
-                </div>
-            </div>
         </div>
         <!-- Shape 1 -->
         <svg class="e-shape-1" width="321" height="1198" viewBox="0 0 321 1198" fill="none"
@@ -1629,107 +1470,6 @@
     </section>
     <!-- ==== Earn Money Section Ends Here ==== -->
 
-    <!-- ==== Special Feature Section Starts Here ==== -->
-    @php($special = $landing_data['criterias'])
-    @if ($special && count($special) > 0)
-        <section class="special-feature-section pt-80 pb-80 overflow-hidden position-relative">
-            <div class="container">
-                <div class="section-header wow fadeInUp">
-                    <h2 class="title">
-                        {{ $landing_data['why_choose_title'] }}
-
-                    </h2>
-                </div>
-                <div class="special-feature-wrapper wow fadeInUp">
-                    @foreach ($special as $item)
-                        @if ($item->status == '1')
-                            <div class="feature-card">
-                                <div class="feature-card-icon">
-                                    <img src="{{ $item['image_full_url'] }}" alt="{{ $item['title'] }}"
-                                        class="onerror-image"
-                                        data-onerror-image="{{ asset('public/assets/admin/img/160x160/img2.jpg') }}">
-                                </div>
-                                <div class="feature-card-cont">
-                                    <h4 class="subtitle">
-                                        @php($arr = explode(' ', trim($item['title'])))
-                                        @isset($arr[0])
-                                            {{ $arr[0] }}
-                                        @endisset
-                                        <br>
-                                        @if (count($arr) > 1)
-                                            @php(array_shift($arr))
-                                            {{ implode(' ', $arr) }}
-                                        @endif
-                                    </h4>
-                                </div>
-                            </div>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-            <!-- Shape 1 -->
-            <svg class="s-shape-1" width="152" height="537" viewBox="0 0 152 537" fill="none"
-                xmlns="http://www.w3.org/2000/svg">
-                <path
-                    d="M83.2873 13.7046C81.6228 5.40203 89.5703 -1.589 97.5928 1.12076L143.54 16.6403C151.563 19.3501 153.643 29.7283 147.285 35.3212L110.871 67.3528C104.513 72.9456 94.4851 69.5584 92.8206 61.2558L83.2873 13.7046Z"
-                    fill="url(#paint0_linear_28_12)" />
-                <path
-                    d="M12.2376 276.382C3.78116 276.82 -1.97923 267.94 1.86888 260.398L23.9081 217.197C27.7562 209.654 38.3267 209.106 42.935 216.21L69.3281 256.896C73.9364 264 69.1262 273.429 60.6698 273.868L12.2376 276.382Z"
-                    fill="url(#paint1_linear_28_12)" />
-                <path
-                    d="M123.58 527.141C122.616 535.553 112.907 539.768 106.103 534.727L43.806 488.572C37.0021 483.531 38.2067 473.015 45.9742 469.643L117.095 438.77C124.862 435.398 133.367 441.699 132.403 450.112L123.58 527.141Z"
-                    fill="url(#paint2_linear_28_12)" />
-                <defs>
-                    <linearGradient id="paint0_linear_28_12" x1="79.5421" y1="-4.97621" x2="145.59"
-                        y2="70.108" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="white" />
-                        <stop offset="1" stop-color="#D1FFEA" />
-                    </linearGradient>
-                    <linearGradient id="paint1_linear_28_12" x1="-6.78937" y1="277.369" x2="77.1052"
-                        y2="222.948" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="white" />
-                        <stop offset="1" stop-color="#D1FFEA" />
-                    </linearGradient>
-                    <linearGradient id="paint2_linear_28_12" x1="121.412" y1="546.069" x2="68.2419"
-                        y2="423.585" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="white" />
-                        <stop offset="1" stop-color="#D1FFEA" />
-                    </linearGradient>
-                </defs>
-            </svg>
-            <!-- Shape 2 -->
-            <svg class="s-shape-2" width="151" height="537" viewBox="0 0 151 537" fill="none"
-                xmlns="http://www.w3.org/2000/svg">
-                <path
-                    d="M67.845 13.7046C69.5095 5.40203 61.562 -1.589 53.5395 1.12076L7.59235 16.6403C-0.430176 19.3501 -2.51085 29.7283 3.84714 35.3212L40.2611 67.3528C46.6191 72.9456 56.6472 69.5584 58.3117 61.2558L67.845 13.7046Z"
-                    fill="url(#paint0_linear_28_12)" />
-                <path
-                    d="M138.895 276.382C147.351 276.82 153.112 267.94 149.263 260.398L127.224 217.197C123.376 209.654 112.806 209.106 108.197 216.21L81.8043 256.896C77.1959 264 82.0061 273.429 90.4625 273.868L138.895 276.382Z"
-                    fill="url(#paint1_linear_28_12)" />
-                <path
-                    d="M27.5523 527.141C28.5159 535.553 38.2253 539.768 45.0292 534.727L107.326 488.572C114.13 483.531 112.926 473.015 105.158 469.643L34.0377 438.77C26.2702 435.398 17.7654 441.699 18.729 450.112L27.5523 527.141Z"
-                    fill="url(#paint2_linear_28_12)" />
-                <defs>
-                    <linearGradient id="paint0_linear_28_12" x1="71.5902" y1="-4.97621" x2="5.54207"
-                        y2="70.108" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="white" />
-                        <stop offset="1" stop-color="#D1FFEA" />
-                    </linearGradient>
-                    <linearGradient id="paint1_linear_28_12" x1="157.922" y1="277.369" x2="74.0271"
-                        y2="222.948" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="white" />
-                        <stop offset="1" stop-color="#D1FFEA" />
-                    </linearGradient>
-                    <linearGradient id="paint2_linear_28_12" x1="29.7205" y1="546.069" x2="82.8904"
-                        y2="423.585" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="white" />
-                        <stop offset="1" stop-color="#D1FFEA" />
-                    </linearGradient>
-                </defs>
-            </svg>
-        </section>
-    @endif
-    <!-- ==== Special Feature Section Ends Here ==== -->
 
     <!-- ==== Counter Section Starts Here ==== -->
     @php($counter = $landing_data['counter_section'])
@@ -1778,43 +1518,6 @@
                                     <span>+</span>
                                 </h4>
                                 <div class="text">{{ translate('messages.Seller') }}</div>
-                            </div>
-                            <div class="counter-item wow fadeInUp">
-                                <div class="icon">
-                                    <svg width="32" height="26" viewBox="0 0 32 26" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M2.89821 20.0516C2.40405 15.6726 5.28959 12.687 8.5281 12.1385C9.00902 12.0589 9.50318 12.0279 9.99293 12.0191C11.1533 12.0014 12.3137 12.0147 13.4741 12.0147C14.2065 12.0147 14.4315 12.3464 14.1448 13.0099C13.88 13.638 13.5976 14.2572 13.3506 14.8897C12.7549 16.398 13.58 18.0877 15.1816 18.2381C16.8229 18.3929 18.5216 18.415 20.1453 18.1717C22.1395 17.8798 23.2867 15.8982 23.022 13.7972C22.8146 12.1562 22.669 10.5108 22.4969 8.86535C22.4484 8.40092 22.3999 7.93648 22.3425 7.43224C22.7352 7.43224 23.0926 7.41013 23.4411 7.44551C23.5294 7.45436 23.6353 7.62686 23.675 7.74629C24.2927 9.73672 24.8971 11.7316 25.506 13.7264C25.7001 14.3545 25.8899 14.9826 26.0928 15.6372C25.9958 15.677 25.9075 15.7124 25.8193 15.7478C24.3633 16.3449 23.3264 17.3269 22.9381 18.9015C22.7837 19.5341 22.8367 20.1047 23.472 20.4762C23.525 20.5072 23.5603 20.6222 23.5558 20.6929C23.5426 20.8433 23.4985 20.9937 23.4588 21.1795H23.1279C19.682 21.1795 16.2317 21.1795 12.7858 21.1795C12.5829 21.1795 12.4549 21.1485 12.3446 20.9362C12.0181 20.3214 11.4754 20.0339 10.7783 20.0339C8.28102 20.0339 5.77934 20.0339 3.28206 20.0339H2.8938L2.89821 20.0516ZM8.03394 17.7648C7.29711 17.7648 6.56028 17.7648 5.82787 17.7648C5.40872 17.7648 5.1484 17.9904 5.15281 18.3398C5.15722 18.6671 5.41313 18.9015 5.81463 18.9015C7.27505 18.906 8.73547 18.906 10.1959 18.9015C10.5974 18.9015 10.8489 18.6715 10.8489 18.3354C10.8489 17.9815 10.6018 17.7648 10.1738 17.7648C9.45906 17.7648 8.7487 17.7648 8.03394 17.7648ZM8.56781 16.6059C9.12374 16.6059 9.67967 16.6148 10.24 16.6059C10.6195 16.5971 10.8533 16.3626 10.8489 16.0353C10.8489 15.7036 10.6106 15.4824 10.2312 15.4824C9.12815 15.4824 8.02511 15.4692 6.92649 15.4913C6.74559 15.4913 6.50734 15.6107 6.39703 15.7522C6.12348 16.1149 6.40586 16.5838 6.90443 16.6059C7.46036 16.628 8.01629 16.6103 8.57222 16.6103L8.56781 16.6059Z"
-                                            fill="#F9AD76" />
-                                        <path
-                                            d="M10.2756 10.8829C10.1521 10.8873 10.0329 10.9006 9.91381 10.9006C6.8915 10.9006 3.86918 10.9006 0.846869 10.9006C0.158575 10.9006 0.00415039 10.7414 0.00415039 10.0514C0.00415039 7.79112 0.00415039 5.53529 0.00415039 3.27505V2.89465H1.73371C1.73371 3.08485 1.72488 3.27062 1.73371 3.4564C1.74694 3.76602 1.96314 3.9916 2.24993 4.01372C2.52789 4.03583 2.78821 3.83237 2.83233 3.52717C2.86322 3.32813 2.8588 3.12908 2.87204 2.89908H7.42978C7.42978 3.03177 7.42978 3.18658 7.42978 3.33697C7.4386 3.7439 7.67686 4.02256 8.01218 4.01372C8.33868 4.00487 8.5637 3.73948 8.56811 3.34582C8.56811 3.20428 8.56811 3.05831 8.56811 2.89465H10.2712V10.8829H10.2756Z"
-                                            fill="#F9AD76" />
-                                        <path
-                                            d="M31.4645 21.8582C31.3322 23.7336 29.9379 25.1491 28.1334 25.2154C25.8832 25.295 24.1536 23.1852 24.661 20.9824C24.7228 20.717 24.8199 20.602 25.1243 20.6064C27.0524 20.6241 28.9805 20.6241 30.9086 20.6064C31.1954 20.6064 31.3101 20.7082 31.341 20.9691C31.3763 21.2655 31.4248 21.5619 31.4645 21.8626V21.8582Z"
-                                            fill="#F9AD76" />
-                                        <path
-                                            d="M4.62678 21.1986H4.97534C6.88138 21.1986 8.78743 21.1986 10.6935 21.1986C11.2494 21.1986 11.4744 21.4242 11.4391 21.9682C11.3156 23.9144 9.68309 25.3387 7.75058 25.2281C6.02543 25.1308 4.54736 23.5473 4.57384 21.7515C4.57384 21.5746 4.60913 21.4021 4.63119 21.1986H4.62678Z"
-                                            fill="#F9AD76" />
-                                        <path
-                                            d="M31.9999 19.4743H24.0095C24.0272 18.8727 24.2743 18.3817 24.636 17.9527C25.3243 17.1344 26.1935 16.6567 27.2701 16.6346C27.9672 16.6213 28.6908 16.5815 29.3659 16.7275C30.6851 17.0194 31.6072 17.82 31.9646 19.1823C31.9867 19.2664 31.9867 19.3548 31.9999 19.4743Z"
-                                            fill="#F9AD76" />
-                                        <path
-                                            d="M0.0039219 1.70243C0.0039219 1.31319 -0.00490238 0.946069 0.0039219 0.578945C0.0127462 0.260476 0.228941 0.0393172 0.542203 0.00393172C0.630445 -0.00491465 0.718688 0.00393172 0.811343 0.00393172C3.69688 0.00393172 6.58683 0.00393172 9.47237 0.00393172C10.121 0.00393172 10.2974 0.185282 10.3019 0.844336C10.3019 1.123 10.3019 1.40166 10.3019 1.71128H0.0039219V1.70243Z"
-                                            fill="#F9AD76" />
-                                        <path
-                                            d="M25.1394 4.01562V6.28029C25.0379 6.28914 24.9497 6.30241 24.8658 6.30241C23.8422 6.30241 22.8142 6.30683 21.7906 6.30241C21.0802 6.30241 20.5684 5.82028 20.564 5.16565C20.5596 4.50217 21.0846 4.01562 21.8082 4.01562C22.9113 4.01562 24.0099 4.01562 25.1394 4.01562Z"
-                                            fill="#F9AD76" />
-                                        <path
-                                            d="M11.4383 10.8974C11.4383 10.4595 11.425 10.0836 11.4383 9.70318C11.4559 9.38028 11.65 9.18124 11.9721 9.17682C12.6737 9.16355 13.3752 9.16355 14.0767 9.18124C14.4959 9.19451 14.8224 9.54836 14.8533 9.95972C14.8841 10.3932 14.6018 10.7957 14.1694 10.8532C13.8076 10.9019 13.437 10.8886 13.0707 10.893C12.5369 10.8974 12.003 10.893 11.4338 10.893L11.4383 10.8974Z"
-                                            fill="#F9AD76" />
-                                    </svg>
-
-                                </div>
-                                <h4 class="title"> <span class=" odometer"
-                                        data-odometer-final="{{ $counter['deliveryman_count_numbers'] ?? 0 }}"></span>
-                                    <span>+</span>
-                                </h4>
-                                <div class="text">{{ translate('messages.Deliveryman') }}</div>
                             </div>
                             <div class="counter-item wow fadeInUp">
                                 <div class="icon">
