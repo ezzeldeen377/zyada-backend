@@ -1,0 +1,130 @@
+/* Zyada's public theme. Existing component hooks and route behavior are retained. */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+:root {
+    --zyada-forest: #244d37;
+    --zyada-sage: #739660;
+    --zyada-gold: #d7a552;
+    --zyada-cream: #faf7ef;
+    --zyada-line: #dce2d2;
+    --title-clr: #263b2d;
+    --body-clr: #606e60;
+    --body-bg: #faf7ef;
+    --header-bg: #faf7ef;
+    --section-bg: #f0f1e6;
+    --heading-fonts: 'Manrope', 'Lato', sans-serif;
+    --body-fonts: 'DM Sans', 'Lato', sans-serif;
+}
+.zyada-landing { background: var(--zyada-cream); color: var(--body-clr); line-height: 1.75; }
+.zyada-landing h1, .zyada-landing h2, .zyada-landing h3 { letter-spacing: -.035em; text-wrap: balance; }
+.zyada-landing a:focus-visible, .zyada-landing button:focus-visible, .zyada-landing input:focus-visible {
+    outline: 3px solid var(--zyada-gold); outline-offset: 5px;
+}
+.zyada-landing section { scroll-margin-top: 115px; }
+.zyada-landing .navbar-bottom { background: var(--zyada-cream); border-bottom: 1px solid var(--zyada-line); box-shadow: none; }
+.zyada-landing .navbar-bottom-wrapper { min-height: 100px; gap: 14px; }
+.zyada-landing .navbar-bottom-wrapper .logo { width: 88px; margin-inline-end: auto; }
+.zyada-landing .navbar-bottom-wrapper .logo img { width: 80px; height: 80px; max-height: 80px; object-fit: contain; }
+.zyada-landing .navbar-bottom-wrapper .menu li a { font-size: 13px; color: var(--zyada-forest); }
+.zyada-landing .navbar-bottom-wrapper .menu li a.active { color: var(--zyada-forest); font-weight: 800; }
+.zyada-landing .navbar-bottom-wrapper .menu li a span::before { background: var(--zyada-sage); }
+.zyada-landing .header--btn { font-size: 13px; border-radius: 24px; }
+.zyada-landing .cmn--btn { background: var(--zyada-forest); color: #fff; border-radius: 40px; padding: 13px 25px; box-shadow: none; }
+.zyada-landing .cmn--btn:hover { background: #183b28; color: #fff; }
+.zyada-landing .dropdown-list, .zyada-landing .dropdown-menu { border-radius: 15px; border: 1px solid var(--zyada-line); box-shadow: 0 15px 35px #244d3712; }
+.zyada-home .banner-section { padding: 55px 0 75px; overflow: hidden; }
+.zyada-home .zyada-hero-grid { display: grid; grid-template-columns: 1.05fr 1fr; align-items: center; gap: 35px; }
+.zyada-home .banner-content { text-align: start; padding: 20px 0; margin: 0; max-width: none; min-width: 0; }
+.zyada-eyebrow { display: flex; align-items: center; gap: 10px; color: var(--zyada-forest); letter-spacing: .16em; font-size: 12px; font-weight: 700; margin-bottom: 25px; }
+.zyada-eyebrow span { width: 7px; height: 7px; background: var(--zyada-sage); border-radius: 50%; }
+.zyada-home .banner-content .title { font-size: clamp(42px, 5vw, 76px); font-weight: 500; line-height: 1.08; letter-spacing: -.05em; margin-bottom: 25px; overflow-wrap: anywhere; }
+.zyada-home .banner-content .text { font-size: 17px; line-height: 1.85; max-width: 440px; margin: 0; }
+.zyada-hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.zyada-hero-actions:empty { display: none; }
+.zyada-home .zyada-store-link img { width: 145px; max-height: 48px; height: 48px; margin: 0; }
+.zyada-hero-scene { position: relative; height: 470px; min-width: 0; isolation: isolate; }
+.zyada-hero-scene::before { content: ''; position: absolute; width: 80%; aspect-ratio: 1; background: #e6ecd5; border-radius: 50%; top: 40px; inset-inline-start: 10%; z-index: -1; }
+.zyada-renewal-ring { position: absolute; inset: 0 0 15px; border: 1px solid #b9caaa; border-radius: 50%; transform: rotate(-20deg); }
+.zyada-renewal-ring::before { content: '↗'; position: absolute; top: -18px; inset-inline-end: 22%; background: var(--zyada-cream); color: var(--zyada-sage); font-size: 40px; line-height: 1; }
+.zyada-hero-illustration { position: absolute; top: 12px; inset-inline-end: 0; width: 78%; padding: 20px; background: #fffcf5; border-radius: 50%; aspect-ratio: 1; display: grid; place-items: center; box-shadow: 0 14px 25px #244d370c; transform: rotate(5deg); }
+.zyada-hero-illustration img, .zyada-hero-illustration svg { width: 100%; height: auto; max-height: 265px; }
+.zyada-rescue-box { position: absolute; top: 240px; inset-inline-start: 3%; width: 47%; height: 190px; border-radius: 5px 5px 13px 13px; background: linear-gradient(115deg, #d8b780, #b79056); transform: rotate(-10deg); display: grid; place-items: center; box-shadow: 10px 20px 25px #503c251c; }
+.zyada-rescue-box::before { content: ''; position: absolute; height: 32px; inset: -19px -8px auto; border-radius: 4px; background: #dfc18e; box-shadow: 0 5px 4px #60492f1a; }
+.zyada-rescue-box img { width: 60%; height: 120px; object-fit: contain; mix-blend-mode: multiply; }
+.zyada-hero-seal { position: absolute; bottom: 12px; inset-inline-end: 2%; width: 100px; min-height: 100px; padding: 12px; display: grid; place-items: center; text-align: center; overflow-wrap: anywhere; background: #e6bd79; outline: 6px solid #e6bd79; border: 1px dashed #8a6c37; border-radius: 50%; font: italic 19px/1.3 Georgia, serif; color: #3d512f; transform: rotate(12deg); }
+.zyada-hero-leaf { position: absolute; bottom: 3px; inset-inline-start: 20%; width: 56px; height: 27px; background: var(--zyada-sage); border-radius: 0 100% 0 100%; transform: rotate(15deg); }
+.zyada-home .ecommerce-venture-section { padding: 75px 0; border-top: 1px solid var(--zyada-line); }
+.zyada-pickup-section { padding: 75px 0; background: #edf1e4; }
+.zyada-pickup-step { border-top: 1px solid #bccbb0; padding-top: 25px; }
+.zyada-pickup-step > span { font: italic 28px Georgia, serif; color: #6a8254; }
+.zyada-pickup-step h3 { margin: 22px 0 12px; font-size: 23px; }
+.zyada-pickup-step p { font-size: 15px; max-width: 320px; }
+.zyada-landing .section-header .title { font-size: clamp(29px, 3.3vw, 46px); font-weight: 500; line-height: 1.18; color: var(--zyada-forest); }
+.zyada-landing .section-header p { line-height: 1.85; }
+.zyada-home .nav--tabs { border-radius: 22px; background: #e9efdf; border: 1px solid var(--zyada-line); padding: 12px; }
+.zyada-home .nav--tabs .item { border-radius: 15px; }
+.zyada-home .venture-img img { border-radius: 25px; }
+.zyada-home .venture-content-box { font-size: 16px; line-height: 1.9; }
+.zyada-home .main-category { background: #f0eddf; }
+.zyada-home .category-slide-item { border-radius: 22px; }
+.zyada-home .learn-feature-section { background: #edf1e4 !important; padding: 75px 0; }
+.zyada-home .learn-feature-section::before { display: none; }
+.zyada-home .learn-feature-item { background: #fffcf5; border: 1px solid var(--zyada-line); border-radius: 20px; box-shadow: none; }
+.zyada-home .learn-feature-item .subtitle { color: var(--zyada-forest); }
+.zyada-home .delivery-area-section { padding: 75px 0; }
+.zyada-home .refer-section { padding: 70px 0; background: #f0eddf; }
+.zyada-home .earn-money-section { padding: 75px 0; background: var(--zyada-cream); }
+.zyada-home .earn-item { max-width: 1140px; margin: 25px auto; padding: 24px; background: #ecebdc; border-radius: 25px; gap: 20px; }
+.zyada-home .earn-item-img { width: 50%; border-radius: 18px; padding: 35px; }
+.zyada-home .earn-item-img::before { background: linear-gradient(90deg, #73966022, #244d3755); }
+.zyada-home .earn-item-cont { width: 50%; padding: 20px; }
+.zyada-home .feature-card, .zyada-home .testimonial-item { border: 1px solid var(--zyada-line); border-radius: 22px; box-shadow: none; background: #fffcf5; }
+.zyada-home .special-feature-section { background: #edf1e4; }
+.zyada-home .counter-section { margin: 0; padding: 55px 0; }
+.zyada-home .counter-wrapper { padding: 35px; filter: none; }
+.zyada-home .counter-wrapper .counter-bg { background: #e9efdf; border: 1px solid var(--zyada-line); border-radius: 25px; mask: none; -webkit-mask: none; }
+.zyada-home .download-app-section { padding: 80px 0; background: #eff1e4; }
+.zyada-home .download-app-content .title { color: var(--zyada-forest); font-size: clamp(32px, 4vw, 52px); font-weight: 500; }
+.zyada-home .download-app-content .primary-color { color: #5b7848; font-family: Georgia, serif; font-style: italic; }
+.zyada-home .testimonial-section { background: var(--zyada-cream); }
+.zyada-landing .newsletter-section { border-top: 1px solid var(--zyada-line); padding: 55px 0; }
+.zyada-landing .newsletter-wrapper { display: block; max-width: 700px; }
+.zyada-landing .newsletter-wrapper::before, .zyada-landing .newsletter-wrapper::after { display: none; }
+.zyada-landing .newsletter-content { padding: 0; margin: 0; text-align: center; width: 100%; max-width: none; }
+.zyada-landing .newsletter-content .title { color: var(--zyada-forest); }
+.zyada-landing .newsletter-content .title::after { background: var(--zyada-gold); height: 3px; width: 60px; }
+.zyada-landing .newsletter-content .input--grp { border-radius: 40px; border: 1px solid #becbb1; background: #fffdf7; }
+.zyada-landing .footer-bottom { background: var(--zyada-forest); border-radius: 30px 30px 0 0; padding: 55px 0 25px; }
+.zyada-landing .footer-widget .footer-logo img { max-height: 90px; height: 90px; object-fit: contain; background: #faf7ef; border-radius: 12px; padding: 5px; }
+.zyada-landing .footer-widget { font-size: 14px; line-height: 1.9; }
+.zyada-inner .about-section { background: var(--zyada-cream); }
+.zyada-inner .contact-item, .zyada-inner .contact-form, .zyada-inner .register-form { border-radius: 22px; border: 1px solid var(--zyada-line); box-shadow: none; }
+.zyada-inner .form-control { border-radius: 10px; }
+[dir="rtl"] .zyada-landing h1, [dir="rtl"] .zyada-landing h2, [dir="rtl"] .zyada-landing h3 { letter-spacing: normal; }
+@media (max-width: 1199px) { .zyada-landing .navbar-bottom-wrapper { gap: 8px; } .zyada-landing .navbar-bottom-wrapper .menu li a { padding-inline: 9px; } }
+@media (max-width: 991px) {
+    .zyada-landing .navbar-bottom-wrapper { min-height: 85px; }
+    .zyada-landing .navbar-bottom-wrapper .logo img { width: 65px; height: 65px; }
+    .zyada-landing .navbar-bottom-wrapper .menu { background: var(--zyada-cream); }
+    .zyada-home .zyada-hero-grid { grid-template-columns: 1fr; gap: 10px; }
+    .zyada-home .banner-content { max-width: 650px; }
+    .zyada-home .banner-content .title { font-size: clamp(40px, 7vw, 65px); }
+    .zyada-hero-scene { width: min(100%, 490px); margin: auto; }
+}
+@media (max-width: 575px) {
+    .zyada-home .banner-section { padding: 30px 0 40px; }
+    .zyada-home .banner-content .title { font-size: 42px; }
+    .zyada-home .banner-content .text { font-size: 16px; }
+    .zyada-hero-scene { height: 355px; }
+    .zyada-hero-illustration { width: 75%; }
+    .zyada-rescue-box { top: 175px; height: 140px; }
+    .zyada-rescue-box img { height: 85px; }
+    .zyada-hero-seal { width: 74px; min-height: 74px; font-size: 15px; bottom: 10px; }
+    .zyada-home .ecommerce-venture-section, .zyada-home .learn-feature-section, .zyada-home .delivery-area-section, .zyada-home .refer-section, .zyada-home .earn-money-section, .zyada-home .download-app-section { padding-block: 50px; }
+    .zyada-home .counter-wrapper { padding: 20px; }
+    .zyada-home .earn-item { flex-direction: column; margin-inline: 12px; padding: 16px; }
+    .zyada-home .earn-item-img, .zyada-home .earn-item-cont { width: 100%; max-width: 100%; }
+    .zyada-landing .newsletter-section { padding: 40px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .zyada-landing *, .zyada-landing *::before, .zyada-landing *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
