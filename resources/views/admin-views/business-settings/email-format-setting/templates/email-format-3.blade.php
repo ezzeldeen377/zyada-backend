@@ -102,11 +102,13 @@ $company_name = App\Models\BusinessSetting::where('key', 'business_name')->first
                                                                     <td class="p-1 px-3">{{ translate('VAT_/_Tax') }}</td>
                                                                     <td class="text-right p-1 px-3">{{ translate('$15') }}</td>
                                                                 </tr>
+                                                                {{-- Delivery fee UI intentionally hidden; preserve delivery_charge data and totals for future use.
                                                                 <tr>
                                                                     <td class="email-template-table-td-width"></td>
                                                                     <td class="p-1 px-3">{{ translate('Delivery_Charge') }}</td>
                                                                     <td class="text-right p-1 px-3">{{ translate('$20') }}</td>
                                                                 </tr>
+                                                                --}}
                                                                 <tr>
                                                                     <td class="email-template-table-td-width"></td>
                                                                     <td class="p-1 px-3">

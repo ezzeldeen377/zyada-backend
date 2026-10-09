@@ -329,6 +329,7 @@ $site_direction = \App\CentralLogics\Helpers::system_default_direction();
                                                     </thead>
                                                     <tbody>
                                                         @if ($order->order_type == 'parcel')
+                                                            {{-- Delivery fee UI intentionally hidden; preserve delivery_charge data and totals for future use.
                                                             <tr>
                                                                 <td class="text-left p-2 px-3">
                                                                     {{ Str::limit($order->parcel_category ? $order->parcel_category->name : translate('messages.parcel_category_not_found'), 25, '...') }}
@@ -339,6 +340,7 @@ $site_direction = \App\CentralLogics\Helpers::system_default_direction();
                                                                     </h4>
                                                                 </td>
                                                             </tr>
+                                                            --}}
                                                         @else
                                                             @foreach ($order->details as $key => $details)
                                                                 <?php
@@ -514,6 +516,7 @@ $site_direction = \App\CentralLogics\Helpers::system_default_direction();
                                                                             </tr>
                                                                         @endif
                                                                         @if ($order->order_type != 'parcel')
+                                                                        {{-- Delivery fee UI intentionally hidden; preserve delivery_charge data and totals for future use.
                                                                         <tr>
                                                                             <td style="width: 40%"></td>
                                                                             <td class="p-1 px-3">
@@ -523,6 +526,7 @@ $site_direction = \App\CentralLogics\Helpers::system_default_direction();
                                                                                 {{ \App\CentralLogics\Helpers::format_currency($order->delivery_charge) }}
                                                                             </td>
                                                                         </tr>
+                                                                        --}}
                                                                         @endif
 
 

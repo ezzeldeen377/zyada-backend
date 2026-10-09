@@ -318,6 +318,7 @@ $site_direction = \App\CentralLogics\Helpers::system_default_direction();
                                                         </thead>
                                                         <tbody>
                                                             @if ($order->order_type == 'parcel')
+                                                                {{-- Delivery fee UI intentionally hidden; preserve delivery_charge data and totals for future use.
                                                                 <tr>
                                                                     <td class="text-left p-2 px-3">
                                                                         {{ Str::limit($order->parcel_category ? $order->parcel_category->name : translate('messages.parcel_category_not_found'), 25, '...') }}
@@ -328,6 +329,7 @@ $site_direction = \App\CentralLogics\Helpers::system_default_direction();
                                                                         </h4>
                                                                     </td>
                                                                 </tr>
+                                                                --}}
                                                             @else
                                                                 @foreach ($order->details as $key => $details)
                                                                     <?php
@@ -412,6 +414,7 @@ $site_direction = \App\CentralLogics\Helpers::system_default_direction();
                                                                 <td colspan="2">
                                                                     <hr class="mt-0">
                                                                     <table class="w-100">
+                                                                        {{-- Delivery fee UI intentionally hidden; preserve delivery_charge data and totals for future use.
                                                                         @if ($order->order_type != 'parcel')
                                                                             <tr>
 
@@ -493,6 +496,7 @@ $site_direction = \App\CentralLogics\Helpers::system_default_direction();
                                                                                 </tr>
                                                                             @endif
                                                                         @endif
+                                                                        --}}
 
                                                                         @if (($order->tax_status == 'excluded' && $order->total_tax_amount > 0) || $order->tax_status == null)
                                                                             <tr>
