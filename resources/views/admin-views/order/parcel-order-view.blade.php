@@ -282,10 +282,12 @@
 
                                     </div>
 
+                                    {{-- Delivery fee UI intentionally hidden; preserve delivery_charge data and totals for future use.
                                     <div class="col col-md-3 align-self-center text-right">
                                         <h6>{{ translate('messages.delivery_charge') }}</h6>
                                         <span>{{ \App\CentralLogics\Helpers::format_currency($order['delivery_charge']) }}</span>
                                     </div>
+                                    --}}
                                 </div>
                             </div>
                         </div>

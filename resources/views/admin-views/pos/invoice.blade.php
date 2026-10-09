@@ -91,11 +91,13 @@
 
                     <tbody>
                         @if ($order->order_type == 'parcel')
+                            {{-- Delivery fee UI intentionally hidden; preserve delivery_charge data and totals for future use.
                             <tr>
                                 <td>{{ translate('messages.delivery_charge') }}</td>
                                 <td class="text-center">1</td>
                                 <td>{{ \App\CentralLogics\Helpers::format_currency($order->delivery_charge) }}</td>
                             </tr>
+                            --}}
                         @else
                             @php($sub_total = 0)
                             @php($total_tax = 0)
@@ -223,11 +225,13 @@
                                 @php($delivery_man_tips = $order['dm_tips'])
                                 + {{ \App\CentralLogics\Helpers::format_currency($delivery_man_tips) }}
                             </dd>
+                            {{-- Delivery fee UI intentionally hidden; preserve delivery_charge data and totals for future use.
                             <dt class="col-6">{{ translate('messages.delivery_charge') }}:</dt>
                             <dd class="col-6">
                                 @php($del_c = $order['delivery_charge'])
                                 {{ \App\CentralLogics\Helpers::format_currency($del_c) }}
                             </dd>
+                            --}}
                         @else
                             <dt class="col-6">{{ translate('messages.delivery_man_tips') }}:</dt>
                             <dd class="col-6">
