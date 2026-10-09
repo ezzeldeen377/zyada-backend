@@ -217,10 +217,7 @@ class VendorLoginController extends Controller
         $store->pickup_zone_id = $request['pickup_zone_id'] ?? json_encode([]);
         $store->save();
         // $store->module->increment('stores_count');
-        if(config('module.'.$store->module->module_type)['always_open'])
-        {
-            StoreLogic::insert_schedule($store->id);
-        }
+        StoreLogic::insert_schedule($store->id);
 
         foreach ($data as $key=>$i) {
             $data[$key]['translationable_type'] = 'App\Models\Store';

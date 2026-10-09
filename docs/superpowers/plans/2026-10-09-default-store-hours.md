@@ -39,7 +39,7 @@ class DefaultStoreScheduleTest extends TestCase
         $root = dirname(__DIR__, 2).'/';
 
         foreach ([
-            'app/Http/Controllers/Admin/VendorController.php' => 4,
+            'app/Http/Controllers/Admin/VendorController.php' => 5,
             'app/Http/Controllers/VendorController.php' => 1,
             'app/Http/Controllers/Api/V1/Auth/VendorLoginController.php' => 1,
         ] as $path => $expectedCalls) {
@@ -77,7 +77,7 @@ class DefaultStoreScheduleTest extends TestCase
 
 Run: `./vendor/bin/phpunit tests/Unit/DefaultStoreScheduleTest.php`
 
-Expected: FAIL because `Admin\\VendorController` initially contains three schedule calls while the test requires the fourth call for newly inserted bulk-upsert rows.
+Expected: FAIL because `Admin\\VendorController` initially contains four schedule calls (including the manual schedule endpoint) while the test requires the fifth call for newly inserted bulk-upsert rows.
 
 ### Task 2: Initialize the default schedule for every new store
 

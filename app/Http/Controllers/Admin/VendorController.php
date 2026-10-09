@@ -147,10 +147,7 @@ class VendorController extends Controller
         try {
             $store->save();
             // $store->module->increment('stores_count');
-            if(config('module.'.$store->module->module_type)['always_open'])
-            {
-                StoreLogic::insert_schedule($store->id);
-            }
+            StoreLogic::insert_schedule($store->id);
 
         Helpers::add_or_update_translations(request: $request, key_data: 'name', name_field: 'name', model_name: 'Store', data_id: $store->id, data_value: $store->name);
         Helpers::add_or_update_translations(request: $request, key_data: 'address', name_field: 'address', model_name: 'Store', data_id: $store->id, data_value: $store->address);
@@ -1649,6 +1646,7 @@ class VendorController extends Controller
                             $insertedId = DB::table('stores')->insertGetId($store);
                             Helpers::updateStorageTable(get_class(new Store), $insertedId, $store['logo']);
                             Helpers::updateStorageTable(get_class(new Store), $insertedId, $store['cover_photo']);
+                            StoreLogic::insert_schedule($insertedId);
                         }
                     }
                 }

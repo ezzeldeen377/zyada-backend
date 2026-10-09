@@ -188,10 +188,7 @@ class VendorController extends Controller
         }
 
 
-        if(config('module.'.$store->module->module_type)['always_open'])
-        {
-            StoreLogic::insert_schedule($store->id);
-        }
+        StoreLogic::insert_schedule($store->id);
 
         if (Helpers::subscription_check()) {
             if ($request->business_plan == 'subscription-base' && $request->package_id != null ) {
