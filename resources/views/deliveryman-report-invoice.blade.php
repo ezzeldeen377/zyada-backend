@@ -253,10 +253,12 @@
                             <span class="name">{{translate('Delivery Fee')}} :</span>
                             <span class="datas">{{ \App\CentralLogics\Helpers::format_currency($earnings->sum('original_delivery_charge'))}}</span>
                         </div>
+                        {{-- Delivery man tips UI intentionally hidden; preserve dm_tips data and totals for future use.
                         <div class="header-info-item">
                             <span class="name">{{translate('Delivery Tips')}} :</span>
                             <span class="datas">{{ \App\CentralLogics\Helpers::format_currency($earnings->sum('dm_tips'))}}</span>
                         </div>
+                        --}}
 
                     </div>
                 </td>
@@ -269,7 +271,9 @@
                 <th class="fs-10">{{translate('Paid By')}}</th>
                 <th class="fs-10">{{translate('Order')}}</th>
                 <th class="fs-10">{{translate('Delivery Fee')}}</th>
+                {{-- Delivery man tips UI intentionally hidden; preserve dm_tips data and totals for future use.
                 <th class="fs-10">{{translate('Delivery Tips')}}</th>
+                --}}
                 <th class="fs-10">{{translate('Total')}}</th>
             </tr>
             </thead>
@@ -290,9 +294,11 @@
                 <td>
                     <span>{{ \App\CentralLogics\Helpers::format_currency($earning->original_delivery_charge) }}</span>
                 </td>
+                {{-- Delivery man tips UI intentionally hidden; preserve dm_tips data and totals for future use.
                 <td>
                     <span>{{ \App\CentralLogics\Helpers::format_currency($earning->dm_tips) }}</span>
                 </td>
+                --}}
 
                 <td>
                     <span>{{ \App\CentralLogics\Helpers::format_currency( $earning->original_delivery_charge + $earning->dm_tips) }}</span>

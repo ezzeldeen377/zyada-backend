@@ -70,7 +70,9 @@
                                 <th class="border-0">{{translate('sl')}}</th>
                                 <th class="border-0">{{translate('messages.order_id')}}</th>
                                 <th class="border-0">{{translate('messages.delivery_fee_earned')}}</th>
+                                {{-- Delivery man tips UI intentionally hidden; preserve dm_tips data and totals for future use.
                                 <th class="border-0">{{translate('messages.delivery_tips')}}</th>
+                                --}}
                                 <th class="border-0">{{translate('messages.date')}}</th>
                             </tr>
                         </thead>
@@ -86,7 +88,9 @@
                                 <td scope="row">{{$k+$digital_transaction->firstItem()}}</td>
                                 <td><a href="{{route((isset($dt->order) && $dt->order->order_type=='parcel')?'admin.parcel.order.details':'admin.order.details',[$dt->order_id,'module_id'=>$dt->order->module_id])}}">{{$dt->order_id}}</a></td>
                                <td>{{ \App\CentralLogics\Helpers::format_currency($dt->original_delivery_charge) }}</td>
+                               {{-- Delivery man tips UI intentionally hidden; preserve dm_tips data and totals for future use.
                                <td>{{ \App\CentralLogics\Helpers::format_currency($dt->dm_tips) }}</td>
+                               --}}
                                 <td> {{\App\CentralLogics\Helpers::date_format($dt->created_at )   }}</td>
 
                             </tr>

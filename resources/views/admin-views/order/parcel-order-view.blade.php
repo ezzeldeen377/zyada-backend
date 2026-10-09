@@ -310,11 +310,13 @@
                                     </dd>
                                 @endif
 
+                                {{-- Delivery man tips UI intentionally hidden; preserve dm_tips data and totals for future use.
                                 <dt class="col-6 col-sm-8 p-0 font-regular">
                                     {{ translate('messages.delivery_man_tips') }}
                                 </dt>
                                 <dd class="col-6 col-sm-4 p-0">
                                     + {{ \App\CentralLogics\Helpers::format_currency($order['dm_tips']) }}</dd>
+                                --}}
                                 <dt class="col-6 col-sm-8 p-0 font-regular text-truncate">
                                     {{ \App\CentralLogics\Helpers::get_business_data('additional_charge_name') ?? (\App\CentralLogics\Helpers::get_business_data('additional_charge_name') ?? translate('messages.additional_charge')) }}
                                     <hr>

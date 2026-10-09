@@ -1000,9 +1000,11 @@
                                              <hr>
                                          </dd>
                                          --}}
+                                    {{-- Delivery man tips UI intentionally hidden; preserve dm_tips data and totals for future use.
                                     <dt class="col-6">{{ translate('messages.delivery_man_tips') }}</dt>
                                     <dd class="col-6">
                                         + {{ \App\CentralLogics\Helpers::format_currency($deliverman_tips) }}</dd>
+                                    --}}
                                     <dt class="col-6">{{ \App\CentralLogics\Helpers::get_business_data('additional_charge_name')??\App\CentralLogics\Helpers::get_business_data('additional_charge_name')??translate('messages.additional_charge') }}</dt>
 
                                     <dd class="col-6">

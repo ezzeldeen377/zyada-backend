@@ -626,9 +626,11 @@
                                         {{ \App\CentralLogics\Helpers::format_currency($total_tax_amount) }}
                                     </dd>
                                     @endif
+                                    {{-- Delivery man tips UI intentionally hidden; preserve dm_tips data and totals for future use.
                                     <dt class="col-6">{{ translate('messages.delivery_man_tips') }}</dt>
                                     <dd class="col-6">
                                         + {{ \App\CentralLogics\Helpers::format_currency($order->dm_tips) }}</dd>
+                                    --}}
                                     {{-- Delivery fee UI intentionally hidden; preserve delivery_charge data and totals for future use.
                                     <dt class="col-6">{{ translate('messages.delivery_fee') }}:</dt>
                                     <dd class="col-6">

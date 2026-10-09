@@ -45,7 +45,9 @@
             <th>{{translate('messages.order_id')}}</th>
             <th>{{translate('messages.distance')}}</th>
             <th>{{translate('messages.delivery_fee_earned')}}</th>
+            {{-- Delivery man tips UI intentionally hidden; preserve dm_tips data and totals for future use.
             <th>{{translate('messages.tips')}}</th>
+            --}}
         </thead>
         <tbody>
         @foreach($data['earnings'] as $key => $earning)
@@ -58,7 +60,9 @@
                     {{ $earning->order->distance }} km
                 </td>
                 <td>{{ $earning->original_delivery_charge }}</td>
+                {{-- Delivery man tips UI intentionally hidden; preserve dm_tips data and totals for future use.
                 <td>{{ $earning->dm_tips }}</td>
+                --}}
             </tr>
         @endforeach
         </tbody>

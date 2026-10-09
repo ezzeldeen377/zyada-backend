@@ -530,6 +530,7 @@ $site_direction = \App\CentralLogics\Helpers::system_default_direction();
                                                                         @endif
 
 
+                                                                    {{-- Delivery man tips UI intentionally hidden; preserve dm_tips data and totals for future use.
                                                                     <tr>
                                                                         <td style="width: 40%"></td>
                                                                         <td class="p-1 px-3"> {{ translate('messages.delivery_man_tips') }}
@@ -538,6 +539,7 @@ $site_direction = \App\CentralLogics\Helpers::system_default_direction();
                                                                             {{ \App\CentralLogics\Helpers::format_currency($order->dm_tips ?? 0) }}
                                                                         </td>
                                                                     </tr>
+                                                                    --}}
                                                                     <tr>
                                                                         <td style="width: 40%"></td>
                                                                         <td class="p-1 px-3">

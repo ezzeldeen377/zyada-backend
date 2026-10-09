@@ -20,6 +20,9 @@
 - `resources/views/order-invoice.blade.php` — standalone printable invoice tip row.
 - `resources/views/admin-views/pos/invoice.blade.php` — both POS receipt tip rows.
 - `resources/views/email-templates/new-email-format-3.blade.php` — transactional-email tip row.
+- `resources/views/deliveryman-report-invoice.blade.php` — delivery-person report summary and tip column.
+- `resources/views/admin-views/delivery-man/view/transaction.blade.php` — delivery-person transaction tip column.
+- `resources/views/file-exports/deliveryman-earning.blade.php` — delivery-person earning-export tip column.
 
 ### Task 1: Add a red regression test
 
@@ -48,6 +51,9 @@ class DeliveryTipPresentationTest extends TestCase
             'resources/views/order-invoice.blade.php' => 1,
             'resources/views/admin-views/pos/invoice.blade.php' => 2,
             'resources/views/email-templates/new-email-format-3.blade.php' => 1,
+            'resources/views/deliveryman-report-invoice.blade.php' => 3,
+            'resources/views/admin-views/delivery-man/view/transaction.blade.php' => 2,
+            'resources/views/file-exports/deliveryman-earning.blade.php' => 2,
         ];
 
         foreach ($expectedMarkers as $path => $expectedCount) {
@@ -79,6 +85,9 @@ Expected: FAIL because no target template contains the suppression marker.
 - Modify: `resources/views/order-invoice.blade.php:532-540`
 - Modify: `resources/views/admin-views/pos/invoice.blade.php:221-225,232-236`
 - Modify: `resources/views/email-templates/new-email-format-3.blade.php:529-536`
+- Modify: `resources/views/deliveryman-report-invoice.blade.php:256-259,272,293-295`
+- Modify: `resources/views/admin-views/delivery-man/view/transaction.blade.php:73,89`
+- Modify: `resources/views/file-exports/deliveryman-earning.blade.php:48,61`
 
 - [ ] **Step 1: Wrap each existing visible tip row in a labelled Blade comment**
 
@@ -97,7 +106,7 @@ Keep all `$order->dm_tips` arithmetic outside the comments. Do not alter deliver
 
 Run: `./vendor/bin/phpunit tests/Unit/DeliveryTipPresentationTest.php`
 
-Expected: PASS with one test and seven template assertions.
+Expected: PASS with one test and ten template assertions.
 
 - [ ] **Step 3: Compile and check the changed views**
 
