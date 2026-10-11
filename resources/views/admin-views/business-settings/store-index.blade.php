@@ -399,10 +399,10 @@
                                     </label>
                                     </div>
                                 </div>
-                                @foreach ([
+                                <?php foreach ([
                                     ['locale' => 'en', 'label' => 'English', 'template' => $storeContractTemplateEn],
                                     ['locale' => 'ar', 'label' => 'Arabic', 'template' => $storeContractTemplateAr],
-                                ] as $contractLanguage)
+                                ] as $contractLanguage): ?>
                                     <div class="col-lg-4 col-sm-6">
                                         <div class="form-group mb-0">
                                             <label class="input-label text-capitalize" for="store_contract_template_{{ $contractLanguage['locale'] }}">
@@ -416,25 +416,25 @@
                                                     {{ $contractLanguage['template'] && $contractLanguage['template']->value ? basename($contractLanguage['template']->value) : translate('Choose_file') }}
                                                 </label>
                                             </div>
-                                            @if ($contractLanguage['template'] && $contractLanguage['template']->value)
-                                                @php
+                                            <?php if ($contractLanguage['template']): ?>
+                                                <?php
                                                     $contractFile = $contractLanguage['template']->value;
                                                     $contractUrl = \App\CentralLogics\Helpers::get_full_url('business', $contractFile, 'public');
                                                     $contractExtension = strtolower(pathinfo($contractFile, PATHINFO_EXTENSION));
-                                                @endphp
-                                                @if ($contractExtension === 'pdf')
+                                                ?>
+                                                <?php if ($contractExtension === 'pdf'): ?>
                                                     <iframe src="{{ $contractUrl }}#toolbar=1"
                                                         title="{{ $contractLanguage['label'] }} {{ translate('Store_Contract_Template') }}"
                                                         class="w-100 border rounded mt-2" style="height: 320px;"></iframe>
-                                                @else
+                                                <?php else: ?>
                                                     <a class="d-inline-block mt-2" href="{{ $contractUrl }}" target="_blank" rel="noopener">
                                                         {{ translate('Open document') }}
                                                     </a>
-                                                @endif
-                                            @endif
+                                                <?php endif; ?>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
-                                @endforeach
+                                <?php endforeach; ?>
                             </div>
                             <!-- End Store Contract Settings -->
 
