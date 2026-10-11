@@ -229,6 +229,10 @@ class BusinessSettingsController extends Controller
 
     public function update_store(Request $request)
     {
+        $request->validate([
+            'store_contract_template_en' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'store_contract_template_ar' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+        ]);
 
         if ($request['product_approval'] == null) {
             $this->product_approval_all();
@@ -290,17 +294,20 @@ class BusinessSettingsController extends Controller
             'value' => $request['store_contract_required'] ?? 0,
         ]);
 
-        if ($request->hasFile('store_contract_template')) {
-            $oldTemplate = BusinessSetting::where('key', 'store_contract_template')->first();
-            if ($oldTemplate && $oldTemplate->value && Storage::disk('public')->exists('business/' . $oldTemplate->value)) {
-                Storage::disk('public')->delete('business/' . $oldTemplate->value);
+        foreach (['en', 'ar'] as $language) {
+            $settingKey = 'store_contract_template_' . $language;
+            if ($request->hasFile($settingKey)) {
+                $oldTemplate = BusinessSetting::where('key', $settingKey)->first();
+                if ($oldTemplate && $oldTemplate->value && Storage::disk('public')->exists('business/' . $oldTemplate->value)) {
+                    Storage::disk('public')->delete('business/' . $oldTemplate->value);
+                }
+
+                $file = $request->file($settingKey);
+                $fileName = Helpers::upload('business/', $file->getClientOriginalExtension(), $file);
+                Helpers::businessUpdateOrInsert(['key' => $settingKey], [
+                    'value' => $fileName,
+                ]);
             }
-            $file = $request->file('store_contract_template');
-            $extension = $file->getClientOriginalExtension();
-            $fileName = Helpers::upload('business/', $extension, $file);
-            Helpers::businessUpdateOrInsert(['key' => 'store_contract_template'], [
-                'value' => $fileName,
-            ]);
         }
 
         Cache::forget('business_settings_config_keys');

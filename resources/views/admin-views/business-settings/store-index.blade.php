@@ -399,24 +399,47 @@
                                     </label>
                                     </div>
                                 </div>
-                                <div class="col-lg-4 col-sm-6">
-                                    @php($store_contract_template = \App\Models\BusinessSetting::where('key', 'store_contract_template')->first())
-                                    <div class="form-group mb-0">
-                                        <label class="input-label text-capitalize">
-                                            {{ translate('Store_Contract_Template') }}
-                                        </label>
-                                        <div class="custom-file">
-                                            <input type="file" name="store_contract_template" class="custom-file-input"
-                                                   accept=".pdf,.doc,.docx" id="store_contract_template">
-                                            <label class="custom-file-label" for="store_contract_template">
-                                                {{ $store_contract_template && $store_contract_template->value ? $store_contract_template->value : translate('Choose_file') }}
+                                @php
+                                    $storeContractTemplateEn = \App\Models\BusinessSetting::where('key', 'store_contract_template_en')->first();
+                                    $storeContractTemplateEn = $storeContractTemplateEn ?: \App\Models\BusinessSetting::where('key', 'store_contract_template')->first();
+                                    $storeContractTemplateAr = \App\Models\BusinessSetting::where('key', 'store_contract_template_ar')->first();
+                                @endphp
+                                @foreach ([
+                                    ['locale' => 'en', 'label' => 'English', 'template' => $storeContractTemplateEn],
+                                    ['locale' => 'ar', 'label' => 'Arabic', 'template' => $storeContractTemplateAr],
+                                ] as $contractLanguage)
+                                    <div class="col-lg-4 col-sm-6">
+                                        <div class="form-group mb-0">
+                                            <label class="input-label text-capitalize" for="store_contract_template_{{ $contractLanguage['locale'] }}">
+                                                {{ $contractLanguage['label'] }} {{ translate('Store_Contract_Template') }}
                                             </label>
+                                            <div class="custom-file">
+                                                <input type="file" name="store_contract_template_{{ $contractLanguage['locale'] }}"
+                                                    class="custom-file-input" accept=".pdf,.doc,.docx"
+                                                    id="store_contract_template_{{ $contractLanguage['locale'] }}">
+                                                <label class="custom-file-label" for="store_contract_template_{{ $contractLanguage['locale'] }}">
+                                                    {{ $contractLanguage['template'] && $contractLanguage['template']->value ? basename($contractLanguage['template']->value) : translate('Choose_file') }}
+                                                </label>
+                                            </div>
+                                            @if ($contractLanguage['template'] && $contractLanguage['template']->value)
+                                                @php
+                                                    $contractFile = $contractLanguage['template']->value;
+                                                    $contractUrl = \App\CentralLogics\Helpers::get_full_url('business', $contractFile, 'public');
+                                                    $contractExtension = strtolower(pathinfo($contractFile, PATHINFO_EXTENSION));
+                                                @endphp
+                                                @if ($contractExtension === 'pdf')
+                                                    <iframe src="{{ $contractUrl }}#toolbar=1"
+                                                        title="{{ $contractLanguage['label'] }} {{ translate('Store_Contract_Template') }}"
+                                                        class="w-100 border rounded mt-2" style="height: 320px;"></iframe>
+                                                @else
+                                                    <a class="d-inline-block mt-2" href="{{ $contractUrl }}" target="_blank" rel="noopener">
+                                                        {{ translate('Open document') }}
+                                                    </a>
+                                                @endif
+                                            @endif
                                         </div>
-                                        @if($store_contract_template && $store_contract_template->value)
-                                            <small class="text-muted">{{ translate('Current') }}: {{ $store_contract_template->value }}</small>
-                                        @endif
                                     </div>
-                                </div>
+                                @endforeach
                             </div>
                             <!-- End Store Contract Settings -->
 

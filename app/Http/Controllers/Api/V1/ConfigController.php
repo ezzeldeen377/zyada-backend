@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\CentralLogics\Helpers;
+use App\CentralLogics\StoreContractTemplate;
 use App\Http\Controllers\Controller;
 use App\Models\AnalyticScript;
 use App\Models\BusinessSetting;
@@ -151,6 +152,8 @@ class ConfigController extends Controller
             'openai_config',
             'store_contract_required',
             'store_contract_template',
+            'store_contract_template_en',
+            'store_contract_template_ar',
         ];
 
         $vehicle_distance_min = 0;
@@ -425,7 +428,9 @@ class ConfigController extends Controller
             'open_ai_status' => (int)$openAIStatus,
 
             'store_contract_required' => (int)(isset($settings['store_contract_required']) ? $settings['store_contract_required'] : 0),
-            'store_contract_template_url' => isset($settings['store_contract_template']) && $settings['store_contract_template'] ? Helpers::get_full_url('business', $settings['store_contract_template'], 'public') : null,
+            'store_contract_template_url' => ($contractTemplate = StoreContractTemplate::forLocale($settings, app()->getLocale()))
+                ? Helpers::get_full_url('business', $contractTemplate, 'public')
+                : null,
         ]);
     }
 

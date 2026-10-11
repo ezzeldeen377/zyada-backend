@@ -922,7 +922,12 @@
             const acceptance = $('#store-contract-acceptance');
             const checkbox = $('#store_contract_accepted');
 
-            $.getJSON('{{ url('/api/v1/config') }}')
+            $.ajax({
+                url: '{{ url('/api/v1/config') }}',
+                method: 'GET',
+                dataType: 'json',
+                headers: { 'X-localization': @json(app()->getLocale()) }
+            })
                 .done(function (config) {
                     storeContractConfigLoaded = true;
                     storeContractRequired = Number(config.store_contract_required) === 1;
@@ -1066,7 +1071,8 @@
             const formData = new FormData(this);
             $.ajaxSetup({
                 headers: {
-                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                    'X-localization': @json(app()->getLocale())
                 }
             });
             $.ajax({

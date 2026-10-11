@@ -10,6 +10,7 @@ use App\Models\Vendor;
 use Illuminate\Http\Request;
 use App\CentralLogics\Helpers;
 use App\CentralLogics\StoreRegistrationDocuments;
+use App\CentralLogics\StoreContractTemplate;
 use App\Mail\StoreRegistration;
 use App\Models\BusinessSetting;
 use App\CentralLogics\StoreLogic;
@@ -84,7 +85,15 @@ class VendorController extends Controller
         }
 
         $contractRequired = BusinessSetting::where('key', 'store_contract_required')->value('value') == '1';
-        $contractTemplate = BusinessSetting::where('key', 'store_contract_template')->value('value');
+        $contractSettings = BusinessSetting::whereIn('key', [
+            'store_contract_template_en',
+            'store_contract_template_ar',
+            'store_contract_template',
+        ])->pluck('value', 'key')->all();
+        $contractTemplate = StoreContractTemplate::forLocale(
+            $contractSettings,
+            $request->header('X-localization', app()->getLocale())
+        );
 
         $validator = Validator::make($request->all(), [
             'f_name' => 'required',
