@@ -19,9 +19,23 @@
                         <input id="{{ $document['field'] }}" type="file" name="{{ $document['field'] }}"
                             class="form-control" accept="{{ $document['accept'] }}" data-max-size="2mb">
                         @if (isset($store) && $store->{$document['field']})
-                            <a class="d-inline-block mt-2" href="{{ $store->{$document['url']} }}" target="_blank" rel="noopener">
-                                {{ translate('View current document') }}: {{ $store->{$document['field']} }}
-                            </a>
+                            @php($documentUrl = $store->{$document['url']})
+                            @php($documentExtension = strtolower(pathinfo(parse_url($documentUrl, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION)))
+                            <div class="mt-2">
+                                @if (in_array($documentExtension, ['jpg', 'jpeg', 'png', 'webp']))
+                                    <a href="{{ $documentUrl }}" target="_blank" rel="noopener">
+                                        <img src="{{ $documentUrl }}" alt="{{ translate($document['label']) }}"
+                                            class="img-fluid rounded border" style="max-height: 220px;">
+                                    </a>
+                                @elseif ($documentExtension === 'pdf')
+                                    <iframe src="{{ $documentUrl }}#toolbar=1" title="{{ translate($document['label']) }}"
+                                        class="w-100 border rounded" style="height: 320px;"></iframe>
+                                @else
+                                    <a href="{{ $documentUrl }}" target="_blank" rel="noopener">
+                                        {{ translate('Open document') }}
+                                    </a>
+                                @endif
+                            </div>
                         @endif
                     </div>
                 </div>

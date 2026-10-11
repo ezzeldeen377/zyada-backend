@@ -1031,13 +1031,19 @@
             }
 
             const submitButtons = $('.btn-disable');
+            const originalSubmitButtonHtml = submitButtons.html();
             registrationSubmitting = true;
             submitButtons.prop('disabled', true);
+            submitButtons.html('<span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>Submitting...');
+
+            function resetSubmitButton() {
+                registrationSubmitting = false;
+                submitButtons.prop('disabled', false).html(originalSubmitButtonHtml);
+            }
 
             @if (isset($recaptcha) && $recaptcha['status'] == 1)
             if (typeof grecaptcha === 'undefined') {
-                registrationSubmitting = false;
-                submitButtons.prop('disabled', false);
+                resetSubmitButton();
                 toastr.error("{{ translate('messages.Please check the recaptcha') }}");
                 return;
             }
@@ -1051,8 +1057,7 @@
                 });
                 $('#g-recaptcha-response').val(captchaToken);
             } catch (error) {
-                registrationSubmitting = false;
-                submitButtons.prop('disabled', false);
+                resetSubmitButton();
                 toastr.error("{{ translate('messages.Please check the recaptcha') }}");
                 return;
             }
@@ -1077,8 +1082,7 @@
                 success: function (data) {
                     $('#loading').hide();
                     if (data.errors) {
-                        registrationSubmitting = false;
-                        submitButtons.prop('disabled', false);
+                        resetSubmitButton();
                         showRegistrationErrors(data.errors);
                     } else if (data.redirect_url) {
                         toastr.success("{{ translate('your_store_registration_is_successful') }}", {
@@ -1089,15 +1093,13 @@
                             location.href = data.redirect_url;
                         }, 1000);
                     } else {
-                        registrationSubmitting = false;
-                        submitButtons.prop('disabled', false);
+                        resetSubmitButton();
                         toastr.error(storeContractMessages.submitError);
                     }
                 },
                 error: function (xhr) {
                     const errors = xhr.responseJSON && xhr.responseJSON.errors;
-                    registrationSubmitting = false;
-                    submitButtons.prop('disabled', false);
+                    resetSubmitButton();
                     if (errors && (Array.isArray(errors) || typeof errors === 'object')) {
                         showRegistrationErrors(errors);
                     } else {

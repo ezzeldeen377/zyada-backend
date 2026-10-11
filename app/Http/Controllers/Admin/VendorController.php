@@ -174,9 +174,6 @@ class VendorController extends Controller
             'zone_id'=>'required',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
-            'minimum_delivery_time' => 'required',
-            'maximum_delivery_time' => 'required',
-            'delivery_time_type'=>'required',
             'password' => ['nullable', Password::min(8)->mixedCase()->letters()->numbers()->symbols(),function ($attribute, $value, $fail) {
                 if (strpos($value, ' ') !== false) {
                     $fail('The :attribute cannot contain white spaces.');
@@ -206,14 +203,6 @@ class VendorController extends Controller
                  return response()->json(['errors' => Helpers::error_processor($validator)]);
             }
         }
-        if ($request->delivery_time_type == 'min') {
-            $minimum_delivery_time = (int) $request->input('minimum_delivery_time');
-            if ($minimum_delivery_time < 10) {
-                $validator->getMessageBag()->add('minimum_delivery_time', translate('messages.minimum_delivery_time_should_be_more_than_10_min'));
-                return response()->json(['errors' => Helpers::error_processor($validator)]);
-            }
-        }
-
 
         $vendor = Vendor::findOrFail($store->vendor->id);
         $vendor->f_name = $request->f_name;
@@ -239,7 +228,6 @@ class VendorController extends Controller
         $extension = $request->has('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
         $store->tin_certificate_image = $request->has('tin_certificate_image') ? Helpers::update('store/', $store->tin_certificate_image, $extension, $request->file('tin_certificate_image')) : $store->tin_certificate_image;
         StoreRegistrationDocuments::save($store, $request, true);
-        $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
         $store->save();
 
         Helpers::add_or_update_translations(request: $request, key_data: 'name', name_field: 'name', model_name: 'Store', data_id: $store->id, data_value: $store->name);
