@@ -964,6 +964,14 @@
                         frame.style.height = '560px';
                         frame.style.border = '1px solid #dee2e6';
                         preview.append(frame);
+                    } else if (pathname.endsWith('.docx')) {
+                        const frame = document.createElement('iframe');
+                        frame.src = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(templateUrl);
+                        frame.title = storeContractMessages.contractTitle;
+                        frame.style.width = '100%';
+                        frame.style.height = '560px';
+                        frame.style.border = '1px solid #dee2e6';
+                        preview.append(frame);
                     } else {
                         const note = document.createElement('p');
                         note.className = 'mb-0';

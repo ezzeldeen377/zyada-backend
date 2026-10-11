@@ -426,6 +426,10 @@
                                                     <iframe src="{{ $contractUrl }}#toolbar=1"
                                                         title="{{ $contractLanguage['label'] }} {{ translate('Store_Contract_Template') }}"
                                                         class="w-100 border rounded mt-2" style="height: 320px;"></iframe>
+                                                <?php elseif ($contractExtension === 'docx'): ?>
+                                                    <iframe src="https://view.officeapps.live.com/op/embed.aspx?src={{ urlencode($contractUrl) }}"
+                                                        title="{{ $contractLanguage['label'] }} {{ translate('Store_Contract_Template') }}"
+                                                        class="w-100 border rounded mt-2" style="height: 320px;" loading="lazy"></iframe>
                                                 <?php else: ?>
                                                     <a class="d-inline-block mt-2" href="{{ $contractUrl }}" target="_blank" rel="noopener">
                                                         {{ translate('Open document') }}
