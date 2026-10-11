@@ -237,8 +237,10 @@ class BusinessSettingsController extends Controller
     public function update_store(Request $request)
     {
         $request->validate([
-            'store_contract_template_en' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
-            'store_contract_template_ar' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            // Word documents may be reported as application/zip by fileinfo, so
+            // validate the uploaded extension instead of relying on MIME guesses.
+            'store_contract_template_en' => 'nullable|file|extensions:pdf,doc,docx|max:10240',
+            'store_contract_template_ar' => 'nullable|file|extensions:pdf,doc,docx|max:10240',
         ]);
 
         if ($request['product_approval'] == null) {
