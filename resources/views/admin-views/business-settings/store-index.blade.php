@@ -399,11 +399,6 @@
                                     </label>
                                     </div>
                                 </div>
-                                @php
-                                    $storeContractTemplateEn = \App\Models\BusinessSetting::where('key', 'store_contract_template_en')->first();
-                                    $storeContractTemplateEn = $storeContractTemplateEn ?: \App\Models\BusinessSetting::where('key', 'store_contract_template')->first();
-                                    $storeContractTemplateAr = \App\Models\BusinessSetting::where('key', 'store_contract_template_ar')->first();
-                                @endphp
                                 @foreach ([
                                     ['locale' => 'en', 'label' => 'English', 'template' => $storeContractTemplateEn],
                                     ['locale' => 'ar', 'label' => 'Arabic', 'template' => $storeContractTemplateAr],

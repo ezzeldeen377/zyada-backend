@@ -77,7 +77,14 @@ class BusinessSettingsController extends Controller
 
             return view('admin-views.business-settings.order-index', compact('reasons', 'type'));
         } elseif ($tab == 'store') {
-            return view('admin-views.business-settings.store-index');
+            $storeContractTemplateEn = BusinessSetting::where('key', 'store_contract_template_en')->first();
+            $storeContractTemplateEn = $storeContractTemplateEn ?: BusinessSetting::where('key', 'store_contract_template')->first();
+            $storeContractTemplateAr = BusinessSetting::where('key', 'store_contract_template_ar')->first();
+
+            return view('admin-views.business-settings.store-index', compact(
+                'storeContractTemplateEn',
+                'storeContractTemplateAr'
+            ));
         } elseif ($tab == 'refund-settings') {
             $refund_active_status = BusinessSetting::where(['key' => 'refund_active_status'])->first();
             $reasons = RefundReason::orderBy('id', 'desc')
