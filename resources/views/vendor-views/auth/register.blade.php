@@ -191,26 +191,6 @@
                                     value="{{ old('tax') }}">
                             </div>
                         </div>
-                        <div class="mb-4">
-                            <div class="form-group">
-                                <label class="input-label"
-                                    for="minimum_delivery_time">{{translate('messages.approx_delivery_time')}}</label>
-                                <div class="input-group">
-                                    <input type="number" id="minimum_delivery_time" name="minimum_delivery_time"
-                                        class="form-control __form-control" placeholder="Min: 10"
-                                        value="{{old('minimum_delivery_time')}}">
-                                    <input type="number" name="maximum_delivery_time"
-                                        class="form-control __form-control" placeholder="Max: 20"
-                                        value="{{old('maximum_delivery_time')}}">
-                                    <select name="delivery_time_type"
-                                        class="form-control __form-control text-capitalize" required>
-                                        <option value="min">{{translate('messages.minutes')}}</option>
-                                        <option value="hours">{{translate('messages.hours')}}</option>
-                                        <option value="days">{{translate('messages.days')}}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
                         <div class="p-3 border border-success-light rounded mb-3">
                             <input id="pac-input" class="controls rounded" style="height: 3em;width:fit-content;"
                                 title="{{translate('messages.search_your_location_here')}}" type="text"

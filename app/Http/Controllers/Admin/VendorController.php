@@ -23,6 +23,7 @@ use App\Models\Conversation;
 use Illuminate\Http\Request;
 use App\Models\StoreSchedule;
 use App\CentralLogics\Helpers;
+use App\CentralLogics\StoreRegistrationDocuments;
 use Illuminate\Support\Carbon;
 use App\Models\BusinessSetting;
 use App\Models\WithdrawRequest;
@@ -73,9 +74,6 @@ class VendorController extends Controller
             'longitude' => 'required|numeric',
             'email' => 'required|unique:vendors',
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:20|unique:vendors',
-            'minimum_delivery_time' => 'required',
-            'maximum_delivery_time' => 'required',
-            'delivery_time_type'=>'required',
             'password' => ['required', Password::min(8)->mixedCase()->letters()->numbers()->symbols(),
                 function ($attribute, $value, $fail) {
                     if (strpos($value, ' ') !== false) {
@@ -86,7 +84,7 @@ class VendorController extends Controller
             'logo' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             'cover_photo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
 
-        ], [
+        ] + StoreRegistrationDocuments::validationRules(), [
             'f_name.required' => translate('messages.first_name_is_required'),
             'name.0.required'=>translate('default_name_is_required'),
             'address.0.required'=>translate('default_address_is_required'),
@@ -108,16 +106,6 @@ class VendorController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)]);
             }
         }
-
-        if ($request->delivery_time_type == 'min') {
-            $minimum_delivery_time = (int) $request->input('minimum_delivery_time');
-            if ($minimum_delivery_time < 10) {
-                $validator->getMessageBag()->add('minimum_delivery_time', translate('messages.minimum_delivery_time_should_be_more_than_10_min'));
-            return response()->json(['errors' => Helpers::error_processor($validator)]);
-            }
-        }
-
-
 
         $vendor = new Vendor();
         $vendor->f_name = $request->f_name;
@@ -142,7 +130,8 @@ class VendorController extends Controller
         $store->tin_expire_date = $request->tin_expire_date;
         $extension = $request->has('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
         $store->tin_certificate_image = Helpers::upload('store/', $extension, $request->file('tin_certificate_image'));
-        $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
+        StoreRegistrationDocuments::save($store, $request);
+        $store->delivery_time = '30-40 min';
         $store->module_id = Config::get('module.current_module_id');
         try {
             $store->save();
@@ -185,17 +174,17 @@ class VendorController extends Controller
             'zone_id'=>'required',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
+            'minimum_delivery_time' => 'required',
+            'maximum_delivery_time' => 'required',
+            'delivery_time_type'=>'required',
             'password' => ['nullable', Password::min(8)->mixedCase()->letters()->numbers()->symbols(),function ($attribute, $value, $fail) {
                 if (strpos($value, ' ') !== false) {
                     $fail('The :attribute cannot contain white spaces.');
                 }
             },],
-            'minimum_delivery_time' => 'required',
-            'maximum_delivery_time' => 'required',
-            'delivery_time_type'=>'required',
             'logo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             'cover_photo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
-        ], [
+        ] + StoreRegistrationDocuments::validationRules(), [
             'f_name.required' => translate('messages.first_name_is_required'),
             'name.0.required'=>translate('default_name_is_required'),
             'address.0.required'=>translate('default_address_is_required'),
@@ -249,6 +238,7 @@ class VendorController extends Controller
         $store->tin_expire_date = $request->tin_expire_date;
         $extension = $request->has('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
         $store->tin_certificate_image = $request->has('tin_certificate_image') ? Helpers::update('store/', $store->tin_certificate_image, $extension, $request->file('tin_certificate_image')) : $store->tin_certificate_image;
+        StoreRegistrationDocuments::save($store, $request, true);
         $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
         $store->save();
 

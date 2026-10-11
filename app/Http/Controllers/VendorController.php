@@ -9,6 +9,7 @@ use App\Models\Module;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
 use App\CentralLogics\Helpers;
+use App\CentralLogics\StoreRegistrationDocuments;
 use App\Mail\StoreRegistration;
 use App\Models\BusinessSetting;
 use App\CentralLogics\StoreLogic;
@@ -90,15 +91,12 @@ class VendorController extends Controller
             'longitude' => 'required',
             'email' => 'required|unique:vendors',
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|unique:vendors',
-            'minimum_delivery_time' => 'required',
-            'maximum_delivery_time' => 'required',
             'password' => ['required', Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
             'zone_id' => 'required',
             'module_id' => 'required',
             'logo' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             'cover_photo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
-            'delivery_time_type'=>'required',
-        ],[
+        ] + StoreRegistrationDocuments::validationRules(), [
             'password.min_length' => translate('The password must be at least :min characters long'),
             'password.mixed' => translate('The password must contain both uppercase and lowercase letters'),
             'password.letters' => translate('The password must contain letters'),
@@ -159,7 +157,8 @@ class VendorController extends Controller
         $store->tin_expire_date = $request->tin_expire_date;
         $extension = $request->has('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
         $store->tin_certificate_image = Helpers::upload('store/', $extension, $request->file('tin_certificate_image'));
-        $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
+        StoreRegistrationDocuments::save($store, $request);
+        $store->delivery_time = '30-40 min';
         $store->status = 0;
         $store->store_business_model = 'none';
         $store->save();

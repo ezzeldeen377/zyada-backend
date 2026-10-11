@@ -582,6 +582,48 @@
 
 
 
+            @php($registrationDocuments = [
+                ['label' => 'Trade License', 'file' => $store->trade_license, 'url' => $store->trade_license_full_url],
+                ['label' => 'Emirates ID', 'file' => $store->emirates_id, 'url' => $store->emirates_id_full_url],
+                ['label' => 'Passport Copy', 'file' => $store->passport_copy, 'url' => $store->passport_copy_full_url],
+                ['label' => 'IBAN Letter / Bank Account Certificate', 'file' => $store->iban_letter, 'url' => $store->iban_letter_full_url],
+            ])
+            @if (collect($registrationDocuments)->contains(fn ($document) => filled($document['file'])))
+                <div class="row pt-3 g-3">
+                    <div class="col-12">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h5 class="card-title m-0">{{ translate('Vendor Documents') }}</h5>
+                            </div>
+                            <div class="card-body d-flex flex-wrap gap-3">
+                                @foreach ($registrationDocuments as $document)
+                                    @if ($document['file'])
+                                        @php($isPdf = Str::endsWith(strtolower($document['file']), '.pdf'))
+                                        @php($thumbnail = $isPdf ? asset('public/assets/admin/img/document.svg') : $document['url'])
+                                        <div class="pdf-single cus-document-responsive" data-pdf-url="{{ $document['url'] }}">
+                                            <div class="pdf-frame">
+                                                <img class="pdf-thumbnail-alt" src="{{ $thumbnail }}" alt="{{ translate($document['label']) }}">
+                                            </div>
+                                            <div class="overlay">
+                                                <a href="javascript:void(0);" class="download-btn" title="{{ translate('Download') }}">
+                                                    <i class="tio-download-to"></i>
+                                                </a>
+                                                <div class="pdf-info d-flex gap-10px align-items-center">
+                                                    <img src="{{ asset('public/assets/admin/img/' . ($isPdf ? 'document.svg' : 'picture.svg')) }}" width="34" alt="">
+                                                    <div class="fs-13 text--title d-flex flex-column">
+                                                        <span class="file-name js-filename-truncate">{{ $document['file'] }}</span>
+                                                        <span class="opacity-50">{{ translate($document['label']) }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
     </div>
 
     <div class="modal fade" id="collect-cash" tabindex="-1">

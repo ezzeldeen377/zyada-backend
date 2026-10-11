@@ -571,6 +571,7 @@
                         </div>
                     </div>
                 </div>
+                @include('admin-views.vendor.partials._registration_documents_form', ['store' => $store])
                 @if (request()->pending == 1)
                     <input type="hidden" name="approve_vendor" value="1">
                 @endif

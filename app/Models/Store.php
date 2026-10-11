@@ -143,6 +143,10 @@ class Store extends Model
         'tin',
         'tin_expire_date',
         'tin_certificate_image',
+        'trade_license',
+        'emirates_id',
+        'passport_copy',
+        'iban_letter',
     ];
 
     /**
@@ -198,7 +202,11 @@ class Store extends Model
      * @var array
      */
     protected $hidden = [
-        'gst'
+        'gst',
+        'trade_license',
+        'emirates_id',
+        'passport_copy',
+        'iban_letter',
     ];
 
     /**
@@ -318,6 +326,36 @@ class Store extends Model
         }
 
         return Helpers::get_full_url('store',$value,'public');
+    }
+    public function getTradeLicenseFullUrlAttribute(): ?string
+    {
+        return $this->getStoreDocumentFullUrl('trade_license');
+    }
+
+    public function getEmiratesIdFullUrlAttribute(): ?string
+    {
+        return $this->getStoreDocumentFullUrl('emirates_id');
+    }
+
+    public function getPassportCopyFullUrlAttribute(): ?string
+    {
+        return $this->getStoreDocumentFullUrl('passport_copy');
+    }
+
+    public function getIbanLetterFullUrlAttribute(): ?string
+    {
+        return $this->getStoreDocumentFullUrl('iban_letter');
+    }
+
+    private function getStoreDocumentFullUrl(string $key): ?string
+    {
+        $value = $this->attributes[$key] ?? null;
+        if (!$value) {
+            return null;
+        }
+
+        $storage = $this->storage->firstWhere('key', $key);
+        return Helpers::get_full_url('store', $value, $storage['value'] ?? 'public');
     }
     public function getCoverPhotoFullUrlAttribute(){
         $value = $this->cover_photo;
@@ -862,6 +900,19 @@ class Store extends Model
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+            }
+            foreach (['trade_license', 'emirates_id', 'passport_copy', 'iban_letter'] as $document) {
+                if ($model->isDirty($document)) {
+                    DB::table('storages')->updateOrInsert([
+                        'data_type' => get_class($model),
+                        'data_id' => $model->id,
+                        'key' => $document,
+                    ], [
+                        'value' => Helpers::getDisk(),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
         });
         static::updated(function(){

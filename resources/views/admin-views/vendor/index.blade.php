@@ -193,64 +193,6 @@
                         </div>
                         <div class="card-body">
                             <div class="row g-3 my-0">
-                                <div class="col-md-12">
-                                    <div class="position-relative">
-                                        <label class="input-label"
-                                            for="tax">{{ translate('Estimated Delivery Time ( Min & Maximum Time)') }}
-                                            <span class="form-label-secondary text-danger" data-toggle="tooltip"
-                                                data-placement="right"
-                                                data-original-title="{{ translate('messages.Required.') }}"> *
-                                            </span></label>
-                                        <div class="error-wrapper">
-                                            <input type="text" id="time_view" class="form-control" readonly required>
-                                        </div>
-                                        <a href="javascript:void(0)" class="floating-date-toggler">&nbsp;</a>
-                                        <span class="offcanvas"></span>
-                                        <div class="floating--date" id="floating--date">
-                                            <div class="card shadow--card-2">
-                                                <div class="card-body">
-                                                    <div class="floating--date-inner">
-                                                        <div class="item error-wrapper">
-                                                            <label class="input-label"
-                                                                for="minimum_delivery_time">{{ translate('Minimum Time') }}</label>
-                                                            <input id="minimum_delivery_time" type="number"
-                                                                name="minimum_delivery_time" class="form-control h--45px"
-                                                                placeholder="{{ translate('messages.Ex :') }} 30"
-                                                                pattern="^[0-9]{2}$" required
-                                                                value="{{ old('minimum_delivery_time') }}">
-                                                        </div>
-                                                        <div class="item error-wrapper">
-                                                            <label class="input-label"
-                                                                for="maximum_delivery_time">{{ translate('Maximum Time') }}</label>
-                                                            <input id="maximum_delivery_time" type="number"
-                                                                name="maximum_delivery_time" class="form-control h--45px"
-                                                                placeholder="{{ translate('messages.Ex :') }} 60"
-                                                                pattern="[0-9]{2}" required
-                                                                value="{{ old('maximum_delivery_time') }}">
-                                                        </div>
-                                                        <div class="item smaller">
-                                                            <select name="delivery_time_type" id="delivery_time_type"
-                                                                class="custom-select">
-                                                                <option value="min">{{ translate('messages.minutes') }}
-                                                                </option>
-                                                                <option value="hours">{{ translate('messages.hours') }}
-                                                                </option>
-                                                                <option value="days">{{ translate('messages.days') }}
-                                                                </option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="item smaller">
-                                                            <button type="button"
-                                                                class="btn btn--primary delivery-time">{{ translate('done') }}</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row g-3 my-0">
                                 <div class="col-lg-4">
                                     <div class="form-group error-wrapper">
                                         <label class="input-label"
@@ -543,6 +485,7 @@
                         </div>
                     </div>
                 </div>
+                @include('admin-views.vendor.partials._registration_documents_form')
                 <div class="col-lg-12">
                     <div class="btn--container justify-content-end">
                         <button type="reset" id="reset_btn"
@@ -619,12 +562,6 @@
 
 
         $(document).on('ready', function() {
-            $('.offcanvas').on('click', function() {
-                $('.offcanvas, .floating--date').removeClass('active')
-            })
-            $('.floating-date-toggler').on('click', function() {
-                $('.offcanvas, .floating--date').toggleClass('active')
-            })
             @if (isset(auth('admin')->user()->zone_id))
                 $('#choice_zones').trigger('change');
             @endif
@@ -828,14 +765,7 @@
 
 
 
-        $('.delivery-time').on('click', function() {
-            let min = $("#minimum_delivery_time").val();
-            let max = $("#maximum_delivery_time").val();
-            let type = $("#delivery_time_type").val();
-            $("#floating--date").removeClass('active');
-            $("#time_view").val(min + ' to ' + max + ' ' + type);
 
-        });
     </script>
         <script>
         // ---- file upload with textbox

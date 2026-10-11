@@ -253,42 +253,7 @@
                                                placeholder="{{ translate('messages.Ex:') }} 103.344322" id="longitude"
                                                value="{{ old('longitude') }}" required readonly>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="input-label module-select-time"
-                                               for="minimum_delivery_time">{{ translate('messages.approx_delivery_time') }}
-                                            <span
-                                                class="text-danger">*</span></label>
-                                        <div class=" __form-control custom-group-btn">
-                                            <div class="item flex-sm-grow-1">
-                                                <div class="d-flex align-items-center gap-1">
-                                                    <label class="floating-label"
-                                                           for="min">{{ translate('messages.min') }}:</label>
-                                                    <input type="number" id="minimum_delivery_time"
-                                                           name="minimum_delivery_time"
-                                                           class="form-control p-0 border-0"
-                                                           placeholder="10" value="{{ old('minimum_delivery_time') }}">
-                                                </div>
-                                            </div>
-                                            <div class="item flex-sm-grow-1">
-                                                <div class="d-flex align-items-center gap-1">
-                                                    <label class="floating-label"
-                                                           for="max">{{ translate('messages.max') }}:</label>
-                                                    <input type="number" name="maximum_delivery_time"
-                                                           id="max_delivery_time" class="form-control p-0 border-0"
-                                                           placeholder="20" value="{{ old('maximum_delivery_time') }}">
-                                                </div>
-                                            </div>
-                                            <div class="item flex-shrink-0">
-                                                <select name="delivery_time_type"
-                                                        class="form-select custom-select border-0" required>
-                                                    <option value="min">{{ translate('messages.minutes') }}
-                                                    </option>
-                                                    <option value="hours">{{ translate('messages.hours') }}</option>
-                                                    <option value="days">{{ translate('messages.days') }}</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="rounded mb-3">
@@ -500,6 +465,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @include('admin-views.vendor.partials._registration_documents_form')
                             <div class="card __card bg-F8F9FC mb-3">
                                 <div class="card-header">
                                     <div>
@@ -1060,6 +1026,12 @@
             } else if (tin_certificate_image.files.length && tin_certificate_image.files[0].size > maxFileSize) {
                 toastr.error("{{ translate('Tin_certificate_must_be_less_than_2MB') }}");
                 e.preventDefault();
+            } else if (['trade_license', 'emirates_id', 'passport_copy', 'iban_letter'].some(function (name) {
+                const input = $('input[name="' + name + '"]')[0];
+                return input && input.files.length && input.files[0].size > maxFileSize;
+            })) {
+                toastr.error("{{ translate('Vendor_documents_must_be_less_than_2MB') }}");
+                e.preventDefault();
             } else if (cover.files[0].size > maxFileSize) {
                 toastr.error("{{ translate('Vendor_cover_photo_must_be_less_than_2MB') }}");
                 e.preventDefault();
@@ -1071,12 +1043,6 @@
                 e.preventDefault();
             } else if (!$('#latitude').val() || !$('#longitude').val()) {
                 toastr.error("{{ translate('Must_click_on_the_map_for_lat/long') }}");
-                e.preventDefault();
-            } else if (!$('#minimum_delivery_time').val()) {
-                toastr.error("{{ translate('minimum_time_is_required') }}");
-                e.preventDefault();
-            } else if (!$('#max_delivery_time').val()) {
-                toastr.error("{{ translate('max_time_is_required') }}");
                 e.preventDefault();
             } else if (!$('#f_name').val()) {
                 toastr.error("{{ translate('first_name_is_required') }}");
