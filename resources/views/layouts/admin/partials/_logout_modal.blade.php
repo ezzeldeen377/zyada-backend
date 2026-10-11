@@ -19,7 +19,7 @@
                                     <span class="card-title h5">
                                         {{auth('admin')->user()->full_name}}
                                     </span>
-                                    <span class="card-text">{{Str::limit(auth('admin')->user()->email, 15, '...'); }}</span>
+                                    <span class="card-text">{{Str::limit(auth('admin')->user()->email, 15, '...') }}</span>
                                 </div>
                             </div>
                         </a>

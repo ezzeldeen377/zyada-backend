@@ -162,8 +162,7 @@
                                 <label class="upload-img-3 m-0">
                                         <div class="position-relative">
                                         <div class="img">
-                                            <img class="onerror-image" src="{{ $feature->image_full_url ?? '',
-                                                asset('/public/assets/admin/img/upload-3.png') }}"
+                                            <img class="onerror-image" src="{{ $feature->image_full_url ?? asset('/public/assets/admin/img/upload-3.png') }}"
 
                                             data-onerror-image="{{asset('/public/assets/admin/img/upload-3.png')}}" alt="">
                                         </div>
