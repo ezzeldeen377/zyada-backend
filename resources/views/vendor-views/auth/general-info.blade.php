@@ -602,6 +602,23 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="card __card mb-3 d-none" id="store-contract-card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">{{ translate('Store Contract') }}</h5>
+                                </div>
+                                <div class="card-body p-4">
+                                    <p class="mb-3" id="store-contract-status">{{ translate('Loading_store_contract') }}</p>
+                                    <div id="store-contract-preview" class="mb-3"></div>
+                                    <div id="store-contract-acceptance" class="form-check d-none">
+                                        <input class="form-check-input" type="checkbox" name="store_contract_accepted"
+                                            id="store_contract_accepted" value="1">
+                                        <label class="form-check-label" for="store_contract_accepted">
+                                            {{ translate('I_have_read_and_agree_to_all_points_in_the_store_contract') }}
+                                            <span class="text-danger d-none" id="store-contract-required-marker">*</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="text-end pt-4 d-flex flex-wrap justify-content-end gap-3">
                                 <button type="reset" id='reset-btn'
                                         class="cmn--btn btn--secondary shadow-none rounded-md border-0 outline-0">{{ translate('Reset') }}</button>
@@ -882,34 +899,109 @@
     </script>
     <script src="{{ asset('public/assets/admin/js/view-pages/vendor-registration.js') }}"></script>
     @if (isset($recaptcha) && $recaptcha['status'] == 1)
-        <script type="text/javascript">
-            "use strict";
-            let onloadCallback = function () {
-                grecaptcha.render('recaptcha_element', {
-                    'sitekey': '{{ \App\CentralLogics\Helpers::get_business_settings('recaptcha')['site_key'] }}'
-                });
-            };
-        </script>
-        <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async
-                defer></script>
-    @endif
-
-    @if (isset($recaptcha) && $recaptcha['status'] == 1)
         <script src="https://www.google.com/recaptcha/api.js?render={{ $recaptcha['site_key'] }}"></script>
     @endif
     <script>
-        $("#form-id").on('submit', function (e) {
+        let storeContractConfigLoaded = false;
+        let storeContractRequired = false;
+        let storeContractAvailable = false;
+        let registrationSubmitting = false;
+        const storeContractMessages = {
+            unavailable: @json(translate('Store_contract_is_currently_unavailable')),
+            open: @json(translate('Open_or_download_store_contract')),
+            readAndAgree: @json(translate('You_must_read_and_accept_the_store_contract')),
+            submitError: @json(translate('Unable_to_submit_registration_Please_try_again')),
+            contractTitle: @json(translate('Store Contract')),
+            openNote: @json(translate('Open_the_contract_file_to_read_it_before_accepting')),
+        };
+
+        function loadStoreContract() {
+            const card = $('#store-contract-card');
+            const status = $('#store-contract-status');
+            const preview = $('#store-contract-preview');
+            const acceptance = $('#store-contract-acceptance');
+            const checkbox = $('#store_contract_accepted');
+
+            $.getJSON('{{ url('/api/v1/config') }}')
+                .done(function (config) {
+                    storeContractConfigLoaded = true;
+                    storeContractRequired = Number(config.store_contract_required) === 1;
+                    const templateUrl = config.store_contract_template_url;
+
+                    if (!templateUrl) {
+                        if (storeContractRequired) {
+                            card.removeClass('d-none');
+                            status.text(storeContractMessages.unavailable);
+                            storeContractAvailable = false;
+                        } else {
+                            card.addClass('d-none');
+                        }
+                        return;
+                    }
+
+                    storeContractAvailable = true;
+                    card.removeClass('d-none');
+                    status.text('');
+                    const pathname = new URL(templateUrl, window.location.href).pathname.toLowerCase();
+                    const link = document.createElement('a');
+                    link.href = templateUrl;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.textContent = storeContractMessages.open;
+                    link.className = 'btn btn--primary mb-3';
+                    preview.append(link);
+
+                    if (pathname.endsWith('.pdf')) {
+                        const frame = document.createElement('iframe');
+                        frame.src = templateUrl;
+                        frame.title = storeContractMessages.contractTitle;
+                        frame.style.width = '100%';
+                        frame.style.height = '560px';
+                        frame.style.border = '1px solid #dee2e6';
+                        preview.append(frame);
+                    } else {
+                        const note = document.createElement('p');
+                        note.className = 'mb-0';
+                        note.textContent = storeContractMessages.openNote;
+                        preview.append(note);
+                    }
+
+                    acceptance.removeClass('d-none');
+                    checkbox.prop('required', storeContractRequired);
+                    $('#store-contract-required-marker').toggleClass('d-none', !storeContractRequired);
+                })
+                .fail(function () {
+                    storeContractConfigLoaded = false;
+                    card.removeClass('d-none');
+                    status.text(storeContractMessages.unavailable);
+                });
+        }
+
+        loadStoreContract();
+
+        function showRegistrationErrors(errors) {
+            const messages = Array.isArray(errors)
+                ? errors
+                : (errors && typeof errors === 'object' ? Object.values(errors).flat() : []);
+            messages.forEach(function (error) {
+                toastr.error(error.message || error);
+            });
+        }
+
+        $("#form-id").on('submit', async function (e) {
             e.preventDefault();
-            @if (isset($recaptcha) && $recaptcha['status'] == 1)
-
-            let response = grecaptcha.getResponse();
-
-            if (response.length === 0) {
-                e.preventDefault();
-                toastr.error("{{ translate('messages.Please check the recaptcha') }}");
+            if (registrationSubmitting) {
+                return;
             }
-            @endif
-
+            if (!storeContractConfigLoaded) {
+                toastr.error(storeContractMessages.unavailable);
+                return;
+            }
+            if (storeContractRequired && (!storeContractAvailable || !$('#store_contract_accepted').is(':checked'))) {
+                toastr.error(storeContractMessages.readAndAgree);
+                $('#store_contract_accepted').trigger('focus');
+                return;
+            }
             const radios = document.querySelectorAll('input[name="business_plan"]');
             let selectedValue = null;
 
@@ -934,22 +1026,47 @@
 
                 if (!selectedpValue) {
                     toastr.error("{{ translate('You_must_select_a_package') }}");
-                    e.preventDefault();
+                    return;
                 }
             }
 
-            $('.btn-disable').attr('disabled', true);
+            const submitButtons = $('.btn-disable');
+            registrationSubmitting = true;
+            submitButtons.prop('disabled', true);
 
+            @if (isset($recaptcha) && $recaptcha['status'] == 1)
+            if (typeof grecaptcha === 'undefined') {
+                registrationSubmitting = false;
+                submitButtons.prop('disabled', false);
+                toastr.error("{{ translate('messages.Please check the recaptcha') }}");
+                return;
+            }
+            try {
+                const captchaToken = await new Promise(function (resolve, reject) {
+                    grecaptcha.ready(function () {
+                        grecaptcha.execute('{{ $recaptcha['site_key'] }}', { action: 'submit' })
+                            .then(resolve)
+                            .catch(reject);
+                    });
+                });
+                $('#g-recaptcha-response').val(captchaToken);
+            } catch (error) {
+                registrationSubmitting = false;
+                submitButtons.prop('disabled', false);
+                toastr.error("{{ translate('messages.Please check the recaptcha') }}");
+                return;
+            }
+            @endif
 
-            let formData = new FormData(this);
+            const formData = new FormData(this);
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': "{{ csrf_token() }}"
                 }
             });
-            $.post({
+            $.ajax({
                 url: '{{ route('restaurant.store') }}',
-                data: $('#form-id').serialize(),
+                method: 'POST',
                 data: formData,
                 cache: false,
                 contentType: false,
@@ -960,14 +1077,10 @@
                 success: function (data) {
                     $('#loading').hide();
                     if (data.errors) {
-                        $('.btn-disable').attr('enable', true);
-                        for (let i = 0; i < data.errors.length; i++) {
-                            toastr.error(data.errors[i].message, {
-                                CloseButton: true,
-                                ProgressBar: true
-                            });
-                        }
-                    } else {
+                        registrationSubmitting = false;
+                        submitButtons.prop('disabled', false);
+                        showRegistrationErrors(data.errors);
+                    } else if (data.redirect_url) {
                         toastr.success("{{ translate('your_store_registration_is_successful') }}", {
                             CloseButton: true,
                             ProgressBar: true
@@ -975,7 +1088,24 @@
                         setTimeout(function () {
                             location.href = data.redirect_url;
                         }, 1000);
+                    } else {
+                        registrationSubmitting = false;
+                        submitButtons.prop('disabled', false);
+                        toastr.error(storeContractMessages.submitError);
                     }
+                },
+                error: function (xhr) {
+                    const errors = xhr.responseJSON && xhr.responseJSON.errors;
+                    registrationSubmitting = false;
+                    submitButtons.prop('disabled', false);
+                    if (errors && (Array.isArray(errors) || typeof errors === 'object')) {
+                        showRegistrationErrors(errors);
+                    } else {
+                        toastr.error(storeContractMessages.submitError);
+                    }
+                },
+                complete: function () {
+                    $('#loading').hide();
                 }
             });
 
@@ -1007,6 +1137,18 @@
             const tin_certificate_image = $('input[name="tin_certificate_image"]')[0];
 
             const maxFileSize = 2 * 1024 * 1024; // 2MB in bytes
+
+            if (!storeContractConfigLoaded) {
+                toastr.error(storeContractMessages.unavailable);
+                e.preventDefault();
+                return;
+            }
+            if (storeContractRequired && (!storeContractAvailable || !$('#store_contract_accepted').is(':checked'))) {
+                toastr.error(storeContractMessages.readAndAgree);
+                $('#store_contract_accepted').trigger('focus');
+                e.preventDefault();
+                return;
+            }
 
             if (!$('#default_name').val()) {
                 toastr.error("{{ translate('Vendor_name_is_required') }}");
@@ -1066,22 +1208,6 @@
                 toastr.error("{{ translate('Password format is invalid') }}");
                 e.preventDefault();
             } else {
-                @if (isset($recaptcha) && $recaptcha['status'] == 1)
-                if (typeof grecaptcha === 'undefined') {
-                    toastr.error('Invalid recaptcha key provided. Please check the recaptcha configuration.');
-                    e.preventDefault();
-                    return;
-                }
-                grecaptcha.ready(function () {
-                    grecaptcha.execute('{{ $recaptcha['site_key'] }}', {
-                        action: 'submit'
-                    })
-                        .then(function (token) {
-                            $('#g-recaptcha-response').val(token);
-                        });
-                });
-                @endif
-
                 @if (\App\CentralLogics\Helpers::subscription_check())
                 $('#business-plan-div').removeClass('d-none');
                 $('#reg-form-div').addClass('d-none');

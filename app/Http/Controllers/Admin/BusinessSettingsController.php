@@ -33,6 +33,7 @@ use App\Models\Translation;
 use App\Traits\Processor;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -301,6 +302,8 @@ class BusinessSettingsController extends Controller
                 'value' => $fileName,
             ]);
         }
+
+        Cache::forget('business_settings_config_keys');
 
         Toastr::success(translate('messages.successfully_updated_to_changes_restart_app'));
 

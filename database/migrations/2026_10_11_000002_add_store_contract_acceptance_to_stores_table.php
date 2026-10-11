@@ -1,0 +1,23 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('stores', function (Blueprint $table) {
+            $table->timestamp('store_contract_accepted_at')->nullable();
+            $table->string('store_contract_template_accepted')->nullable();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('stores', function (Blueprint $table) {
+            $table->dropColumn(['store_contract_accepted_at', 'store_contract_template_accepted']);
+        });
+    }
+};

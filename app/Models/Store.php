@@ -143,6 +143,8 @@ class Store extends Model
         'tin',
         'tin_expire_date',
         'tin_certificate_image',
+        'store_contract_accepted_at',
+        'store_contract_template_accepted',
         'trade_license',
         'emirates_id',
         'passport_copy',
@@ -188,6 +190,7 @@ class Store extends Model
         'rating_count'=>'integer',
         'reviews_comments_count'=>'integer',
         'package_id'=>'integer',
+        'store_contract_accepted_at' => 'datetime',
         'distance' => 'float',
     ];
 
@@ -207,6 +210,8 @@ class Store extends Model
         'emirates_id',
         'passport_copy',
         'iban_letter',
+        'store_contract_accepted_at',
+        'store_contract_template_accepted',
     ];
 
     /**

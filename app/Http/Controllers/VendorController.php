@@ -83,6 +83,9 @@ class VendorController extends Controller
                  return response()->json(['errors' => Helpers::error_processor($validator)]);
         }
 
+        $contractRequired = BusinessSetting::where('key', 'store_contract_required')->value('value') == '1';
+        $contractTemplate = BusinessSetting::where('key', 'store_contract_template')->value('value');
+
         $validator = Validator::make($request->all(), [
             'f_name' => 'required',
             'name' => 'required',
@@ -96,6 +99,7 @@ class VendorController extends Controller
             'module_id' => 'required',
             'logo' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             'cover_photo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+            'store_contract_accepted' => $contractRequired && $contractTemplate ? 'accepted' : 'nullable|accepted',
         ] + StoreRegistrationDocuments::validationRules(), [
             'password.min_length' => translate('The password must be at least :min characters long'),
             'password.mixed' => translate('The password must contain both uppercase and lowercase letters'),
@@ -104,7 +108,11 @@ class VendorController extends Controller
             'password.symbols' => translate('The password must contain symbols'),
             'password.uncompromised' => translate('The password is compromised. Please choose a different one'),
             'password.custom' => translate('The password cannot contain white spaces.'),
+            'store_contract_accepted.accepted' => translate('You_must_accept_the_store_contract'),
         ]);
+        if ($contractRequired && !$contractTemplate) {
+            $validator->errors()->add('store_contract_accepted', translate('The_store_contract_is_not_available'));
+        }
         if ($validator->fails()) {
                  return response()->json(['errors' => Helpers::error_processor($validator)]);
         }
@@ -158,6 +166,10 @@ class VendorController extends Controller
         $extension = $request->has('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
         $store->tin_certificate_image = Helpers::upload('store/', $extension, $request->file('tin_certificate_image'));
         StoreRegistrationDocuments::save($store, $request);
+        if ($request->boolean('store_contract_accepted') && $contractTemplate) {
+            $store->store_contract_accepted_at = now();
+            $store->store_contract_template_accepted = $contractTemplate;
+        }
         $store->delivery_time = '30-40 min';
         $store->status = 0;
         $store->store_business_model = 'none';
