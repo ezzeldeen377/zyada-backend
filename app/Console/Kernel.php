@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Unused on Laravel 12. The running schedule is registered in bootstrap/app.php.
     }
 
     /**

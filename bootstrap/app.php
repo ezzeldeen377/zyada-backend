@@ -35,6 +35,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -43,6 +45,34 @@ return Application::configure(basePath: dirname(__DIR__))
         // commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
+
+    ->withSchedule(function (Schedule $schedule) {
+        // App\Console\Kernel is not the running console kernel on Laravel 12.
+        // schedule:run (hPanel cron, every minute) is what actually fires these.
+        $setting = function (string $key) {
+            return DB::table('business_settings')->where('key', $key)->value('value');
+        };
+
+        $due = function (string $prefix) use ($setting) {
+            return \App\Console\DisbursementDue::isDue(
+                $setting('disbursement_type'),
+                $setting($prefix.'_disbursement_time_period'),
+                $setting($prefix.'_disbursement_week_start'),
+                $setting($prefix.'_disbursement_create_time'),
+                now()
+            );
+        };
+
+        $schedule->command('dm:disbursement')
+            ->everyMinute()
+            ->when(fn () => $due('dm'))
+            ->withoutOverlapping();
+
+        $schedule->command('store:disbursement')
+            ->everyMinute()
+            ->when(fn () => $due('store'))
+            ->withoutOverlapping();
+    })
 
     ->withMiddleware(function (Middleware $middleware) {
 

@@ -1,0 +1,79 @@
+# Push to `staging` deploys staging. Push to `main` deploys production.
+# Create GitHub Environments named staging and production.
+# Require a reviewer on production.
+# Secrets in each environment:
+#   SSH_HOST, SSH_PORT, SSH_USER, SSH_PRIVATE_KEY, APP_PATH
+#   RUN_BACKUP  "1" on production, "0" on staging
+#   DOCROOT     leave empty until that domain's folder is a symlink
+name: Deploy
+
+on:
+  push:
+    branches: [main, staging]
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer:v2
+          coverage: none
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install PHP dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+      - name: Build frontend assets
+        run: |
+          npm ci
+          npm run production
+
+      - name: Upload release and switch current
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          APP_PATH: ${{ secrets.APP_PATH }}
+          RUN_BACKUP: ${{ secrets.RUN_BACKUP }}
+          DOCROOT: ${{ secrets.DOCROOT }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          release="$(date -u +%Y%m%d%H%M%S)"
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "mkdir -p '$APP_PATH/releases/$release'"
+          rsync -az --delete \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'node_modules' \
+            --exclude 'storage' \
+            --exclude '.env' \
+            --exclude '.env.*' \
+            --exclude 'tests' \
+            --exclude '.idea' \
+            --exclude '.vscode' \
+            --exclude '.DS_Store' \
+            --exclude '.superpowers' \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT" \
+            ./ "$SSH_USER@$SSH_HOST:$APP_PATH/releases/$release/"
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            "bash '$APP_PATH/releases/$release/deploy/remote-deploy.sh' '$APP_PATH' '$APP_PATH/releases/$release' '${RUN_BACKUP:-0}' '${DOCROOT:-}'"
