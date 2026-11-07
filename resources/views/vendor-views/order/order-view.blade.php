@@ -567,6 +567,7 @@
                         $tax_included = \App\Models\BusinessSetting::where(['key'=>'tax_included'])->first() ?  \App\Models\BusinessSetting::where(['key'=>'tax_included'])->first()->value : 0;
 
                         $store_discount_amount = $order['store_discount_amount'];
+                        $del_c = $order['delivery_charge'];
 
                         ?>
                         <div class="row justify-content-md-end mb-3 mx-0 mt-4">
