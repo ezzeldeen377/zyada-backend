@@ -86,4 +86,60 @@ class TelrPaymentServiceTest extends TestCase
         $webhook['tran_amount'] = '99.00';
         $this->assertFalse($this->service()->verifyWebhook($webhook));
     }
+
+    public function test_create_mobile_payload_matches_telr_mobile_sdk_api(): void
+    {
+        $payment = new PaymentRequest();
+        $payment->id = 'payment-123';
+        $payment->payment_amount = '10.51';
+        $payment->currency_code = 'aed';
+
+        $customer = [
+            'email' => 'customer@example.test',
+            'name' => ['firstName' => 'Test', 'lastName' => 'Customer'],
+            'address' => ['country' => 'AE'],
+        ];
+
+        $payload = $this->service()->createMobilePayload($payment, $customer, 'https://example.test/payment/telr/webhook');
+
+        $this->assertSame('SALE', $payload['transactionType']);
+        $this->assertSame('payment-123', $payload['cartId']);
+        $this->assertSame(['value' => 10.51, 'currency' => 'AED'], $payload['amount']);
+        $this->assertTrue($payload['test']);
+        $this->assertSame($customer, $payload['customer']);
+        $this->assertSame([['url' => 'https://example.test/payment/telr/webhook']], $payload['webhooks']);
+        $this->assertLessThanOrEqual(63, strlen($payload['description']));
+
+        $withoutWebhook = $this->service()->createMobilePayload($payment, $customer);
+        $this->assertArrayNotHasKey('webhooks', $withoutWebhook);
+    }
+
+    public function test_extract_mobile_links_requires_both_urls(): void
+    {
+        $response = [
+            'ref' => 'telr-order-ref',
+            'status' => 'PENDING',
+            '_links' => [
+                'self' => ['method' => 'GET', 'href' => 'https://secure.telr.com/api/v1/orders/telr-order-ref'],
+                'auth' => ['method' => 'GET', 'href' => 'https://secure.telr.com/api/v1/orders/telr-order-ref/auth?code=x'],
+            ],
+        ];
+
+        $this->assertSame([
+            'token_url' => 'https://secure.telr.com/api/v1/orders/telr-order-ref/auth?code=x',
+            'order_url' => 'https://secure.telr.com/api/v1/orders/telr-order-ref',
+            'order_ref' => 'telr-order-ref',
+        ], TelrPaymentService::extractMobileLinks($response));
+
+        $this->assertNull(TelrPaymentService::extractMobileLinks([]));
+        $this->assertNull(TelrPaymentService::extractMobileLinks(['_links' => ['self' => ['href' => 'https://x']]]));
+        $this->assertNull(TelrPaymentService::extractMobileLinks(['_links' => ['self' => ['href' => ''], 'auth' => ['href' => '']]]));
+
+        $withoutRef = $response;
+        unset($withoutRef['ref']);
+        $this->assertSame([
+            'token_url' => 'https://secure.telr.com/api/v1/orders/telr-order-ref/auth?code=x',
+            'order_url' => 'https://secure.telr.com/api/v1/orders/telr-order-ref',
+        ], TelrPaymentService::extractMobileLinks($withoutRef));
+    }
 }

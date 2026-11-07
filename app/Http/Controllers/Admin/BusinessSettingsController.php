@@ -1321,6 +1321,7 @@ class BusinessSettingsController extends Controller
                 'authkey' => 'required_if:status,1|string|max:255',
                 'webhook_secret' => 'required_if:status,1|string|max:255',
                 'panels' => 'nullable|string|max:255',
+                'mobile_api_key' => 'nullable|string|max:255',
             ];
         }
 

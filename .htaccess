@@ -5,6 +5,18 @@
 
     RewriteEngine On
 
+    # The repo root is the web root on shared hosting. Block source, secrets, and tooling.
+    # Uploaded images under /storage/app/public/ stay reachable.
+    RewriteRule ^(\.git|\.github|vendor|app|bootstrap|config|database|routes|resources|tests|installation|docs|scripts|deploy|Modules|node_modules)(/|$) - [F,L]
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+    RewriteRule ^(artisan|composer\.(json|lock|phar)|package(-lock)?\.json|phpunit\.xml|webpack\.mix\.js|vite-module-loader\.js|server\.php|script\.sh|README\.md|.*\.lock)$ - [F,L]
+    RewriteRule ^(clean_|delete_|disable_).+\.php$ - [F,L]
+    RewriteRule \.(p8|pem|key|sql|sqlite)$ - [F,L]
+
+    RewriteCond %{REQUEST_URI} ^/storage/
+    RewriteCond %{REQUEST_URI} !^/storage/app/public/
+    RewriteRule ^ - [F,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -18,13 +30,20 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+</IfModule>
 
-    # cors
-#    Header set Access-Control-Allow-Origin "*"
+<IfModule mod_headers.c>
+    SetEnvIf Host "^staging\." staging_host
+    Header set X-Robots-Tag "noindex, nofollow" env=staging_host
 </IfModule>
 
 # Hide a specific file
 <Files .env>
-    Order allow,deny
-    Deny from all
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
 </Files>
