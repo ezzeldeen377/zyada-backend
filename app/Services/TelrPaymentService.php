@@ -4,12 +4,15 @@ namespace App\Services;
 
 use App\Models\PaymentRequest;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
 class TelrPaymentService
 {
     private const ENDPOINT = 'https://secure.telr.com/gateway/order.json';
+
+    private const MOBILE_ENDPOINT = 'https://secure.telr.com/api/v1/orders';
 
     private const WEBHOOK_FIELDS = [
         'tran_store',
@@ -95,6 +98,97 @@ class TelrPaymentService
     public function check(string $reference): array
     {
         return $this->post($this->checkPayload($reference));
+    }
+
+    /**
+     * Payload for the Telr Mobile SDK createOrder API (POST /api/v1/orders),
+     * whose response carries the _links.auth / _links.self URLs the native SDK needs.
+     */
+    public function createMobilePayload(PaymentRequest $payment, array $customer, ?string $webhookUrl = null): array
+    {
+        $payload = [
+            'transactionType' => 'SALE',
+            'cartId' => (string) $payment->id,
+            'amount' => [
+                'value' => round((float) $payment->payment_amount, 2),
+                'currency' => strtoupper((string) $payment->currency_code),
+            ],
+            'description' => substr('Order payment '.$payment->id, 0, 63),
+            'test' => ($this->config['mode'] ?? 'live') === 'test',
+            'customer' => $customer,
+        ];
+
+        if ($webhookUrl !== null && $webhookUrl !== '') {
+            $payload['webhooks'] = [['url' => $webhookUrl]];
+        }
+
+        return $payload;
+    }
+
+    public function createMobileOrder(PaymentRequest $payment, array $customer, ?string $webhookUrl = null): array
+    {
+        /** @var Response $response */
+        $response = Http::withBasicAuth($this->required('store_id'), $this->mobileApiKey())
+            ->acceptJson()
+            ->asJson()
+            ->timeout(15)
+            ->post(self::MOBILE_ENDPOINT, $this->createMobilePayload($payment, $customer, $webhookUrl));
+
+        if (! $response->successful() || ! is_array($response->json())) {
+            throw new RuntimeException('Telr mobile order API request failed.');
+        }
+
+        return $response->json();
+    }
+
+    public static function extractMobileLinks(array $response): ?array
+    {
+        $tokenUrl = data_get($response, '_links.auth.href');
+        $orderUrl = data_get($response, '_links.self.href');
+
+        if (! is_string($tokenUrl) || $tokenUrl === '' || ! is_string($orderUrl) || $orderUrl === '') {
+            return null;
+        }
+
+        $links = ['token_url' => $tokenUrl, 'order_url' => $orderUrl];
+
+        $ref = data_get($response, 'ref');
+        if (is_string($ref) && $ref !== '') {
+            $links['order_ref'] = $ref;
+        }
+
+        return $links;
+    }
+
+    public static function fromAddonSettings(): ?self
+    {
+        try {
+            $config = DB::table('addon_settings')
+                ->where('key_name', 'telr')
+                ->where('settings_type', 'payment_config')
+                ->first();
+        } catch (\Throwable) {
+            return null;
+        }
+
+        if (! $config) {
+            return null;
+        }
+
+        $mode = $config->mode ?: 'test';
+        $values = json_decode($config->{$mode.'_values'} ?? '{}', true);
+        if (! is_array($values) || (string) ($values['status'] ?? '0') !== '1') {
+            return null;
+        }
+
+        return new self(array_merge($values, ['mode' => $mode]));
+    }
+
+    private function mobileApiKey(): string
+    {
+        $key = trim((string) ($this->config['mobile_api_key'] ?? ''));
+
+        return $key !== '' ? $key : $this->required('authkey');
     }
 
     public function isPaid(array $response): bool
