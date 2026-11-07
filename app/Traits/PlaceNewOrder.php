@@ -57,6 +57,8 @@ trait PlaceNewOrder
             'contact_person_email' => $request->user ? 'nullable' : 'required',
             'password' => $request->create_new_user ? ['required', Password::min(8)] : 'nullable',
             'order_attachment' => $is_prescription ? ['required'] : 'nullable',
+            'payment_gateway' => 'nullable|string|max:191',
+            'country_code' => 'nullable|string|size:2',
         ]);
 
         if ($validator->fails()) {
@@ -567,14 +569,19 @@ trait PlaceNewOrder
 
             $this->sentOrderPlaceNotification($request, $order, $store);
 
-            return response()->json([
+            $telr_sdk_data = [];
+            if ($request->payment_method === 'digital_payment' && strtolower((string) $request->payment_gateway) === 'telr') {
+                $telr_sdk_data = app(\App\Services\TelrMobileCheckout::class)->prepare($order, $request) ?? [];
+            }
+
+            return response()->json(array_merge([
                 'message' => translate('messages.order_placed_successfully'),
                 'order_id' => $order->id,
                 'total_ammount' => $order->order_amount,
                 'status' => $order->order_status,
                 'created_at' => $order->created_at,
                 'user_id' => (int) $order->user_id,
-            ], 200);
+            ], $telr_sdk_data), 200);
         } catch (\Exception $exception) {
 
             info([$exception->getFile(), $exception->getLine(), $exception->getMessage()]);
