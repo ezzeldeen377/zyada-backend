@@ -84,7 +84,7 @@ class VendorController extends Controller
             'logo' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             'cover_photo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
 
-        ] + StoreRegistrationDocuments::validationRules(), [
+        ] + StoreRegistrationDocuments::validationRules(false), [
             'f_name.required' => translate('messages.first_name_is_required'),
             'name.0.required'=>translate('default_name_is_required'),
             'address.0.required'=>translate('default_address_is_required'),
@@ -181,7 +181,7 @@ class VendorController extends Controller
             },],
             'logo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             'cover_photo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
-        ] + StoreRegistrationDocuments::validationRules(), [
+        ] + StoreRegistrationDocuments::validationRules(false), [
             'f_name.required' => translate('messages.first_name_is_required'),
             'name.0.required'=>translate('default_name_is_required'),
             'address.0.required'=>translate('default_address_is_required'),

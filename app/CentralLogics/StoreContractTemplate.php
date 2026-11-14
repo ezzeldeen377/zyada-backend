@@ -21,6 +21,15 @@ class StoreContractTemplate
             return $englishTemplate;
         }
 
-        return $settings['store_contract_template'] ?? null;
+        if (!empty($settings['store_contract_template'])) {
+            return $settings['store_contract_template'];
+        }
+
+        // Default fallback to master contract agreement if present in public storage
+        if (file_exists(storage_path('app/public/store/contracts/' . \App\Services\VendorContractService::TEMPLATE_FILENAME))) {
+            return \App\Services\VendorContractService::TEMPLATE_FILENAME;
+        }
+
+        return null;
     }
 }

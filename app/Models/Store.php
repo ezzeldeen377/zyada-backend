@@ -145,6 +145,8 @@ class Store extends Model
         'tin_certificate_image',
         'store_contract_accepted_at',
         'store_contract_template_accepted',
+        'store_contract_pdf',
+        'trade_license_number',
         'trade_license',
         'emirates_id',
         'passport_copy',
@@ -197,7 +199,7 @@ class Store extends Model
     /**
      * @var string[]
      */
-    protected $appends = ['gst_status','gst_code','logo_full_url','cover_photo_full_url','meta_image_full_url','tin_certificate_image_full_url'];
+    protected $appends = ['gst_status','gst_code','logo_full_url','cover_photo_full_url','meta_image_full_url','tin_certificate_image_full_url','store_contract_pdf_full_url'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -332,6 +334,24 @@ class Store extends Model
 
         return Helpers::get_full_url('store',$value,'public');
     }
+    public function getStoreContractPdfFullUrlAttribute(): ?string
+    {
+        $value = $this->store_contract_pdf;
+        if (!$value) {
+            return null;
+        }
+
+        if (count($this->storage) > 0) {
+            foreach ($this->storage as $storage) {
+                if ($storage['key'] == 'store_contract_pdf') {
+                    return Helpers::get_full_url('store/contracts', $value, $storage['value']);
+                }
+            }
+        }
+
+        return Helpers::get_full_url('store/contracts', $value, 'public');
+    }
+
     public function getTradeLicenseFullUrlAttribute(): ?string
     {
         return $this->getStoreDocumentFullUrl('trade_license');

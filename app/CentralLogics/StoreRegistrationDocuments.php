@@ -7,13 +7,14 @@ use Illuminate\Http\Request;
 
 class StoreRegistrationDocuments
 {
-    public static function validationRules(): array
+    public static function validationRules(bool $required = true): array
     {
+        $fileRule = $required ? 'required' : 'nullable';
         return [
-            'trade_license' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:2048',
-            'emirates_id' => 'nullable|image|max:2048',
-            'passport_copy' => 'nullable|image|max:2048',
-            'iban_letter' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:2048',
+            'trade_license' => $fileRule . '|file|mimes:pdf,jpg,jpeg,png,webp|max:2048',
+            'emirates_id' => $fileRule . '|image|max:2048',
+            'passport_copy' => $fileRule . '|image|max:2048',
+            'iban_letter' => $fileRule . '|file|mimes:pdf,jpg,jpeg,png,webp|max:2048',
         ];
     }
 

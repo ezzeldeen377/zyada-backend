@@ -142,6 +142,7 @@ class VendorLoginController extends Controller
             'longitude' => 'required',
             'email' => 'required|unique:vendors',
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:20|unique:vendors',
+            'trade_license_number' => 'required|max:100',
             'password' => ['required', Password::min(8)->mixedCase()->letters()->numbers()->symbols()->uncompromised()],
             'zone_id' => 'required',
             'module_id' => 'required',
@@ -204,6 +205,7 @@ class VendorLoginController extends Controller
         $store->longitude = $request->longitude;
         $store->vendor_id = $vendor->id;
         $store->zone_id = $request->zone_id;
+        $store->trade_license_number = $request->trade_license_number;
         $store->tin = $request->tin;
         $store->tin_expire_date = $request->tin_expire_date == 'null' ? null : $request->tin_expire_date;
         $extension = $request->file('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
@@ -215,6 +217,12 @@ class VendorLoginController extends Controller
         $store->store_business_model = 'none';
         $store->pickup_zone_id = $request['pickup_zone_id'] ?? json_encode([]);
         $store->save();
+
+        try {
+            app(\App\Services\VendorContractService::class)->generate($store, $vendor);
+        } catch (\Exception $e) {
+            info('Vendor contract generation failed: ' . $e->getMessage());
+        }
         // $store->module->increment('stores_count');
         StoreLogic::insert_schedule($store->id);
 

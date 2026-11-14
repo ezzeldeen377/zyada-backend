@@ -103,6 +103,7 @@ class VendorController extends Controller
             'longitude' => 'required',
             'email' => 'required|unique:vendors',
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|unique:vendors',
+            'trade_license_number' => 'required|max:100',
             'password' => ['required', Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
             'zone_id' => 'required',
             'module_id' => 'required',
@@ -170,6 +171,7 @@ class VendorController extends Controller
         $store->zone_id = $request->zone_id;
         $store->module_id = $request->module_id;
         $store->pickup_zone_id = json_encode($request['pickup_zone_id']?? []) ;
+        $store->trade_license_number = $request->trade_license_number;
         $store->tin = $request->tin;
         $store->tin_expire_date = $request->tin_expire_date;
         $extension = $request->has('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
@@ -183,6 +185,12 @@ class VendorController extends Controller
         $store->status = 0;
         $store->store_business_model = 'none';
         $store->save();
+
+        try {
+            app(\App\Services\VendorContractService::class)->generate($store, $vendor);
+        } catch (\Exception $e) {
+            info('Vendor contract generation failed: ' . $e->getMessage());
+        }
 
         Helpers::add_or_update_translations(request: $request, key_data: 'name', name_field: 'name', model_name: 'Store', data_id: $store->id, data_value: $store->name);
         Helpers::add_or_update_translations(request: $request, key_data: 'address', name_field: 'address', model_name: 'Store', data_id: $store->id, data_value: $store->address);

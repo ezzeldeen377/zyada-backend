@@ -583,6 +583,7 @@
 
 
             @php($registrationDocuments = [
+                ['label' => 'Executed Vendor Contract', 'file' => $store->store_contract_pdf, 'url' => $store->store_contract_pdf_full_url],
                 ['label' => 'Trade License', 'file' => $store->trade_license, 'url' => $store->trade_license_full_url],
                 ['label' => 'Emirates ID', 'file' => $store->emirates_id, 'url' => $store->emirates_id_full_url],
                 ['label' => 'Passport Copy', 'file' => $store->passport_copy, 'url' => $store->passport_copy_full_url],
