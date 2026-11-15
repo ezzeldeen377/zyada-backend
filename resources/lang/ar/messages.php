@@ -3837,7 +3837,7 @@
   'Freelancer' => 'مستقل',
   'All_Job_Types' => 'جميع أنواع الوظائف',
   'The password must contain symbols' => 'يجب أن تحتوي كلمة المرور على رموز',
-  'The password is compromised. Please choose a different one' => 'تم اختراق كلمة المرور. ',
+  'The password is compromised. Please choose a different one' => 'كلمة المرور هذه غير آمنة لأنها ظهرت ضمن بيانات مسرّبة. يُرجى اختيار كلمة مرور أخرى.',
   'application_placed_successfully' => 'تم وضع التطبيق بنجاح',
   'job_type' => 'نوع الوظيفة',
   'Edit' => 'يحرر',

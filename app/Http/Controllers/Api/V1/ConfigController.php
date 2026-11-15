@@ -427,9 +427,11 @@ class ConfigController extends Controller
             'parcel_return_time_fee' => isset($settings['parcel_return_time_fee']) ? json_decode($settings['parcel_return_time_fee']) : null,
             'open_ai_status' => (int)$openAIStatus,
 
-            'store_contract_required' => (int)(isset($settings['store_contract_required']) ? $settings['store_contract_required'] : 0),
+            'store_contract_required' => (int)(isset($settings['store_contract_required']) ? $settings['store_contract_required'] : 1),
             'store_contract_template_url' => ($contractTemplate = StoreContractTemplate::forLocale($settings, app()->getLocale()))
-                ? Helpers::get_full_url('business', $contractTemplate, 'public')
+                ? ($contractTemplate === \App\Services\VendorContractService::TEMPLATE_FILENAME 
+                    ? Helpers::get_full_url('store/contracts', $contractTemplate, 'public')
+                    : Helpers::get_full_url('business', $contractTemplate, 'public'))
                 : null,
         ]);
     }

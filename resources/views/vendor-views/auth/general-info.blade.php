@@ -403,6 +403,16 @@
                                                 <div class="card-body">
                                                     <div class="form-group mb-3">
                                                         <label class="input-label mb-2 d-block title-clr fw-normal"
+                                                               for="trade_license_number">{{ translate('Trade License Number') }}
+                                                               <span class="text-danger">*</span>
+                                                        </label>
+                                                        <input type="text" name="trade_license_number" id="trade_license_number"
+                                                               placeholder="{{ translate('Type Your Trade License Number') }}"
+                                                               class="form-control __form-control" required
+                                                               value="{{ old('trade_license_number') }}">
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <label class="input-label mb-2 d-block title-clr fw-normal"
                                                                for="exampleFormControlInput1">{{ translate('Taxpayer Identification Number(TIN)') }}
                                                         </label>
                                                         <input type="text" name="tin"
@@ -1183,6 +1193,15 @@
                 e.preventDefault();
             } else if (tin_certificate_image.files.length && tin_certificate_image.files[0].size > maxFileSize) {
                 toastr.error("{{ translate('Tin_certificate_must_be_less_than_2MB') }}");
+                e.preventDefault();
+            } else if (!$('#trade_license_number').val()) {
+                toastr.error("{{ translate('Trade_license_number_is_required') }}");
+                e.preventDefault();
+            } else if (['trade_license', 'emirates_id', 'passport_copy', 'iban_letter'].some(function (name) {
+                const input = $('input[name="' + name + '"]')[0];
+                return !input || !input.files.length;
+            })) {
+                toastr.error("{{ translate('All 4 vendor documents (Trade License, Emirates ID, Passport, IBAN Letter) are required') }}");
                 e.preventDefault();
             } else if (['trade_license', 'emirates_id', 'passport_copy', 'iban_letter'].some(function (name) {
                 const input = $('input[name="' + name + '"]')[0];
