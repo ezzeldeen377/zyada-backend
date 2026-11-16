@@ -104,11 +104,16 @@
                     <div class="row g-3 align-items-center">
                         <div class="col-lg-6">
                             <div class="resturant--info-address">
-                                <div class="logo">
+                                <div class="logo position-relative">
                                     <img class="onerror-image"
                                         data-onerror-image="{{ asset('public/assets/admin/img/100x100/1.png') }}"
                                         src="{{ $store->logo_full_url ?? asset('public/assets/admin/img/100x100/1.png') }}"
                                         alt="{{ $store->name }} Logo">
+                                    @if ($store->logo_full_url)
+                                        <a href="{{ $store->logo_full_url }}" download class="btn btn-sm btn-dark position-absolute" style="bottom: 5px; right: 5px; opacity: 0.85; padding: 3px 6px;" title="{{ translate('Download Logo') }}">
+                                            <i class="tio-download-to"></i>
+                                        </a>
+                                    @endif
                                 </div>
                                 <ul class="address-info list-unstyled list-unstyled-py-3 text-dark">
                                     <li>
@@ -273,66 +278,6 @@
                 </div>
             </div>
 
-            @if ($store->tin || $store->tin_certificate_image)
-                <div class="row pt-3 g-3">
-                    <div class="col-12">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h5 class="card-title m-0 d-flex align-items-center">
-                                    <span class="card-header-icon mr-2">
-                                        <i class="tio-user"></i>
-                                    </span>
-                                    <span class="ml-1">{{ translate('Business VAT') }}</span>
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="resturant--info-address flex-sm-nowrap flex-wrap gap-2">
-                                    <div class="pdf-single  cus-document-responsive"
-                                        data-pdf-url="{{ $store->tin_certificate_image_full_url ?? asset('public/assets/admin/img/upload-cloud.png') }}">
-                                        <div class="pdf-frame">
-                                            @php($imgPath = $store->tin_certificate_image_full_url ?? asset('public/assets/admin/img/upload-cloud.png'))
-                                            @if (Str::endsWith($imgPath, ['.pdf', '.doc', '.docx']))
-                                                @php($imgPath = asset('public/assets/admin/img/document.svg'))
-                                            @endif
-                                            <img class="pdf-thumbnail-alt" src="{{ $imgPath }}"
-                                                alt="File Thumbnail">
-                                        </div>
-                                        <div class="overlay">
-                                            <a href="javascript:void(0);" class="download-btn" title="">
-                                                <i class="tio-download-to"></i>
-                                            </a>
-                                            <div class="pdf-info d-flex gap-10px align-items-center">
-                                                @if (Str::endsWith($imgPath, ['.pdf', '.doc', '.docx']))
-                                                    <img src="{{ asset('public/assets/admin/img/document.svg') }}"
-                                                        width="34" alt="File Type Logo">
-                                                @else
-                                                    <img src="{{ asset('public/assets/admin/img/picture.svg') }}"
-                                                        width="34" alt="File Type Logo">
-                                                @endif
-                                                <div class="fs-13 text--title d-flex flex-column">
-                                                    <span class="file-name js-filename-truncate"></span>
-                                                    <span
-                                                        class="opacity-50">{{ translate('Click to view the file') }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="d-flex-column address-info address-info-2 list-unstyled list-unstyled-py-3">
-
-                                        <div class=" d-flex justify-content-start gap-1">
-                                            <span class="text-custom-nowrap text-wrap"><strong class=" text-dark">
-                                                    {{ translate('VAT Registration Number') }}:
-                                                </strong></span>
-                                            <span class="pl-1">{{ $store->tin }}</span>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             @endif
         @else
             <div class="store-details-banner mb-1 position-relative rounded-10">
@@ -344,13 +289,23 @@
                 </div>
 
             @endif
-                <div class="banner overflow-hidden rounded-10">
+                <div class="banner overflow-hidden rounded-10 position-relative">
                     <img src="{{ $store->cover_photo_full_url ?? asset('public/assets/admin/img/100x100/1.png') }}" alt="banner"
                         class="w-100">
+                    @if ($store->cover_photo_full_url)
+                        <a href="{{ $store->cover_photo_full_url }}" download class="btn btn-sm btn-dark position-absolute" style="top: 15px; right: 15px; opacity: 0.9; padding: 6px 12px; z-index: 5;" title="{{ translate('Download Cover Photo') }}">
+                            <i class="tio-download-to mr-1"></i> {{ translate('Download Cover') }}
+                        </a>
+                    @endif
                 </div>
                 <div class="store-details__inner overflow-hidden d-flex flex-sm-nowrap flex-wrap align-items-sm-end">
-                    <div class="store-logo rounded-8 overflow-hidden h-150 ratio--1">
+                    <div class="store-logo rounded-8 overflow-hidden h-150 ratio--1 position-relative">
                         <img src="{{ $store->logo_full_url }}" alt="banner" class="w-100">
+                        @if ($store->logo_full_url)
+                            <a href="{{ $store->logo_full_url }}" download class="btn btn-sm btn-dark position-absolute" style="bottom: 8px; right: 8px; opacity: 0.9; padding: 4px 7px; z-index: 5;" title="{{ translate('Download Logo') }}">
+                                <i class="tio-download-to"></i>
+                            </a>
+                        @endif
                     </div>
                     <div class="flex-grow-1">
                         <h2 class="mb-15 text-title">{{ $store->name }}</h2>
@@ -528,32 +483,11 @@
                                         </li>
                                         <li class="d-flex align-items-start">
                                             <span class="label min-w-sm-auto">{{ translate('messages.Phone') }}</span>
-                                            <span>: {{$store->vendor->phone}}</span>
+                                            <span>: <a href="tel:{{$store->vendor->phone}}">{{$store->vendor->phone}}</a></span>
                                         </li>
-                                    </ul>
-                                </div>
-
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6">
-                        <div class="card __bg-FAFAFA border-0 h-100">
-                            <div class="card-body">
-                                <h5 class="mb-10px font-bold"> {{ translate('messages.Login Information') }}
-                                </h5>
-
-
-                                <div class="resturant--info-address">
-                                    <ul class="address-info address-info-2 p-0 text-dark">
                                         <li class="d-flex align-items-start">
                                             <span class="label min-w-sm-auto">{{ translate('messages.Email') }}</span>
-                                            <span>: {{ $store->vendor->email }}</span>
-                                        </li>
-                                        <li class="d-flex align-items-start">
-                                            <span class="label min-w-sm-auto">{{ translate('messages.Password') }}</span>
-                                            <span>: {{ translate('*************') }}</span>
+                                            <span>: <a href="mailto:{{$store->vendor->email}}">{{$store->vendor->email}}</a></span>
                                         </li>
                                     </ul>
                                 </div>
@@ -577,43 +511,83 @@
 
 
             @php($registrationDocuments = [
-                ['label' => 'Executed Vendor Contract', 'file' => $store->store_contract_pdf, 'url' => $store->store_contract_pdf_full_url],
-                ['label' => 'Trade License', 'file' => $store->trade_license, 'url' => $store->trade_license_full_url],
-                ['label' => 'Emirates ID', 'file' => $store->emirates_id, 'url' => $store->emirates_id_full_url],
-                ['label' => 'Passport Copy', 'file' => $store->passport_copy, 'url' => $store->passport_copy_full_url],
-                ['label' => 'IBAN Letter / Bank Account Certificate', 'file' => $store->iban_letter, 'url' => $store->iban_letter_full_url],
+                ['label' => 'Executed Vendor Contract', 'icon' => 'tio-document-text', 'file' => $store->store_contract_pdf, 'url' => $store->store_contract_pdf_full_url, 'badge' => 'Contract / اتفاقية'],
+                ['label' => 'Trade License', 'icon' => 'tio-file-text', 'file' => $store->trade_license, 'url' => $store->trade_license_full_url, 'badge' => 'License / رخصة'],
+                ['label' => 'Emirates ID', 'icon' => 'tio-credit-card', 'file' => $store->emirates_id, 'url' => $store->emirates_id_full_url, 'badge' => 'EID / هوية'],
+                ['label' => 'Passport Copy', 'icon' => 'tio-airplane', 'file' => $store->passport_copy, 'url' => $store->passport_copy_full_url, 'badge' => 'Passport / جواز'],
+                ['label' => 'IBAN Letter / Bank Account Certificate', 'icon' => 'tio-bank', 'file' => $store->iban_letter, 'url' => $store->iban_letter_full_url, 'badge' => 'Bank / بنك'],
+                ['label' => 'VAT Registration Certificate', 'icon' => 'tio-receipt', 'file' => $store->tin_certificate_image, 'url' => $store->tin_certificate_image_full_url, 'badge' => 'VAT / ضريبة'],
             ])
-            @if (collect($registrationDocuments)->contains(fn ($document) => filled($document['file'])))
+            @php($hasAnyDoc = collect($registrationDocuments)->contains(fn ($document) => filled($document['file'])) || filled($store->tin) || filled($store->trade_license_number))
+            @if ($hasAnyDoc)
                 <div class="row pt-3 g-3">
                     <div class="col-12">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h5 class="card-title m-0">{{ translate('Vendor Documents') }}</h5>
+                        <div class="card h-100 shadow-sm border-0">
+                            <div class="card-header bg-white d-flex align-items-center justify-content-between flex-wrap gap-2 border-bottom">
+                                <h5 class="card-title m-0 d-flex align-items-center font-weight-bold">
+                                    <span class="card-header-icon mr-2 text-primary">
+                                        <i class="tio-folder-special fs-20"></i>
+                                    </span>
+                                    <span>{{ translate('Legal & Vendor Verification Documents') }}</span>
+                                </h5>
+                                <div class="d-flex align-items-center gap-3">
+                                    @if ($store->trade_license_number)
+                                        <span class="badge badge-soft-primary px-3 py-2 fs-12">
+                                            <strong>{{ translate('Trade License No') }}:</strong> {{ $store->trade_license_number }}
+                                        </span>
+                                    @endif
+                                    @if ($store->tin)
+                                        <span class="badge badge-soft-info px-3 py-2 fs-12">
+                                            <strong>{{ translate('VAT Registration No') }}:</strong> {{ $store->tin }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="card-body d-flex flex-wrap gap-3">
-                                @foreach ($registrationDocuments as $document)
-                                    @if ($document['file'])
-                                        @php($isPdf = Str::endsWith(strtolower($document['file']), '.pdf'))
-                                        @php($thumbnail = $isPdf ? asset('public/assets/admin/img/document.svg') : $document['url'])
-                                        <div class="pdf-single cus-document-responsive" data-pdf-url="{{ $document['url'] }}">
-                                            <div class="pdf-frame">
-                                                <img class="pdf-thumbnail-alt" src="{{ $thumbnail }}" alt="{{ translate($document['label']) }}">
-                                            </div>
-                                            <div class="overlay">
-                                                <a href="javascript:void(0);" class="download-btn" title="{{ translate('Download') }}">
-                                                    <i class="tio-download-to"></i>
-                                                </a>
-                                                <div class="pdf-info d-flex gap-10px align-items-center">
-                                                    <img src="{{ asset('public/assets/admin/img/' . ($isPdf ? 'document.svg' : 'picture.svg')) }}" width="34" alt="">
-                                                    <div class="fs-13 text--title d-flex flex-column">
-                                                        <span class="file-name js-filename-truncate">{{ $document['file'] }}</span>
-                                                        <span class="opacity-50">{{ translate($document['label']) }}</span>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    @foreach ($registrationDocuments as $document)
+                                        @if ($document['file'])
+                                            @php($isPdf = Str::endsWith(strtolower($document['file']), '.pdf'))
+                                            @php($thumbnail = $isPdf ? asset('public/assets/admin/img/document.svg') : $document['url'])
+                                            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                                                <div class="card h-100 border rounded-10 p-3 shadow-none hover-shadow transition">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <span class="badge badge-soft-secondary font-weight-bold">{{ $document['badge'] }}</span>
+                                                        <a href="{{ $document['url'] }}" download class="btn btn-sm btn-outline-primary" style="padding: 3px 8px;" title="{{ translate('Download') }}">
+                                                            <i class="tio-download-to mr-1"></i> {{ translate('Download') }}
+                                                        </a>
+                                                    </div>
+                                                    <h6 class="font-weight-bold mb-2 text-truncate" title="{{ translate($document['label']) }}">
+                                                        {{ translate($document['label']) }}
+                                                    </h6>
+                                                    <div class="pdf-single w-100 mb-2 cursor-pointer" data-pdf-url="{{ $document['url'] }}" style="height: 140px; border-radius: 6px; overflow: hidden; position: relative;">
+                                                        <div class="pdf-frame h-100 w-100 d-flex align-items-center justify-content-center bg-light">
+                                                            <img class="pdf-thumbnail-alt" src="{{ $thumbnail }}" alt="{{ translate($document['label']) }}" style="max-height: 120px; max-width: 100%; object-fit: contain;">
+                                                        </div>
+                                                        <div class="overlay">
+                                                            <a href="{{ $document['url'] }}" download class="download-btn" title="{{ translate('Download') }}">
+                                                                <i class="tio-download-to"></i>
+                                                            </a>
+                                                            <div class="pdf-info d-flex gap-10px align-items-center">
+                                                                <img src="{{ asset('public/assets/admin/img/' . ($isPdf ? 'document.svg' : 'picture.svg')) }}" width="28" alt="">
+                                                                <div class="fs-12 text--title d-flex flex-column text-white">
+                                                                    <span class="file-name js-filename-truncate">{{ $document['file'] }}</span>
+                                                                    <span class="opacity-75">{{ translate('Click to preview') }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex align-items-center justify-content-between pt-1">
+                                                        <small class="text-muted text-truncate js-filename-truncate" style="max-width: 180px;">{{ $document['file'] }}</small>
+                                                        <a href="{{ $document['url'] }}" target="_blank" class="text-primary font-weight-bold fs-12">
+                                                            {{ translate('View') }} <i class="tio-open-in-new"></i>
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endif
-                                @endforeach
+                                        @endif
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
                     </div>
