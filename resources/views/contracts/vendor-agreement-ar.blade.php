@@ -136,8 +136,8 @@
 
 <div class="party-box">
     <div class="party-title">الطرف الثاني:</div>
-    <div><strong>الاسم التجاري / القانوني للمنشأة:</strong> {{vendor_legal_name}}</div>
-    <div><strong>رقم الرخصة التجارية:</strong> {{trade_license_number}}</div>
+    <div><strong>الاسم التجاري / القانوني للمنشأة:</strong> {{ $vendor_legal_name ?? '......................................................................' }}</div>
+    <div><strong>رقم الرخصة التجارية:</strong> {{ $trade_license_number ?? '..................................................' }}</div>
     <div style="margin-top: 4px; font-size: 8pt; color: #475569;">التاجر هو المنشأة المحددة في حساب التاجر على التطبيق وفقاً لرخصتها التجارية ومستندات تسجيلها، ويمثلها صاحب الحساب المخول قانوناً بالتصرف بالنيابة عنها. ويؤكد كل من يوافق على هذه الشروط صحة البيانات المقدمة وأهليته وصلاحيته القانونية لإلزام المنشأة، ويتعهد بتحديث بيانات الحساب فور حدوث أي تعديل عليها.</div>
 </div>
 
@@ -219,7 +219,9 @@
 "أؤكد أنني مفوض نظاماً وقانوناً بتمثيل المنشأة المسجلة بموجب هذا الحساب، وأنني اطلعت على شروط وأحكام انضمام المتاجر والملخص التجاري ووافقت عليها، وأن كافة بيانات ووثائق المنشأة المقدمة صحيحة وسارية المفعول."
 </div>
 
-<div class="acceptance-box">
+<pagebreak />
+
+<div class="acceptance-box" style="page-break-inside: avoid;">
     <div class="acceptance-title">&#10004; سجل قبول الاتفاقية الإلكترونية (ELECTRONIC ACCEPTANCE RECORD)</div>
     <div style="font-size: 8pt; color: #475569; margin-bottom: 8px;">
         تم توثيق وقبول هذه الاتفاقية والشروط التعاقدية إلكترونياً من قبل التاجر عبر منصة زيادة الرقمية وفقاً لقانون المعاملات الإلكترونية وخدمات الثقة بدولة الإمارات العربية المتحدة.
@@ -227,15 +229,15 @@
     <table class="acceptance-table">
         <tr>
             <td class="label">الاسم التجاري / القانوني للمنشأة:</td>
-            <td><strong>{{vendor_legal_name}}</strong></td>
+            <td><strong>{{ $vendor_legal_name ?? '......................................................................' }}</strong></td>
         </tr>
         <tr>
             <td class="label">رقم الرخصة التجارية:</td>
-            <td><strong>{{trade_license_number}}</strong></td>
+            <td><strong>{{ $trade_license_number ?? '..................................................' }}</strong></td>
         </tr>
         <tr>
             <td class="label">تاريخ ووقت التوثيق والقبول:</td>
-            <td><strong>{{accepted_at_uae}}</strong></td>
+            <td><strong>{{ $accepted_at_uae ?? 'يُسجل آلياً وتلقائياً فور إتمام التوثيق والقبول الإلكتروني' }}</strong></td>
         </tr>
         <tr>
             <td class="label">الطرف الأول (المنصة):</td>

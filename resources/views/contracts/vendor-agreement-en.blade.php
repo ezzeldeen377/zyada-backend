@@ -136,8 +136,8 @@ These Terms govern the commercial relationship between Zyada and the Vendor rega
 
 <div class="party-box">
     <div class="party-title">SECOND PARTY</div>
-    <div><strong>Registered Business Name:</strong> {{vendor_legal_name}}</div>
-    <div><strong>Trade License Number:</strong> {{trade_license_number}}</div>
+    <div><strong>Registered Business Name:</strong> {{ $vendor_legal_name ?? '......................................................................' }}</div>
+    <div><strong>Trade License Number:</strong> {{ $trade_license_number ?? '..................................................' }}</div>
     <div style="margin-top: 4px; font-size: 8pt; color: #475569;">The Vendor is the establishment identified in the Vendor account on the application in accordance with its trade licence and registration documents and is represented by the account holder legally authorised to act on its behalf. Any person accepting these Terms confirms the accuracy of the information provided, confirms that he/she has the authority to bind the establishment, and undertakes to update the account information whenever it changes.</div>
 </div>
 
@@ -218,7 +218,9 @@ These Terms govern the commercial relationship between Zyada and the Vendor rega
 "I confirm that I am authorised to represent the establishment registered under this account, that I have reviewed and agree to the Vendor Joining Terms and Conditions and the commercial summary, and that the establishment information and documents provided are accurate."
 </div>
 
-<div class="acceptance-box">
+<pagebreak />
+
+<div class="acceptance-box" style="page-break-inside: avoid;">
     <div class="acceptance-title">&#10004; ELECTRONIC AGREEMENT & ACCEPTANCE RECORD</div>
     <div style="font-size: 8pt; color: #475569; margin-bottom: 8px;">
         This agreement has been electronically accepted and executed through the ZYADA application in accordance with the laws of the United Arab Emirates.
@@ -226,15 +228,15 @@ These Terms govern the commercial relationship between Zyada and the Vendor rega
     <table class="acceptance-table">
         <tr>
             <td class="label">Vendor Legal Name:</td>
-            <td><strong>{{vendor_legal_name}}</strong></td>
+            <td><strong>{{ $vendor_legal_name ?? '......................................................................' }}</strong></td>
         </tr>
         <tr>
             <td class="label">Trade License Number:</td>
-            <td><strong>{{trade_license_number}}</strong></td>
+            <td><strong>{{ $trade_license_number ?? '..................................................' }}</strong></td>
         </tr>
         <tr>
             <td class="label">Acceptance Date & Time (UAE):</td>
-            <td><strong>{{accepted_at_uae}}</strong></td>
+            <td><strong>{{ $accepted_at_uae ?? 'Generated automatically upon electronic acceptance' }}</strong></td>
         </tr>
         <tr>
             <td class="label">First Party (Platform):</td>
