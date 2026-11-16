@@ -346,19 +346,6 @@
                                 </div>
                             </div>
                             @endif
-                            <div class="col-lg-3 col-md-6 col-sm-6 col-auto">
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="icon rounded-circle bg-theme3 d-center w-35px h-35px">
-                                        <img width="20" height="20"
-                                            src="{{ asset('/public/assets/admin/img/pickup-business.png') }}"
-                                            alt="banner" class="object-contain">
-                                    </div>
-                                    <div>
-                                        <h5 class="fs-14 font-semibold color-3C3C3C m-0">{{ translate('Approx. Pickup Time') }}</h5>
-                                        <span class="d-block fs-12 color-484848">{{  $store->delivery_time  }}</span>
-                                    </div>
-                                </div>
-                            </div>
 
                         </div>
                     </div>

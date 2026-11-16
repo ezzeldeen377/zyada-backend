@@ -913,14 +913,16 @@ class VendorController extends Controller
         }
         $request->validate([
             'minimum_order'=>'required',
-            'minimum_delivery_time' => 'required|min:1|max:2',
-            'maximum_delivery_time' => 'required|min:1|max:2|gt:minimum_delivery_time',
+            'minimum_delivery_time' => 'nullable|min:1|max:2',
+            'maximum_delivery_time' => 'nullable|min:1|max:2|gt:minimum_delivery_time',
         ]);
 
 
         $store->minimum_order = $request->minimum_order;
         $store->order_place_to_schedule_interval = $request->order_place_to_schedule_interval;
-        $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
+        if ($request->filled(['minimum_delivery_time', 'maximum_delivery_time', 'delivery_time_type'])) {
+            $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
+        }
         $store->veg = (bool)($request->veg_non_veg == 'veg' || $request->veg_non_veg == 'both');
         $store->non_veg = (bool)($request->veg_non_veg == 'non_veg' || $request->veg_non_veg == 'both');
 

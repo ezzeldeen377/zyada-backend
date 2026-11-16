@@ -64,7 +64,9 @@ class BusinessSettingsController extends Controller
         $store->per_km_shipping_charge = $store->sub_self_delivery?$request->per_km_delivery_charge??0: $store->per_km_shipping_charge;
         $store->maximum_shipping_charge = $store->sub_self_delivery?$request->maximum_shipping_charge??0: $store->maximum_shipping_charge;
         $store->order_place_to_schedule_interval = $request->order_place_to_schedule_interval;
-        $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
+        if ($request->filled(['minimum_delivery_time', 'maximum_delivery_time', 'delivery_time_type'])) {
+            $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
+        }
         $store->save();
         $conf = StoreConfig::firstOrNew(
             ['store_id' =>  $store->id]

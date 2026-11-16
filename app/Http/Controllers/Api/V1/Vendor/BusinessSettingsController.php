@@ -80,9 +80,9 @@ class BusinessSettingsController extends Controller
             'non_veg' => 'required|boolean',
             'minimum_order' => 'required|numeric',
             'gst' => 'required_if:gst_status,1',
-            'minimum_delivery_time' => 'required|numeric',
-            'maximum_delivery_time' => 'required|numeric',
-            'delivery_time_type'=>'required|in:min,hours,days'
+            'minimum_delivery_time' => 'nullable|numeric',
+            'maximum_delivery_time' => 'nullable|numeric',
+            'delivery_time_type'=>'nullable|in:min,hours,days'
 
         ],[
             'gst.required_if' => translate('messages.gst_can_not_be_empty'),
@@ -131,8 +131,10 @@ class BusinessSettingsController extends Controller
         $store->gst = json_encode(['status'=>$request->gst_status, 'code'=>$request->gst]);
         $store->minimum_shipping_charge = $store->sub_self_delivery?$request->minimum_delivery_charge??0: $store->minimum_shipping_charge;
         $store->per_km_shipping_charge = $store->sub_self_delivery?$request->per_km_delivery_charge??0: $store->per_km_shipping_charge;
-        $store->maximum_shipping_charge = $store?$request->maximum_delivery_charge??0: $store->maximum_delivery_charge;
-        $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
+        $store->maximum_shipping_charge = $store?$request->maximum_delivery_charge??0: $store->maximum_shipping_charge;
+        if ($request->filled(['minimum_delivery_time', 'maximum_delivery_time', 'delivery_time_type'])) {
+            $store->delivery_time = $request->minimum_delivery_time .'-'. $request->maximum_delivery_time.' '.$request->delivery_time_type;
+        }
         $store->order_place_to_schedule_interval = $request->order_place_to_schedule_interval;
 
         $store->save();

@@ -277,35 +277,6 @@
                                     value="{{ $store->order_place_to_schedule_interval }}">
                             </div>
                         @endif
-                        <div class=" col-md-4">
-                            <label class="input-label text-capitalize"
-                                for="minimum_delivery_time">{{ translate('messages.approx_delivery_time') }}<span
-                                    class="input-label-secondary" data-toggle="tooltip" data-placement="right"
-                                    data-original-title="{{ translate('Set_the_total_time_to_deliver_products.') }}"><img
-                                        src="{{ asset('/public/assets/admin/img/info-circle.svg') }}"
-                                        alt="{{ translate('Set_the_total_time_to_deliver_products.') }}"></span></label>
-                            <div class="input-group">
-                                <input type="number" id="minimum_delivery_time" name="minimum_delivery_time"
-                                    class="form-control" placeholder="Min: 10"
-                                    value="{{ explode('-', $store->delivery_time)[0] }}"
-                                    title="{{ translate('messages.minimum_delivery_time') }}">
-                                <input type="number" name="maximum_delivery_time" class="form-control"
-                                    placeholder="Max: 20"
-                                    value="{{ explode(' ', explode('-', $store->delivery_time)[1])[0] }}"
-                                    title="{{ translate('messages.maximum_delivery_time') }}">
-                                <select name="delivery_time_type" class="form-control text-capitalize" required>
-                                    <option value="min"
-                                        {{ explode(' ', explode('-', $store->delivery_time)[1])[1] == 'min' ? 'selected' : '' }}>
-                                        {{ translate('messages.minutes') }}</option>
-                                    <option value="hours"
-                                        {{ explode(' ', explode('-', $store->delivery_time)[1])[1] == 'hours' ? 'selected' : '' }}>
-                                        {{ translate('messages.hours') }}</option>
-                                    <option value="days"
-                                        {{ explode(' ', explode('-', $store->delivery_time)[1])[1] == 'days' ? 'selected' : '' }}>
-                                        {{ translate('messages.days') }}</option>
-                                </select>
-                            </div>
-                        </div>
 
                         @if ($store->sub_self_delivery)
                             <div class="col-sm-4 col-12">
