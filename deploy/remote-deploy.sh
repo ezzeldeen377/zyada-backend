@@ -91,6 +91,14 @@ if [[ "$RUN_BACKUP" == "1" ]]; then
   echo "Database backup: $dump"
 fi
 
+if [[ "$APP_ROOT" =~ "staging" ]]; then
+  if grep -q '^APP_DEBUG=' "$SHARED/.env"; then
+    sed -i 's/^APP_DEBUG=.*/APP_DEBUG=true/' "$SHARED/.env"
+  else
+    echo "APP_DEBUG=true" >> "$SHARED/.env"
+  fi
+fi
+
 cd "$RELEASE_PATH"
 "$PHP_BIN" artisan migrate --force
 "$PHP_BIN" artisan optimize:clear
