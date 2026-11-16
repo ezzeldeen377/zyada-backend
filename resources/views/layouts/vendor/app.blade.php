@@ -6,7 +6,7 @@
         $site_direction = session()->has('vendor_site_direction')?session()->get('vendor_site_direction'):'ltr';
     }
     $country=\App\Models\BusinessSetting::where('key','country')->first();
-    $countryCode= strtolower($country?$country->value:'auto');
+    $countryCode= strtolower($country?$country->value:'ae');
 
     $storeId = \App\CentralLogics\Helpers::get_store_id();
     $store = \App\Models\Store::findOrFail($storeId);
@@ -35,7 +35,7 @@
     <link rel="stylesheet" href="{{asset('public/assets/admin')}}/css/theme.minc619.css?v=1.0">
     <link rel="stylesheet" href="{{asset('public/assets/admin/css/emogi-area.css')}}">
     <link rel="stylesheet" href="{{asset('public/assets/admin/css/style.css')}}">
-    <link rel="stylesheet" href="{{asset('public/assets/admin/intltelinput/css/intlTelInput.css')}}">
+    <link rel="stylesheet" href="{{asset('public/assets/admin/intltelinput/css/intlTelInput.css')}}?v={{ filemtime(public_path('assets/admin/intltelinput/css/intlTelInput.css')) }}">
     <link rel="stylesheet" href="{{asset('public/assets/admin/css/owl.min.css')}}">
     @stack('css_or_js')
 

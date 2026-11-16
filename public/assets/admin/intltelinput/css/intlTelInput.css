@@ -1290,15 +1290,16 @@
   }
 
   .iti__flag {
-    height: 15px;
+    width: 20px;
     box-shadow: 0px 0px 1px 0px #888;
     background-image: url("./flags.png");
     background-repeat: no-repeat;
     background-color: #dbdbdb;
     background-position: 20px 0;
   }
-  @media (min-resolution: 2x) {
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi), (min-resolution: 2x) {
     .iti__flag {
+      background-size: 5762px 15px;
       background-image: url("./flags@2x.png");
     }
   }

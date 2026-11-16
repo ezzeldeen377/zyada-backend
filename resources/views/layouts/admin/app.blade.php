@@ -2,7 +2,7 @@
 <?php
 
 $country= \App\CentralLogics\Helpers::get_business_settings('country');
-$countryCode= strtolower($country?$country:'auto');
+$countryCode= strtolower($country?$country:'ae');
 ?>
 <html dir="{{ session()->get('site_direction') }}" lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="{{session()->get('site_direction') === 'rtl'?'active':'' }}">
 <head>
@@ -29,7 +29,7 @@ $countryCode= strtolower($country?$country:'auto');
     <link rel="stylesheet" href="{{asset('public/assets/admin/css/emogi-area.css')}}">
     <link rel="stylesheet" href="{{asset('public/assets/admin/css/style.css')}}">
 
-    <link rel="stylesheet" href="{{asset('public/assets/admin/intltelinput/css/intlTelInput.css')}}">
+    <link rel="stylesheet" href="{{asset('public/assets/admin/intltelinput/css/intlTelInput.css')}}?v={{ filemtime(public_path('assets/admin/intltelinput/css/intlTelInput.css')) }}">
     <link rel="stylesheet" href="{{asset('public/assets/admin/css/upload-single-image.css')}}">
 
 

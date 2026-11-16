@@ -3,7 +3,7 @@
 <?php
     $landing_site_direction = session()->get('landing_site_direction');
     $country= \App\CentralLogics\Helpers::get_business_settings('country')  ;
-    $countryCode= strtolower($country??'auto');
+    $countryCode= strtolower($country??'ae');
    $metaData=  \App\Models\DataSetting::where('type','admin_landing_page')->whereIn('key',['meta_title','meta_description','meta_image'])->get()->keyBy('key')??[];
 ?>
 <html dir="{{ $landing_site_direction }}" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="{{ asset('public/assets/admin/css/toastr.css') }}">
     <link rel="stylesheet" href="{{ asset('public/assets/landing/css/main.css') }}"/>
 
-    <link rel="stylesheet" href="{{asset('public/assets/admin/intltelinput/css/intlTelInput.css')}}">
+    <link rel="stylesheet" href="{{asset('public/assets/admin/intltelinput/css/intlTelInput.css')}}?v={{ filemtime(public_path('assets/admin/intltelinput/css/intlTelInput.css')) }}">
 
 
     <link rel="icon" type="image/x-icon" href="{{\App\CentralLogics\Helpers::iconFullUrl()}}">
