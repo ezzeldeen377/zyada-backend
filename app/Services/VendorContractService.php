@@ -62,6 +62,9 @@ class VendorContractService
         $acceptedAt = $store->store_contract_accepted_at ?: now();
         $formattedDate = $acceptedAt->format('d/m/Y H:i:s T');
 
+        $locale = app()->getLocale();
+        $isArabic = ($locale === 'ar');
+
         // Create Mpdf instance with US-Letter format matching the master PDF (215.9mm x 279.4mm)
         $mpdf = new Mpdf([
             'format' => [215.9, 279.4],
@@ -91,19 +94,63 @@ class VendorContractService
                 $mpdf->WriteHTML($overlayHtml);
             }
 
-            // Page 5: Add digital acceptance stamp / verification box
+            // Page 5: Add digital acceptance record / verification box (without Authorised Representative, Agreement Reference, Reference Version)
             if ($pageNo === 5) {
-                $stampHtml = '
-                <div style="position: absolute; left: 19.1mm; top: 148mm; width: 175mm; padding: 10px; border: 1.5px solid #0052cc; background-color: #f4f8ff; font-family: Helvetica, Arial, sans-serif; font-size: 9pt; line-height: 1.5; color: #172b4d; border-radius: 4px;">
-                    <div style="font-weight: bold; color: #0052cc; font-size: 10pt; margin-bottom: 4px;">
-                        &#10004; DIGITALLY ACCEPTED & SIGNED ELECTRONICALLY
-                    </div>
-                    <div><strong>Accepted By:</strong> ' . htmlspecialchars($vendorLegalName, ENT_QUOTES, 'UTF-8') . '</div>
-                    <div><strong>Trade License No:</strong> ' . htmlspecialchars($tradeLicenseNumber, ENT_QUOTES, 'UTF-8') . '</div>
-                    <div><strong>Email:</strong> ' . htmlspecialchars($vendor->email ?? '', ENT_QUOTES, 'UTF-8') . ' | <strong>Phone:</strong> ' . htmlspecialchars($vendor->phone ?? '', ENT_QUOTES, 'UTF-8') . '</div>
-                    <div><strong>Date & Time of Acceptance:</strong> ' . htmlspecialchars($formattedDate, ENT_QUOTES, 'UTF-8') . '</div>
-                    <div><strong>Platform:</strong> Zyada Digital Solutions - F.Z.C. (Store ID #' . $store->id . ')</div>
-                </div>';
+                if ($isArabic) {
+                    $stampHtml = '
+                    <div dir="rtl" style="position: absolute; left: 20mm; top: 165mm; width: 175mm; padding: 14px 18px; border: 1.5px solid #0052cc; background-color: #f8faff; font-family: DejaVu Sans, Tahoma, Arial, sans-serif; border-radius: 6px; text-align: right;">
+                        <div style="font-size: 12pt; font-weight: bold; color: #0052cc; margin-bottom: 6px;">
+                            &#10004; سجل قبول الاتفاقية الإلكترونية
+                        </div>
+                        <div style="font-size: 8.5pt; color: #555555; margin-bottom: 10px; line-height: 1.4;">
+                            تم قبول وتوثيق هذه الاتفاقية إلكترونياً عبر تطبيق منصة زيادة وفقاً للتشريعات والأنظمة السارية بدولة الإمارات العربية المتحدة.
+                        </div>
+                        <table style="width: 100%; font-size: 9pt; line-height: 1.8; color: #111111; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 38%; font-weight: bold; padding: 2px 0;">الاسم القانوني للتاجر / المنشأة:</td>
+                                <td style="padding: 2px 0;">' . htmlspecialchars($vendorLegalName, ENT_QUOTES, 'UTF-8') . '</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; padding: 2px 0;">رقم الرخصة التجارية:</td>
+                                <td style="padding: 2px 0;">' . htmlspecialchars($tradeLicenseNumber, ENT_QUOTES, 'UTF-8') . '</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; padding: 2px 0;">تاريخ ووقت القبول (توقيت الإمارات):</td>
+                                <td style="padding: 2px 0;">' . htmlspecialchars($formattedDate, ENT_QUOTES, 'UTF-8') . '</td>
+                            </tr>
+                        </table>
+                        <div style="font-size: 7.5pt; color: #777777; margin-top: 8px; border-top: 1px solid #e1e7f0; padding-top: 5px;">
+                            الطرف الأول: زيادة للحلول الرقمية ش.م.ح | وثيقة إلكترونية معتمدة وملزمة قانوناً (المتجر #' . $store->id . ')
+                        </div>
+                    </div>';
+                } else {
+                    $stampHtml = '
+                    <div style="position: absolute; left: 20mm; top: 165mm; width: 175mm; padding: 14px 18px; border: 1.5px solid #0052cc; background-color: #f8faff; font-family: Helvetica, Arial, sans-serif; border-radius: 6px;">
+                        <div style="font-size: 12pt; font-weight: bold; color: #0052cc; margin-bottom: 6px; letter-spacing: 0.5px;">
+                            &#10004; ELECTRONIC AGREEMENT & ACCEPTANCE RECORD
+                        </div>
+                        <div style="font-size: 8.5pt; color: #555555; margin-bottom: 10px; line-height: 1.4;">
+                            This agreement has been electronically accepted and executed through the ZYADA application in accordance with the laws of the United Arab Emirates.
+                        </div>
+                        <table style="width: 100%; font-size: 9pt; line-height: 1.8; color: #111111; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 38%; font-weight: bold; padding: 2px 0;">Vendor Legal Name:</td>
+                                <td style="padding: 2px 0;">' . htmlspecialchars($vendorLegalName, ENT_QUOTES, 'UTF-8') . '</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; padding: 2px 0;">Trade License Number:</td>
+                                <td style="padding: 2px 0;">' . htmlspecialchars($tradeLicenseNumber, ENT_QUOTES, 'UTF-8') . '</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; padding: 2px 0;">Acceptance Date & Time (UAE):</td>
+                                <td style="padding: 2px 0;">' . htmlspecialchars($formattedDate, ENT_QUOTES, 'UTF-8') . '</td>
+                            </tr>
+                        </table>
+                        <div style="font-size: 7.5pt; color: #777777; margin-top: 8px; border-top: 1px solid #e1e7f0; padding-top: 5px;">
+                            Platform: Zyada Digital Solutions - F.Z.C. | Digital Contract Acceptance Confirmation (Store #' . $store->id . ')
+                        </div>
+                    </div>';
+                }
                 $mpdf->WriteHTML($stampHtml);
             }
         }
