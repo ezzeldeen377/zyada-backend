@@ -154,7 +154,7 @@
                 </div>
             </div>
             <div class="row pt-3 g-3">
-                <div class="col-lg-6">
+                <div class="col-lg-{{ \App\CentralLogics\Helpers::subscription_check() ? '6' : '12' }}">
                     <div class="card h-100">
                         <div class="card-header">
                             <h5 class="card-title m-0 d-flex align-items-center">
@@ -192,6 +192,7 @@
                         </div>
                     </div>
                 </div>
+                @if (\App\CentralLogics\Helpers::subscription_check())
                 <div class="col-lg-6">
                     <div class="card h-100">
                         <div class="card-header">
@@ -276,9 +277,8 @@
                         </div>
                     </div>
                 </div>
+                @endif
             </div>
-
-            @endif
         @else
             <div class="store-details-banner mb-1 position-relative rounded-10">
             @if (isset($store->vendor->rejection_note))
@@ -323,6 +323,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @if (\App\CentralLogics\Helpers::subscription_check())
                             <div class="col-lg-3 col-md-6 col-sm-6 col-auto">
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="icon rounded-circle bg-theme2 d-center w-35px h-35px">
@@ -344,6 +345,7 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif
                             <div class="col-lg-3 col-md-6 col-sm-6 col-auto">
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="icon rounded-circle bg-theme3 d-center w-35px h-35px">
