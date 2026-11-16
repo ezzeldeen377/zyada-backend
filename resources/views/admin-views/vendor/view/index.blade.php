@@ -273,7 +273,7 @@
                 </div>
             </div>
 
-            @if ($store->tin)
+            @if ($store->tin || $store->tin_certificate_image)
                 <div class="row pt-3 g-3">
                     <div class="col-12">
                         <div class="card h-100">
@@ -282,7 +282,7 @@
                                     <span class="card-header-icon mr-2">
                                         <i class="tio-user"></i>
                                     </span>
-                                    <span class="ml-1">{{ translate('Business TIN') }}</span>
+                                    <span class="ml-1">{{ translate('Business VAT') }}</span>
                                 </h5>
                             </div>
                             <div class="card-body">
@@ -322,15 +322,9 @@
 
                                         <div class=" d-flex justify-content-start gap-1">
                                             <span class="text-custom-nowrap text-wrap"><strong class=" text-dark">
-                                                    {{ translate('Taxpayer Identification Number(TIN)') }}:
+                                                    {{ translate('VAT Registration Number') }}:
                                                 </strong></span>
                                             <span class="pl-1">{{ $store->tin }}</span>
-                                        </div>
-
-                                        <div class=" d-flex justify-content-start gap-1">
-                                            <span class="text-custom-nowrap text-wrap"><strong
-                                                    class=" text-dark">{{ translate('Expire Date') }}: </strong></span>
-                                            <span class="pl-1">{{ $store->tin_expire_date }}</span>
                                         </div>
                                     </div>
 

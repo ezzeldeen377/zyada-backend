@@ -394,7 +394,7 @@
                             <div class="p-20 mb-3">
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <h3 class="mb-2">{{ translate('Business TIN') }}</h3>
+                                        <h3 class="mb-2">{{ translate('Business VAT') }}</h3>
                                         {{-- <p class="fz-12px mb-0">{{translate('Lorem ipsum dolor sit amet, consectetur adipiscing elit.')}}</p> --}}
                                     </div>
                                     <div class="row g-3">
@@ -411,20 +411,13 @@
                                                                class="form-control __form-control" required
                                                                value="{{ old('trade_license_number') }}">
                                                     </div>
-                                                    <div class="form-group mb-3">
-                                                        <label class="input-label mb-2 d-block title-clr fw-normal"
-                                                               for="exampleFormControlInput1">{{ translate('Taxpayer Identification Number(TIN)') }}
-                                                        </label>
-                                                        <input type="text" name="tin"
-                                                               placeholder="{{ translate('Type Your Taxpayer Identification Number(TIN)') }}"
-                                                               class=" form-control __form-control">
-                                                    </div>
                                                     <div class="form-group mb-0">
                                                         <label class="input-label mb-2 d-block title-clr fw-normal"
-                                                               for="exampleFormControlInput1">{{ translate('Expire Date') }}
+                                                               for="exampleFormControlInput1">{{ translate('VAT Registration Number') }}
                                                         </label>
-                                                        <input type="date" name="tin_expire_date"
-                                                               class="form-control __form-control">
+                                                        <input type="text" name="tin"
+                                                               placeholder="{{ translate('Type Your VAT Registration Number') }}"
+                                                               class=" form-control __form-control">
                                                     </div>
                                                 </div>
                                             </div>
@@ -434,7 +427,7 @@
                                                 <div
                                                     class="d-flex align-items-center gap-1 justify-content-between mb-20 mb-4">
                                                     <div>
-                                                        <h4 class="mb-2 fz--14px">{{ translate('TIN Certificate') }}</h4>
+                                                        <h4 class="mb-2 fz--14px">{{ translate('VAT Certificate') }}</h4>
                                                         <p class="fz-12px mb-0">
                                                             {{ translate('pdf, doc, jpg. File size : max 2 MB') }}</p>
                                                     </div>
