@@ -14,6 +14,9 @@ class RestaurantController extends Controller
     public function view()
     {
         $shop = Helpers::get_store_data();
+        if ($shop && method_exists($shop, 'loadMissing')) {
+            $shop->loadMissing(['vendor', 'storage', 'translations']);
+        }
         return view('vendor-views.shop.shopInfo', compact('shop'));
     }
 
