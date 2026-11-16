@@ -21,3 +21,4 @@ docker-local/
 .ddev/
 /storage/app/public/*
 !/storage/app/public/.gitignore
+/storage/app/temp/
