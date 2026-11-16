@@ -567,6 +567,7 @@
                                         <option value="Asia/Tbilisi" {{ $tz ? ($tz == 'Asia/Tbilisi' ? 'selected' : '') : '' }}>
                                             (GMT+03:00) Tbilisi</option>
                                         <option value="Asia/Tehran" {{ $tz ? ($tz == 'Asia/Tehran' ? 'selected' : '') : '' }}>(GMT+03:30)Tehran</option>
+                                        <option value="Asia/Dubai" {{ $tz ? ($tz == 'Asia/Dubai' ? 'selected' : '') : '' }}>(GMT+04:00) Dubai, UAE</option>
                                         <option value="Asia/Muscat" {{ $tz ? ($tz == 'Asia/Muscat' ? 'selected' : '') : '' }}>(GMT+04:00)Abu Dhabi,Muscat</option>
                                         <option value="Asia/Baku" {{ $tz ? ($tz == 'Asia/Baku' ? 'selected' : '') : '' }}>
                                             (GMT+04:00)Baku</option>
