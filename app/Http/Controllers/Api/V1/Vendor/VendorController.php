@@ -125,8 +125,14 @@ class VendorController extends Controller
 
 
 
-        $vendor["stores"] = $store;
         $st = Store::withoutGlobalScope('translate')->findOrFail($store['id']);
+        $store['trade_license_number'] = $st->trade_license_number;
+        $store['store_contract_pdf_full_url'] = $st->store_contract_pdf_full_url;
+        $store['trade_license_full_url'] = $st->trade_license_full_url;
+        $store['emirates_id_full_url'] = $st->emirates_id_full_url;
+        $store['passport_copy_full_url'] = $st->passport_copy_full_url;
+        $store['iban_letter_full_url'] = $st->iban_letter_full_url;
+        $vendor["stores"] = $store;
         $vendor["translations"] = $st->translations;
         if ($request['vendor_employee']) {
             $vendor_employee = $request['vendor_employee'];

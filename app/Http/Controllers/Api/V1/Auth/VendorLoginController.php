@@ -11,6 +11,7 @@ use App\Models\Translation;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\CentralLogics\Helpers;
+use App\CentralLogics\StoreContractTemplate;
 use App\CentralLogics\StoreRegistrationDocuments;
 use App\Models\VendorEmployee;
 use App\Mail\StoreRegistration;
@@ -135,6 +136,18 @@ class VendorLoginController extends Controller
             return response()->json(['errors' => Helpers::error_processor('self-registration', translate('messages.store_self_registration_disabled'))]);
         }
 
+        $contractRequiredSetting = BusinessSetting::where('key', 'store_contract_required')->first();
+        $contractRequired = !isset($contractRequiredSetting) || $contractRequiredSetting->value == '1';
+        $contractSettings = BusinessSetting::whereIn('key', [
+            'store_contract_template_en',
+            'store_contract_template_ar',
+            'store_contract_template',
+        ])->pluck('value', 'key')->all();
+        $contractTemplate = StoreContractTemplate::forLocale(
+            $contractSettings,
+            $request->header('X-localization', app()->getLocale())
+        );
+
         $validator = Validator::make($request->all(), [
             'f_name' => 'required|max:100',
             'l_name' => 'nullable|max:100',
@@ -148,6 +161,7 @@ class VendorLoginController extends Controller
             'module_id' => 'required',
             'logo' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             'cover_photo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+            'store_contract_accepted' => $contractRequired && $contractTemplate ? 'accepted' : 'nullable|accepted',
         ] + StoreRegistrationDocuments::validationRules(), [
             'password.required' => translate('The password is required'),
             'password.min_length' => translate('The password must be at least :min characters long'),
@@ -156,7 +170,11 @@ class VendorLoginController extends Controller
             'password.numbers' => translate('The password must contain numbers'),
             'password.symbols' => translate('The password must contain symbols'),
             'password.uncompromised' => translate('The password is compromised. Please choose a different one'),
+            'store_contract_accepted.accepted' => translate('You_must_accept_the_store_contract'),
         ]);
+        if ($contractRequired && !$contractTemplate) {
+            $validator->errors()->add('store_contract_accepted', translate('The_store_contract_is_not_available'));
+        }
 
         if($request->zone_id)
         {
@@ -172,13 +190,12 @@ class VendorLoginController extends Controller
         $module = Module::find($request['module_id']);
         if ($module?->module_type == 'rental' && addon_published_status('Rental') && empty($request['pickup_zone_id'])){
             $validator->getMessageBag()->add('pickup_zone_id', translate('messages.You_must_select_a_pickup_zone'));
-            return back()->withErrors($validator)
-                ->withInput();
+            return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
         $data = json_decode($request->translations, true);
 
-        if (count($data) < 1) {
+        if (is_array($data) && count($data) < 1) {
             $validator->getMessageBag()->add('translations', translate('messages.Name and description in english is required'));
         }
 
@@ -211,6 +228,10 @@ class VendorLoginController extends Controller
         $extension = $request->file('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
         $store->tin_certificate_image = Helpers::upload('store/', $extension, $request->file('tin_certificate_image'));
         StoreRegistrationDocuments::save($store, $request);
+        if ($request->boolean('store_contract_accepted') && $contractTemplate) {
+            $store->store_contract_accepted_at = now();
+            $store->store_contract_template_accepted = $contractTemplate;
+        }
         $store->delivery_time = '30-40 min';
         $store->module_id = $request->module_id;
         $store->status = 0;
@@ -264,6 +285,7 @@ class VendorLoginController extends Controller
                         'store_id'=> $store->id,
                         'package_id'=> $store->package_id,
                         'type'=> 'subscription',
+                        'store_contract_pdf_full_url' => $store->store_contract_pdf_full_url,
                         'message'=>translate('messages.application_placed_successfully')],200);
                 }
                 elseif($request->business_plan == 'commission' ){
@@ -272,12 +294,14 @@ class VendorLoginController extends Controller
                     return response()->json([
                         'store_id'=> $store->id,
                         'type'=> 'commission',
+                        'store_contract_pdf_full_url' => $store->store_contract_pdf_full_url,
                         'message'=>translate('messages.application_placed_successfully')],200);
                 }
                 else{
                     return response()->json([
                         'store_id'=> $store->id,
                         'type'=> 'business_model_fail',
+                        'store_contract_pdf_full_url' => $store->store_contract_pdf_full_url,
                         'message'=>translate('messages.application_placed_successfully')],200);
                 }
             } else{
@@ -286,6 +310,7 @@ class VendorLoginController extends Controller
                 return response()->json([
                     'store_id'=> $store->id,
                     'type'=> 'commission',
+                    'store_contract_pdf_full_url' => $store->store_contract_pdf_full_url,
                     'message'=>translate('messages.application_placed_successfully')],200);
             }
 

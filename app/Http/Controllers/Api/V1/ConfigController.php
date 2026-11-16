@@ -433,6 +433,16 @@ class ConfigController extends Controller
                     ? Helpers::get_full_url('store/contracts', $contractTemplate, 'public')
                     : Helpers::get_full_url('business', $contractTemplate, 'public'))
                 : null,
+            'store_contract_template_url_en' => ($contractTemplateEn = StoreContractTemplate::forLocale($settings, 'en'))
+                ? ($contractTemplateEn === \App\Services\VendorContractService::TEMPLATE_FILENAME 
+                    ? Helpers::get_full_url('store/contracts', $contractTemplateEn, 'public')
+                    : Helpers::get_full_url('business', $contractTemplateEn, 'public'))
+                : null,
+            'store_contract_template_url_ar' => ($contractTemplateAr = StoreContractTemplate::forLocale($settings, 'ar'))
+                ? ($contractTemplateAr === \App\Services\VendorContractService::TEMPLATE_FILENAME 
+                    ? Helpers::get_full_url('store/contracts', $contractTemplateAr, 'public')
+                    : Helpers::get_full_url('business', $contractTemplateAr, 'public'))
+                : null,
         ]);
     }
 

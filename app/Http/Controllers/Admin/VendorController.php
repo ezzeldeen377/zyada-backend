@@ -74,6 +74,7 @@ class VendorController extends Controller
             'longitude' => 'required|numeric',
             'email' => 'required|unique:vendors',
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:20|unique:vendors',
+            'trade_license_number' => 'required|max:100',
             'password' => ['required', Password::min(8)->mixedCase()->letters()->numbers()->symbols(),
                 function ($attribute, $value, $fail) {
                     if (strpos($value, ' ') !== false) {
@@ -84,7 +85,7 @@ class VendorController extends Controller
             'logo' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             'cover_photo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
 
-        ] + StoreRegistrationDocuments::validationRules(false), [
+        ] + StoreRegistrationDocuments::validationRules(true), [
             'f_name.required' => translate('messages.first_name_is_required'),
             'name.0.required'=>translate('default_name_is_required'),
             'address.0.required'=>translate('default_address_is_required'),
@@ -126,15 +127,23 @@ class VendorController extends Controller
         $store->longitude = $request->longitude;
         $store->vendor_id = $vendor->id;
         $store->zone_id = $request->zone_id;
+        $store->trade_license_number = $request->trade_license_number;
         $store->tin = $request->tin;
         $store->tin_expire_date = $request->tin_expire_date;
         $extension = $request->has('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
         $store->tin_certificate_image = Helpers::upload('store/', $extension, $request->file('tin_certificate_image'));
         StoreRegistrationDocuments::save($store, $request);
+        $store->store_contract_accepted_at = now();
+        $store->store_contract_template_accepted = \App\Services\VendorContractService::TEMPLATE_FILENAME;
         $store->delivery_time = '30-40 min';
         $store->module_id = Config::get('module.current_module_id');
         try {
             $store->save();
+            try {
+                app(\App\Services\VendorContractService::class)->generate($store, $vendor);
+            } catch (\Exception $contractEx) {
+                info('Vendor contract generation failed: ' . $contractEx->getMessage());
+            }
             // $store->module->increment('stores_count');
             StoreLogic::insert_schedule($store->id);
 
@@ -171,6 +180,7 @@ class VendorController extends Controller
             'address.*' => 'max:1000',
             'email' => 'required|unique:vendors,email,'.$store->vendor->id,
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:20|unique:vendors,phone,'.$store->vendor->id,
+            'trade_license_number' => 'nullable|max:100',
             'zone_id'=>'required',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
@@ -223,12 +233,23 @@ class VendorController extends Controller
         $store->latitude = $request->latitude;
         $store->longitude = $request->longitude;
         $store->zone_id = $request->zone_id;
+        if ($request->filled('trade_license_number')) {
+            $store->trade_license_number = $request->trade_license_number;
+        }
         $store->tin = $request->tin;
         $store->tin_expire_date = $request->tin_expire_date;
         $extension = $request->has('tin_certificate_image') ? $request->file('tin_certificate_image')->getClientOriginalExtension() : 'png';
         $store->tin_certificate_image = $request->has('tin_certificate_image') ? Helpers::update('store/', $store->tin_certificate_image, $extension, $request->file('tin_certificate_image')) : $store->tin_certificate_image;
         StoreRegistrationDocuments::save($store, $request, true);
         $store->save();
+
+        if (!$store->store_contract_pdf || $request->filled('trade_license_number')) {
+            try {
+                app(\App\Services\VendorContractService::class)->generate($store, $vendor);
+            } catch (\Exception $contractEx) {
+                info('Vendor contract regeneration failed: ' . $contractEx->getMessage());
+            }
+        }
 
         Helpers::add_or_update_translations(request: $request, key_data: 'name', name_field: 'name', model_name: 'Store', data_id: $store->id, data_value: $store->name);
         Helpers::add_or_update_translations(request: $request, key_data: 'address', name_field: 'address', model_name: 'Store', data_id: $store->id, data_value: $store->address);

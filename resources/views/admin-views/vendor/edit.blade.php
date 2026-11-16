@@ -405,6 +405,16 @@
                             <div class="row g-3">
                                 <div class="col-md-8 col-xxl-9">
                                     <div class="bg--secondary rounded p-20 h-100">
+                                        <div class="form-group mb-3 error-wrapper">
+                                            <label class="input-label mb-2 d-block title-clr fw-normal"
+                                                for="trade_license_number">{{ translate('Trade License Number') }}
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" name="trade_license_number" id="trade_license_number"
+                                                placeholder="{{ translate('Type Your Trade License Number') }}"
+                                                class="form-control" required
+                                                value="{{ $store->trade_license_number }}">
+                                        </div>
                                         <div class="form-group mb-0 error-wrapper">
                                             <label class="input-label mb-2 d-block title-clr fw-normal"
                                                 for="exampleFormControlInput1">{{ translate('VAT Registration Number') }}
