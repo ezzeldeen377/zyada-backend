@@ -218,6 +218,7 @@ These Terms govern the commercial relationship between Zyada and the Vendor rega
 "I confirm that I am authorised to represent the establishment registered under this account, that I have reviewed and agree to the Vendor Joining Terms and Conditions and the commercial summary, and that the establishment information and documents provided are accurate."
 </div>
 
+@if(!empty($show_acceptance_record))
 <pagebreak />
 
 <div class="acceptance-box" style="page-break-inside: avoid;">
@@ -228,15 +229,15 @@ These Terms govern the commercial relationship between Zyada and the Vendor rega
     <table class="acceptance-table">
         <tr>
             <td class="label">Vendor Legal Name:</td>
-            <td><strong>{{ $vendor_legal_name ?? '......................................................................' }}</strong></td>
+            <td><strong>{{ $vendor_legal_name ?? '' }}</strong></td>
         </tr>
         <tr>
             <td class="label">Trade License Number:</td>
-            <td><strong>{{ $trade_license_number ?? '..................................................' }}</strong></td>
+            <td><strong>{{ $trade_license_number ?? '' }}</strong></td>
         </tr>
         <tr>
             <td class="label">Acceptance Date & Time (UAE):</td>
-            <td><strong>{{ $accepted_at_uae ?? 'Generated automatically upon electronic acceptance' }}</strong></td>
+            <td><strong>{{ $accepted_at_uae ?? '' }}</strong></td>
         </tr>
         <tr>
             <td class="label">First Party (Platform):</td>
@@ -248,6 +249,7 @@ These Terms govern the commercial relationship between Zyada and the Vendor rega
         </tr>
     </table>
 </div>
+@endif
 
 </body>
 </html>

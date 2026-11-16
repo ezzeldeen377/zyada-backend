@@ -219,6 +219,7 @@
 "أؤكد أنني مفوض نظاماً وقانوناً بتمثيل المنشأة المسجلة بموجب هذا الحساب، وأنني اطلعت على شروط وأحكام انضمام المتاجر والملخص التجاري ووافقت عليها، وأن كافة بيانات ووثائق المنشأة المقدمة صحيحة وسارية المفعول."
 </div>
 
+@if(!empty($show_acceptance_record))
 <pagebreak />
 
 <div class="acceptance-box" style="page-break-inside: avoid;">
@@ -229,15 +230,15 @@
     <table class="acceptance-table">
         <tr>
             <td class="label">الاسم التجاري / القانوني للمنشأة:</td>
-            <td><strong>{{ $vendor_legal_name ?? '......................................................................' }}</strong></td>
+            <td><strong>{{ $vendor_legal_name ?? '' }}</strong></td>
         </tr>
         <tr>
             <td class="label">رقم الرخصة التجارية:</td>
-            <td><strong>{{ $trade_license_number ?? '..................................................' }}</strong></td>
+            <td><strong>{{ $trade_license_number ?? '' }}</strong></td>
         </tr>
         <tr>
             <td class="label">تاريخ ووقت التوثيق والقبول:</td>
-            <td><strong>{{ $accepted_at_uae ?? 'يُسجل آلياً وتلقائياً فور إتمام التوثيق والقبول الإلكتروني' }}</strong></td>
+            <td><strong>{{ $accepted_at_uae ?? '' }}</strong></td>
         </tr>
         <tr>
             <td class="label">الطرف الأول (المنصة):</td>
@@ -249,6 +250,7 @@
         </tr>
     </table>
 </div>
+@endif
 
 </body>
 </html>

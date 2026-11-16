@@ -85,6 +85,7 @@ class VendorContractService
                 'accepted_at_uae' => $formattedDate,
                 'store' => $store,
                 'vendor' => $vendor,
+                'show_acceptance_record' => true,
             ])->render();
             $mpdf->WriteHTML($html);
         } else {
