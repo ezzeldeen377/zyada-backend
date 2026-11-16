@@ -56,9 +56,11 @@
                     <span class="d-block mb-1 pb-1">
                         <strong>{{translate('messages.address')}} : </strong> {{$shop->address}}
                     </span>
+                    @if (\App\CentralLogics\Helpers::subscription_check())
                     <span class="d-block mb-1 pb-1">
                         <strong>{{translate('messages.Business_Plan')}} : </strong> {{translate($shop->store_business_model)}}
                     </span>
+                    @endif
                     <span class="d-block mb-1 pb-1">
                         @if ($shop->store_business_model == 'commission')
 

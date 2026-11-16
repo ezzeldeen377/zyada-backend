@@ -25,9 +25,11 @@
                 </h3>
                 <span class="fs-12 d-block color-334257B2">Here you see your active business plan.</span>
             </div>
-            <div class="btn--container justify-content-end m-0">
-                <button type="button" data-toggle="modal" data-target="#plan-modal" class="btn btn--primary">{{ translate('Change Business Plan') }}</button>
-            </div>
+            @if (\App\CentralLogics\Helpers::subscription_check())
+                <div class="btn--container justify-content-end m-0">
+                    <button type="button" data-toggle="modal" data-target="#plan-modal" class="btn btn--primary">{{ translate('Change Business Plan') }}</button>
+                </div>
+            @endif
         </div>
         <div class="card-body pt-0">
             <div class="bg-F7F8F9 p--20 rounded mb-20">

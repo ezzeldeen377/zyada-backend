@@ -299,6 +299,10 @@ class VendorLoginController extends Controller
 
 
     private function storeSubscriptionCheck($store, $vendor,$token){
+        if ($store?->store_business_model == 'none' && !Helpers::subscription_check()) {
+            $store->store_business_model = 'commission';
+            $store->save();
+        }
         if ($store?->store_business_model == 'none') {
             $vendor->auth_token = $token;
             $vendor?->save();

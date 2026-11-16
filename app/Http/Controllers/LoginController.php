@@ -192,6 +192,10 @@ class LoginController extends Controller
                         ->withErrors([translate('messages.rental_module_is_not_available')]);
                     }
                 }
+                if ($vendor?->stores[0]?->store_business_model == 'none' && !Helpers::subscription_check()) {
+                    $vendor->stores[0]->store_business_model = 'commission';
+                    $vendor->stores[0]->save();
+                }
                 if ($vendor?->stores[0]?->store_business_model == 'none') {
                     $key = ['subscription_free_trial_days', 'subscription_free_trial_type', 'subscription_free_trial_status'];
                     $free_trial_settings = BusinessSetting::whereIn('key', $key)->pluck('value', 'key');

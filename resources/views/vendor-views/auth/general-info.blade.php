@@ -45,9 +45,11 @@
                 <div id="show-step1" class="stepper-item active">
                     <div class="step-name">{{ translate('General Info') }}</div>
                 </div>
-                <div class="stepper-item" id="show-step2">
-                    <div class="step-name">{{ translate('Business Plan') }}</div>
-                </div>
+                @if (\App\CentralLogics\Helpers::subscription_check())
+                    <div class="stepper-item" id="show-step2">
+                        <div class="step-name">{{ translate('Business Plan') }}</div>
+                    </div>
+                @endif
                 <div class="stepper-item">
                     <div class="step-name">{{ translate('Complete') }}</div>
                 </div>

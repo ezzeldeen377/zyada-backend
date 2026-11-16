@@ -765,7 +765,7 @@
                             </a>
                         </li>
                     @endif
-                    @if (\App\CentralLogics\Helpers::employee_module_permission_check('business_plan'))
+                    @if (\App\CentralLogics\Helpers::subscription_check() && \App\CentralLogics\Helpers::employee_module_permission_check('business_plan'))
                         <li class="navbar-vertical-aside-has-menu @yield('subscriberList')">
                             <a class="js-navbar-vertical-aside-menu-link nav-link"
                                 href="{{ route('vendor.subscriptionackage.subscriberDetail') }}"

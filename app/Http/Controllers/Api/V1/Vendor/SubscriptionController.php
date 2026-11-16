@@ -46,6 +46,15 @@ class SubscriptionController extends Controller
         }
 
         $store = Store::Where('id', $request->store_id)->first();
+        if (!Helpers::subscription_check()) {
+            $store->store_business_model = 'commission';
+            $store->save();
+            return response()->json([
+                'store_business_model' => 'commission',
+                'logo' => $store->logo,
+                'message' => translate('messages.application_placed_successfully')
+            ], 200);
+        }
         if ($request->business_plan == 'subscription' && $request->package_id != null) {
             $package = SubscriptionPackage::withoutGlobalScope('translate')->find($request->package_id);
             $pending_bill = SubscriptionBillingAndRefundHistory::where([

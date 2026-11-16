@@ -104,11 +104,13 @@
                             href="{{ route('admin.store.view', ['store' => $store->id, 'tab' => 'disbursements']) }}"
                             aria-disabled="true">{{ translate('messages.disbursements') }}</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link  {{ request('tab') == 'business_plan' ? 'active' : '' }}"
-                            href="{{ route('admin.store.view', ['store' => $store->id, 'tab' => 'business_plan']) }}"
-                            aria-disabled="true">{{ translate('messages.business_plan') }}</a>
-                    </li>
+                    @if (\App\CentralLogics\Helpers::subscription_check())
+                        <li class="nav-item">
+                            <a class="nav-link  {{ request('tab') == 'business_plan' ? 'active' : '' }}"
+                                href="{{ route('admin.store.view', ['store' => $store->id, 'tab' => 'business_plan']) }}"
+                                aria-disabled="true">{{ translate('messages.business_plan') }}</a>
+                        </li>
+                    @endif
                 </ul>
                 <!-- End Nav -->
             </div>

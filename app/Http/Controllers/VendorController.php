@@ -246,7 +246,7 @@ class VendorController extends Controller
         } else{
             $store->store_business_model = 'commission';
             $store->save();
-
+            return response()->json(['redirect_url' => route('restaurant.secondStep',['store_id' => $store->id,'business_plan'=>'commission-base'])]);
         }
 
     return response()->json(['redirect_url' => route('restaurant.secondStep',['store_id' => $store->id,'business_plan'=>$request->business_plan])]);
@@ -332,6 +332,14 @@ class VendorController extends Controller
 
     public function secondStep(Request $request){
         $store=Store::findOrFail($request->store_id);
+
+        if (!Helpers::subscription_check()) {
+            $store->store_business_model = 'commission';
+            $store->save();
+            return view('vendor-views.auth.register-complete',[
+                'type'=>'commission'
+            ]);
+        }
 
         if ($request->business_plan == 'subscription-base' && $store->package_id != null ) {
             $key=['subscription_free_trial_days','subscription_free_trial_type','subscription_free_trial_status'];

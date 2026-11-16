@@ -19,9 +19,11 @@
                     <div style class="stepper-item active">
                         <div class="step-name">{{ translate('General Info') }}</div>
                     </div>
-                    <div class="stepper-item active">
-                        <div class="step-name">{{ translate('Business Plan') }}</div>
-                    </div>
+                    @if (\App\CentralLogics\Helpers::subscription_check())
+                        <div class="stepper-item active">
+                            <div class="step-name">{{ translate('Business Plan') }}</div>
+                        </div>
+                    @endif
                     <div  class="stepper-item active">
                         <div class="step-name  {{  isset($payment_status) && $payment_status == 'fail' ? 'text-danger' : '' }}">{{ translate('Complete') }}</div>
                     </div>
