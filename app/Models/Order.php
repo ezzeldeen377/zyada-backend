@@ -25,6 +25,7 @@ class Order extends Model
         'delivery_man_id' => 'integer',
         'delivery_charge' => 'float',
         'additional_charge' => 'float',
+        'digital_payment_fee' => 'float',
         'original_delivery_charge' => 'float',
         'user_id' => 'integer',
         'zone_id' => 'integer',

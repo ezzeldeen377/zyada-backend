@@ -154,6 +154,8 @@ class ConfigController extends Controller
             'store_contract_template',
             'store_contract_template_en',
             'store_contract_template_ar',
+            'digital_payment_fee_status',
+            'digital_payment_fee_percentage',
         ];
 
         $vehicle_distance_min = 0;
@@ -368,6 +370,8 @@ class ConfigController extends Controller
             'additional_charge_status' => (int)(isset($settings['additional_charge_status']) ? $settings['additional_charge_status'] : 0),
             'additional_charge_name' => (isset($settings['additional_charge_name']) ? $settings['additional_charge_name'] : 'Service Charge'),
             'additional_charge' => $additional_charge,
+            'digital_payment_fee_status' => (int)(isset($settings['digital_payment_fee_status']) ? $settings['digital_payment_fee_status'] : 0),
+            'digital_payment_fee_percentage' => (float)(isset($settings['digital_payment_fee_percentage']) ? $settings['digital_payment_fee_percentage'] : 0),
             'partial_payment_status' => (int)(isset($settings['partial_payment_status']) ? $settings['partial_payment_status'] : 0),
             'partial_payment_method' => (isset($settings['partial_payment_method']) ? $settings['partial_payment_method'] : ''),
             'dm_picture_upload_status' => (int)(isset($settings['dm_picture_upload_status']) ? $settings['dm_picture_upload_status'] : 0),

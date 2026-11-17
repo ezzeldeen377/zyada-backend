@@ -475,7 +475,7 @@
                                 $total_addon_price = 0;
                                 $product_price = 0;
                                 if ($order->prescription_order == 1) {
-                                    $product_price = $order['order_amount'] - $order['delivery_charge'] - $order['total_tax_amount'] - $order['dm_tips'] - $order['additional_charge'] + $order['store_discount_amount'];
+                                    $product_price = $order['order_amount'] - $order['delivery_charge'] - $order['total_tax_amount'] - $order['dm_tips'] - $order['additional_charge'] - ($order['digital_payment_fee'] ?? 0) + $order['store_discount_amount'];
                                     if($order->tax_status == 'included'){
                                         $product_price += $order['total_tax_amount'];
                                     }
@@ -486,6 +486,7 @@
                                 $extra_packaging_amount = $order['extra_packaging_amount'];
                                 $store_flash_discount_amount = $order['flash_store_discount_amount'];
                                 $additional_charge = $order['additional_charge'];
+                                $digital_payment_fee = $order['digital_payment_fee'] ?? 0;
                                 $del_c = $order['delivery_charge'];
                                 if ($editing) {
                                     $del_c = $order['original_delivery_charge'];
@@ -1010,6 +1011,12 @@
                                     <dd class="col-6">
                                         + {{ \App\CentralLogics\Helpers::format_currency($additional_charge) }}</dd>
 
+                                    @if ($digital_payment_fee > 0)
+                                        <dt class="col-6">{{ translate('messages.Digital Payment Gateway Fee') }}</dt>
+                                        <dd class="col-6">
+                                            + {{ \App\CentralLogics\Helpers::format_currency($digital_payment_fee) }}</dd>
+                                    @endif
+
                                     @if ($extra_packaging_amount > 0)
                                         <dt class="col-6">{{ translate('messages.Extra_Packaging_Amount') }}:</dt>
                                         <dd class="col-6">
@@ -1020,7 +1027,7 @@
                                     <dt class="col-6">{{ translate('messages.total') }} {{ $order->tax_status == 'included' ? '('.translate('messages.TAX_Included').')'  :'' }} : </dt>
                                     <dd class="col-6">
 
-                                        {{ \App\CentralLogics\Helpers::format_currency($product_price + $del_c + $total_tax_amount + $total_addon_price + $deliverman_tips + $additional_charge - $coupon_discount_amount - $store_discount_amount - $admin_flash_discount_amount - $store_flash_discount_amount - $ref_bonus_amount +$extra_packaging_amount )  }}
+                                        {{ \App\CentralLogics\Helpers::format_currency($product_price + $del_c + $total_tax_amount + $total_addon_price + $deliverman_tips + $additional_charge + $digital_payment_fee - $coupon_discount_amount - $store_discount_amount - $admin_flash_discount_amount - $store_flash_discount_amount - $ref_bonus_amount +$extra_packaging_amount )  }}
                                     </dd>
                                     @if ($order?->payments)
                                         @foreach ($order?->payments as $payment)

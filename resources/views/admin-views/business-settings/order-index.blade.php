@@ -343,7 +343,62 @@
 
                                     @endif --}}
 
-
+                                    @php($digital_payment_fee_status = \App\CentralLogics\Helpers::get_business_settings('digital_payment_fee_status') ?? 0)
+                                    @php($digital_payment_fee_percentage = \App\CentralLogics\Helpers::get_business_settings('digital_payment_fee_percentage') ?? 0)
+                                    <div class="__bg-FAFAFA card shadow-none mt-3">
+                                        <div class="card-header bg-transparent">
+                                            <div>
+                                                <h5 class="text-title mb-1">
+                                                    {{ translate('messages.Digital Payment Gateway Fee') }}
+                                                </h5>
+                                                <p class="fs-12 mb-0">
+                                                    {{ translate('messages.If enabled, a percentage fee will be calculated and added to orders paid via digital payment.') }}
+                                                </p>
+                                            </div>
+                                            <div class="col-lg-4 col-md-6">
+                                                <div class="form-group mb-0">
+                                                    <label
+                                                        class="toggle-switch h--45px toggle-switch-sm d-flex justify-content-between border rounded px-3 py-0 form-control">
+                                                        <span class="pr-1 d-flex align-items-center switch--label text--title">
+                                                            <span class="line--limit-1">{{ translate('messages.Status') }}</span>
+                                                        </span>
+                                                        <input type="checkbox" data-id="digital_payment_fee_status" data-type="toggle"
+                                                            data-image-on="{{ asset('/public/assets/admin/img/modal/dm-tips-on.png') }}"
+                                                            data-image-off="{{ asset('/public/assets/admin/img/modal/dm-tips-off.png') }}"
+                                                            data-title-on="<strong>{{ translate('messages.Want_to_enable_digital_payment_gateway_fee?') }}</strong>"
+                                                            data-title-off="<strong>{{ translate('messages.Want_to_disable_digital_payment_gateway_fee?') }}</strong>"
+                                                            data-text-on="<p>{{ translate('messages.If_you_enable_this,_a_gateway_percentage_fee_will_be_added_to_digital_payment_orders.') }}</p>"
+                                                            data-text-off="<p>{{ translate('messages.If_you_disable_this,_no_gateway_percentage_fee_will_be_added_to_digital_payment_orders.') }}</p>"
+                                                            class="status toggle-switch-input dynamic-checkbox-toggle" value="1"
+                                                            name="digital_payment_fee_status" id="digital_payment_fee_status"
+                                                            {{ $digital_payment_fee_status == 1 ? 'checked' : '' }}>
+                                                        <span class="toggle-switch-label text">
+                                                            <span class="toggle-switch-indicator"></span>
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="form-group mb-0">
+                                                        <label class="input-label font-medium" for="digital_payment_fee_percentage">
+                                                            {{ translate('messages.Gateway Fee Percentage') }} (%)
+                                                            <span class="form-label-secondary" data-toggle="tooltip" data-placement="right"
+                                                                data-original-title="{{ translate('messages.Percentage fee applied on the digital payment amount of an order.') }}">
+                                                                <i class="tio-info-outined text--title"></i>
+                                                            </span>
+                                                        </label>
+                                                        <input type="number" min="0" max="100" step="0.01"
+                                                            id="digital_payment_fee_percentage" name="digital_payment_fee_percentage"
+                                                            class="form-control" placeholder="{{ translate('Ex: 2.5') }}"
+                                                            value="{{ $digital_payment_fee_percentage }}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                 <div class="btn--container justify-content-end mt-20">
                                     <button type="reset" class="btn btn--reset">{{ translate('messages.reset') }}</button>

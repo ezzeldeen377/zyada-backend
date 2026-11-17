@@ -94,7 +94,7 @@ class OrderLogic
             $comission = \App\Models\BusinessSetting::where('key', 'parcel_commission_dm')->first();
             $dm_tips = $dm_tips_manage_status ? $order->dm_tips : 0;
             $comission = isset($comission) ? $comission->value : 0;
-            $order_amount = $order->order_amount - $dm_tips - $order->additional_charge - $order->extra_packaging_amount - $order->total_tax_amount;
+            $order_amount = $order->order_amount - $dm_tips - $order->additional_charge - ($order->digital_payment_fee ?? 0) - $order->extra_packaging_amount - $order->total_tax_amount;
             $dm_commission = $comission ? ($order_amount / 100) * $comission : 0;
             $comission_amount = $order_amount - $dm_commission;
         } else {
@@ -130,7 +130,7 @@ class OrderLogic
             }
 
 
-            $order_amount = $order->order_amount - $order->additional_charge - $order->extra_packaging_amount - $order->delivery_charge - $order->total_tax_amount - $dm_tips + $flash_admin_discount_amount + $order->coupon_discount_amount + $store_discount_amount + $flash_store_discount_amount + $ref_bonus_amount;
+            $order_amount = $order->order_amount - $order->additional_charge - ($order->digital_payment_fee ?? 0) - $order->extra_packaging_amount - $order->delivery_charge - $order->total_tax_amount - $dm_tips + $flash_admin_discount_amount + $order->coupon_discount_amount + $store_discount_amount + $flash_store_discount_amount + $ref_bonus_amount;
             // comission in delivery charge
             $delivery_charge_comission = BusinessSetting::where('key', 'delivery_charge_comission')->first();
             $delivery_charge_comission_percentage = $delivery_charge_comission ? $delivery_charge_comission->value : 0;
@@ -175,7 +175,7 @@ class OrderLogic
                 'order_amount' => $order->order_amount,
                 'store_amount' => $type == 'parcel' ? 0 : $store_amount,
                 // 'store_amount'=>$type=='parcel' ? 0 : $order_amount + $order->total_tax_amount - $comission_on_store_amount,
-                'admin_commission' => $comission_amount + $order->additional_charge - $admin_subsidy - $admin_coupon_discount_subsidy - $ref_bonus_amount - $store_discount_amount,
+                'admin_commission' => $comission_amount + $order->additional_charge + ($order->digital_payment_fee ?? 0) - $admin_subsidy - $admin_coupon_discount_subsidy - $ref_bonus_amount - $store_discount_amount,
                 'delivery_charge' => $order->delivery_charge,
                 'original_delivery_charge' => $dm_commission,
                 'tax' => $order->total_tax_amount,
@@ -191,6 +191,7 @@ class OrderLogic
                 'delivery_fee_comission' => isset($comission_on_actual_delivery_fee) ? $comission_on_actual_delivery_fee : 0,
                 'discount_amount_by_store' => $store_coupon_discount_subsidy + $store_d_amount + $store_subsidy,
                 'additional_charge' => $order->additional_charge,
+                'digital_payment_fee' => $order->digital_payment_fee ?? 0,
                 'extra_packaging_amount' => $order->extra_packaging_amount,
                 'ref_bonus_amount' => $order->ref_bonus_amount,
                 // for store business model
@@ -201,7 +202,7 @@ class OrderLogic
                 ['admin_id' => Admin::where('role_id', 1)->first()->id]
             );
 
-            $adminWallet->total_commission_earning = $adminWallet->total_commission_earning + $comission_amount + $order->additional_charge - $admin_subsidy - $admin_coupon_discount_subsidy - $store_discount_amount - $flash_admin_discount_amount - $ref_bonus_amount;
+            $adminWallet->total_commission_earning = $adminWallet->total_commission_earning + $comission_amount + $order->additional_charge + ($order->digital_payment_fee ?? 0) - $admin_subsidy - $admin_coupon_discount_subsidy - $store_discount_amount - $flash_admin_discount_amount - $ref_bonus_amount;
 
             if ($type != 'parcel') {
                 $vendorWallet = StoreWallet::firstOrNew(
@@ -362,7 +363,7 @@ class OrderLogic
         $comission = \App\Models\BusinessSetting::where('key', 'parcel_commission_dm')->first();
         $dm_tips = $dm_tips_manage_status ? $order->dm_tips : 0;
         $comission = isset($comission) ? $comission->value : 0;
-        $order_amount = $order->order_amount - $dm_tips - $order->additional_charge - $order->total_tax_amount;
+        $order_amount = $order->order_amount - $dm_tips - $order->additional_charge - ($order->digital_payment_fee ?? 0) - $order->total_tax_amount;
 
         $dm_commission = $comission ? ($order_amount / 100) * $comission : 0;
         $comission_amount = $order_amount - $dm_commission;
@@ -384,7 +385,7 @@ class OrderLogic
                 ['admin_id' => Admin::where('role_id', 1)->first()->id]
             );
 
-            $adminWallet->total_commission_earning = $adminWallet->total_commission_earning + $comission_amount + $order->additional_charge - $admin_subsidy - $admin_coupon_discount_subsidy - $store_discount_amount - $flash_admin_discount_amount - $ref_bonus_amount;
+            $adminWallet->total_commission_earning = $adminWallet->total_commission_earning + $comission_amount + $order->additional_charge + ($order->digital_payment_fee ?? 0) - $admin_subsidy - $admin_coupon_discount_subsidy - $store_discount_amount - $flash_admin_discount_amount - $ref_bonus_amount;
 
 
             if ($order->delivery_man) {
@@ -451,11 +452,11 @@ class OrderLogic
             return false;
         }
         if (($order->payment_status == "paid")) {
-
-            $adminWallet->digital_received = $adminWallet->digital_received - $order->order_amount;
+            $refund_amount = max(0, $order->order_amount - ($order->digital_payment_fee ?? 0));
+            $adminWallet->digital_received = $adminWallet->digital_received - $refund_amount;
             $adminWallet->save();
             if (BusinessSetting::where('key', 'wallet_add_refund')->first()->value == 1 && $order->is_guest  == 0) {
-                CustomerLogic::create_wallet_transaction($order->user_id, $order->order_amount, 'order_refund', $order->id);
+                CustomerLogic::create_wallet_transaction($order->user_id, $refund_amount, 'order_refund', $order->id);
             }
         } elseif (($order->payment_status == "partially_paid")) {
 
@@ -488,11 +489,11 @@ class OrderLogic
 
         $vendorWallet->total_earning = $vendorWallet->total_earning - $order_transaction->store_amount;
 
-        $refund_amount = $order->order_amount - $order->additional_charge - $order->extra_packaging_amount;
+        $refund_amount = $order->order_amount - $order->additional_charge - ($order->digital_payment_fee ?? 0) - $order->extra_packaging_amount;
 
         $status = 'refunded_with_delivery_charge';
         if ($order->order_status == 'delivered' || $order->order_status == 'refund_requested') {
-            $refund_amount = $order->order_amount - $order->additional_charge - $order->extra_packaging_amount - $order->delivery_charge - $order->dm_tips;
+            $refund_amount = $order->order_amount - $order->additional_charge - ($order->digital_payment_fee ?? 0) - $order->extra_packaging_amount - $order->delivery_charge - $order->dm_tips;
             $status = 'refunded_without_delivery_charge';
         } else {
             $adminWallet->delivery_charge = $adminWallet->delivery_charge - $order_transaction->delivery_charge;

@@ -331,6 +331,7 @@ class BusinessSettingsController extends Controller
         $request->validate([
             'home_delivery_status' => 'required_without:takeaway_status',
             'takeaway_status' => 'required_without:home_delivery_status',
+            'digital_payment_fee_percentage' => 'nullable|numeric|min:0|max:100',
         ]);
         $key_datas = [
             'order_cancelation_rate_limit_status' => 'order_cancelation_rate_limit_status',
@@ -342,7 +343,8 @@ class BusinessSettingsController extends Controller
             'home_delivery_status' => 'home_delivery_status',
             'takeaway_status' => 'takeaway_status',
             'schedule_order_slot_duration_time_format' => 'schedule_order_slot_duration_time_format',
-            'takeaway_status' => 'takeaway_status',
+            'digital_payment_fee_status' => 'digital_payment_fee_status',
+            'digital_payment_fee_percentage' => 'digital_payment_fee_percentage',
         ];
 
         if ($request->order_cancelation_rate_limit_status && $request->order_cancelation_rate_warning_limit > $request->order_cancelation_rate_block_limit) {

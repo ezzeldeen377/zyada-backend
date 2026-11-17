@@ -250,11 +250,15 @@ trait PlaceNewOrder
                 'additional_charge_status',
                 'additional_charge',
                 'extra_packaging_data',
+                'digital_payment_fee_status',
+                'digital_payment_fee_percentage',
             ])->pluck('value', 'key');
 
-            $dm_tips_manage_status     = $settings['dm_tips_status'] ?? null;
-            $additional_charge_status  = $settings['additional_charge_status'] ?? null;
-            $additional_charge         = $settings['additional_charge'] ?? null;
+            $dm_tips_manage_status           = $settings['dm_tips_status'] ?? null;
+            $additional_charge_status        = $settings['additional_charge_status'] ?? null;
+            $additional_charge               = $settings['additional_charge'] ?? null;
+            $digital_payment_fee_status      = (int) ($settings['digital_payment_fee_status'] ?? 0);
+            $digital_payment_fee_percentage  = (float) ($settings['digital_payment_fee_percentage'] ?? 0);
 
             $extra_packaging_data_raw  = $settings['extra_packaging_data'] ?? '';
             $extra_packaging_data      = json_decode($extra_packaging_data_raw, true) ?? [];
@@ -476,6 +480,16 @@ trait PlaceNewOrder
                     ]
                 ], 203);
             }
+
+            $order->digital_payment_fee = 0;
+            if ($digital_payment_fee_status == 1 && $digital_payment_fee_percentage > 0 && $request->payment_method == 'digital_payment') {
+                $digitalPayableAmount = $order->order_amount;
+                if ($request->partial_payment && $request->user && $request->user->wallet_balance > 0) {
+                    $digitalPayableAmount = max(0, $order->order_amount - $request->user->wallet_balance);
+                }
+                $order->digital_payment_fee = round(($digitalPayableAmount * $digital_payment_fee_percentage) / 100, config('round_up_to_digit'));
+                $order->order_amount = round($order->order_amount + $order->digital_payment_fee, config('round_up_to_digit'));
+            }
             if (isset($module_wise_delivery_charge) && $request->payment_method == 'cash_on_delivery' && $module_wise_delivery_charge->pivot->maximum_cod_order_amount && $order->order_amount > $module_wise_delivery_charge->pivot->maximum_cod_order_amount) {
                 DB::rollBack();
                 return response()->json([
@@ -562,7 +576,7 @@ trait PlaceNewOrder
                 }
             }
             if ($order->is_guest  == 0 && $order->user_id) {
-                $this->createCashBackHistory($order->order_amount, $order->user_id, $order->id);
+                $this->createCashBackHistory($order->order_amount - $order->digital_payment_fee, $order->user_id, $order->id);
             }
 
             DB::commit();

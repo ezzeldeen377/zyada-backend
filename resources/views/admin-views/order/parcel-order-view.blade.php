@@ -326,6 +326,16 @@
                                     + {{ \App\CentralLogics\Helpers::format_currency($order['additional_charge']) }}
                                     <hr>
                                 </dd>
+                                @if (($order['digital_payment_fee'] ?? 0) > 0)
+                                    <dt class="col-6 col-sm-8 p-0 font-regular text-truncate">
+                                        {{ translate('messages.Digital Payment Gateway Fee') }}
+                                        <hr>
+                                    </dt>
+                                    <dd class="col-6 col-sm-4 p-0">
+                                        + {{ \App\CentralLogics\Helpers::format_currency($order['digital_payment_fee']) }}
+                                        <hr>
+                                    </dd>
+                                @endif
 
                                 <dt class="col-6 col-sm-8 p-0 fs-16">
                                     <div class="d-flex align-items-center gap-2 justify-content-end">
@@ -357,7 +367,7 @@
                                     </div>
                                 </dt>
                                 <dd class="col-6 col-sm-4 p-0 font-semibold text-title">
-                                    {{ \App\CentralLogics\Helpers::format_currency($order['delivery_charge'] + $order['total_tax_amount'] + $order['dm_tips'] + $order['additional_charge'] - $order['coupon_discount_amount'] - $order['ref_bonus_amount']) }}
+                                    {{ \App\CentralLogics\Helpers::format_currency($order['delivery_charge'] + $order['total_tax_amount'] + $order['dm_tips'] + $order['additional_charge'] + ($order['digital_payment_fee'] ?? 0) - $order['coupon_discount_amount'] - $order['ref_bonus_amount']) }}
                                 </dd>
                                 @if ($order->parcelCancellation?->return_fee > 0)
 

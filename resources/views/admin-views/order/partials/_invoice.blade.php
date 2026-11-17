@@ -296,6 +296,12 @@
                                 @php($additional_charge = $order['additional_charge'])
                                 + {{ \App\CentralLogics\Helpers::format_currency($additional_charge) }}
                             </dd>
+                            @if (($order['digital_payment_fee'] ?? 0) > 0)
+                                <dt class="col-6">{{ translate('messages.Digital Payment Gateway Fee') }}:</dt>
+                                <dd class="col-6">
+                                    + {{ \App\CentralLogics\Helpers::format_currency($order['digital_payment_fee']) }}
+                                </dd>
+                            @endif
 
                             @if ($order['extra_packaging_amount'] > 0)
                                 <dt class="col-6">{{ translate('messages.Extra_Packaging_Amount') }}:</dt>

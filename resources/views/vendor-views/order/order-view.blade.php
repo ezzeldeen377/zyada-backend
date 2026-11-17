@@ -280,7 +280,7 @@
                         $store_flash_discount_amount = $order['flash_store_discount_amount'];
 
                         if ($order->prescription_order == 1) {
-                            $product_price = $order['order_amount'] - $order['delivery_charge'] - $order['total_tax_amount'] - $order['dm_tips'] - $order['additional_charge'] + $order['store_discount_amount'];
+                            $product_price = $order['order_amount'] - $order['delivery_charge'] - $order['total_tax_amount'] - $order['dm_tips'] - $order['additional_charge'] - ($order['digital_payment_fee'] ?? 0) + $order['store_discount_amount'];
                             if($order->tax_status == 'included'){
                                 $product_price += $order['total_tax_amount'];
                             }
