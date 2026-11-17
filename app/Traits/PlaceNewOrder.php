@@ -500,6 +500,98 @@ trait PlaceNewOrder
             }
 
 
+            if ($request->payment_method === 'digital_payment') {
+                if ($request->order_type !== 'parcel') {
+                    $taxMapCollection = collect($taxMap);
+                    foreach ($order_details as $key => $item) {
+                        if ($item['item_id']) {
+                            $item_id = $item['item_id'];
+                        } elseif ($item['item_campaign_id']) {
+                            $item_id = $item['item_campaign_id'];
+                        } else {
+                            $item_id = $item['box_id'];
+                        }
+                        $index = $taxMapCollection->search(function ($tax) use ($item_id) {
+                            return $tax['product_id'] == $item_id;
+                        });
+                        if ($index !== false) {
+                            $matchedTax = $taxMapCollection->pull($index);
+                            $order_details[$key]['tax_status'] = $matchedTax['include'] == 1 ? 'included' : 'excluded';
+                            $order_details[$key]['tax_amount'] = $matchedTax['totalTaxamount'];
+                        }
+                    }
+                }
+
+                $p_amount = 0;
+                $unpaid_amount = $order->order_amount;
+                if ($request->user && $request->partial_payment) {
+                    if ($request->user->wallet_balance <= 0) {
+                        DB::rollBack();
+                        return response()->json([
+                            'errors' => [
+                                ['code' => 'order_amount', 'message' => translate('messages.insufficient_balance_for_partial_amount')]
+                            ]
+                        ], 203);
+                    }
+                    $p_amount = min($request->user->wallet_balance, $order->order_amount);
+                    $unpaid_amount = $order->order_amount - $p_amount;
+                }
+
+                $orderAttributes = $order->getAttributes();
+                unset($orderAttributes['created_at'], $orderAttributes['updated_at']);
+
+                $pendingCheckout = \App\Models\PendingOrderCheckout::create([
+                    'user_id' => $order->user_id,
+                    'is_guest' => (bool) $order->is_guest,
+                    'module_id' => $order->module_id,
+                    'store_id' => $order->store_id,
+                    'payment_method' => $order->payment_method,
+                    'payment_gateway' => $request->payment_gateway,
+                    'order_amount' => $order->order_amount,
+                    'digital_payment_fee' => $order->digital_payment_fee ?? 0,
+                    'partially_paid_amount' => $p_amount,
+                    'callback' => $request->callback,
+                    'payload' => [
+                        'order_attributes' => $orderAttributes,
+                        'order_details' => $order_details ?? [],
+                        'order_tax_ids' => $orderTaxIds ?? [],
+                        'cart_ids' => collect($carts ?? [])->pluck('id')->filter()->values()->all(),
+                        'is_buy_now' => (bool) ($request->is_buy_now ?? false),
+                        'partial_payment' => (bool) ($request->partial_payment ?? false),
+                        'p_amount' => $p_amount,
+                        'unpaid_amount' => $unpaid_amount,
+                    ],
+                    'status' => 'pending',
+                    'expires_at' => now()->addHours(2),
+                ]);
+
+                DB::commit();
+
+                $telr_sdk_data = [];
+                if (strtolower((string) $request->payment_gateway) === 'telr') {
+                    $telr_sdk_data = app(\App\Services\TelrMobileCheckout::class)->prepareForPending($pendingCheckout, $request) ?? [];
+                }
+
+                $paymentUrl = route('payment-mobile', array_filter([
+                    'pending_order_id' => $pendingCheckout->id,
+                    'customer_id' => $pendingCheckout->user_id,
+                    'payment_method' => $request->payment_gateway,
+                    'payment_platform' => $request->payment_platform ?? 'app',
+                    'callback' => $request->callback,
+                ], fn ($value) => $value !== null && $value !== ''));
+
+                return response()->json(array_merge([
+                    'message' => translate('messages.order_placed_successfully'),
+                    'pending_order_id' => $pendingCheckout->id,
+                    'order_id' => null,
+                    'total_ammount' => $pendingCheckout->order_amount,
+                    'status' => 'pending_payment',
+                    'created_at' => $pendingCheckout->created_at,
+                    'user_id' => (int) $pendingCheckout->user_id,
+                    'payment_url' => $paymentUrl,
+                ], $telr_sdk_data), 200);
+            }
+
             $order->save();
             if ($request->order_type !== 'parcel') {
                 $taxMapCollection = collect($taxMap);

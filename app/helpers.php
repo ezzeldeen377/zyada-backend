@@ -115,6 +115,18 @@ if (! function_exists('collect_cash_success')) {
 
 if (! function_exists('order_place')) {
     function order_place($data) {
+        if (($data->attribute ?? null) === 'pending_order') {
+            $pending = \App\Models\PendingOrderCheckout::find($data->attribute_id);
+            if ($pending) {
+                app(\App\Services\PendingOrderService::class)->createOrderFromPending(
+                    $pending,
+                    (string) $data->payment_method,
+                    $data->transaction_ref ?? $data->transaction_id ?? null
+                );
+            }
+            return;
+        }
+
         $order = Order::find($data->attribute_id);
         $order->order_status='confirmed';
         if($order->payment_method != 'partial_payment'){
@@ -199,6 +211,13 @@ if (! function_exists('trip_payment_fail')) {
 
 if (! function_exists('order_failed')) {
     function order_failed($data) {
+        if (($data->attribute ?? null) === 'pending_order') {
+            \App\Models\PendingOrderCheckout::where('id', $data->attribute_id)
+                ->where('status', 'pending')
+                ->update(['status' => 'failed']);
+            return;
+        }
+
         $order = Order::find($data->attribute_id);
         $order->order_status='failed';
         if($order->payment_method != 'partial_payment'){

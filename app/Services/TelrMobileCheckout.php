@@ -8,6 +8,7 @@ use App\Library\Receiver;
 use App\Models\BusinessSetting;
 use App\Models\Order;
 use App\Models\PaymentRequest;
+use App\Models\PendingOrderCheckout;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -93,6 +94,102 @@ class TelrMobileCheckout
         } catch (\Throwable $exception) {
             Log::error('Telr mobile order creation failed.', [
                 'order_id' => $order->id,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    public function prepareForPending(PendingOrderCheckout $pending, Request $request): ?array
+    {
+        try {
+            $service = TelrPaymentService::fromAddonSettings();
+            if (! $service) {
+                return null;
+            }
+
+            $amount = (float) $pending->order_amount - (float) $pending->partially_paid_amount;
+            if ($amount <= 0) {
+                return null;
+            }
+
+            $payload = $pending->payload ?? [];
+            $orderAttributes = $payload['order_attributes'] ?? [];
+            $address = json_decode((string) ($orderAttributes['delivery_address'] ?? ''), true) ?: [];
+
+            if ($pending->is_guest) {
+                $customer = [
+                    'name' => (string) ($address['contact_person_name'] ?? ''),
+                    'email' => (string) ($address['contact_person_email'] ?? ''),
+                    'phone' => (string) ($address['contact_person_number'] ?? ''),
+                ];
+            } else {
+                $user = User::find($pending->user_id);
+                $customer = [
+                    'name' => $user ? trim($user->f_name . ' ' . $user->l_name) : '',
+                    'email' => (string) ($user?->email ?? ''),
+                    'phone' => (string) ($user?->phone ?? ''),
+                ];
+            }
+
+            if (! $customer['email']) {
+                return null;
+            }
+
+            $currency = strtoupper((string) BusinessSetting::where('key', 'currency')->value('value'));
+            $storeLogo = BusinessSetting::where('key', 'logo')->first();
+
+            $payment = new PaymentRequest();
+            $payment->payment_amount = $amount;
+            $payment->success_hook = 'order_place';
+            $payment->failure_hook = 'order_failed';
+            $payment->payer_id = $pending->user_id;
+            $payment->receiver_id = '100';
+            $payment->currency_code = $currency;
+            $payment->payment_method = 'telr';
+            $payment->additional_data = json_encode([
+                'business_name' => BusinessSetting::where('key', 'business_name')->value('value'),
+                'business_logo' => Helpers::get_full_url('business', $storeLogo?->value, $storeLogo?->storage[0]?->value ?? 'public'),
+            ]);
+            $payment->payer_information = json_encode(
+                (new Payer($customer['name'], $customer['email'], $customer['phone'], ''))->information()
+            );
+            $payment->receiver_information = json_encode((new Receiver('receiver_name', 'example.png'))->information());
+            $payment->external_redirect_link = null;
+            $payment->attribute = 'pending_order';
+            $payment->attribute_id = $pending->id;
+            $payment->payment_platform = 'app';
+            $payment->save();
+
+            $billing = [
+                'email' => $customer['email'],
+                'name' => $this->billingName($customer['name']),
+                'address' => ['country' => $this->countryCode($request)],
+            ];
+            if (! empty($address['address'])) {
+                $billing['address']['line1'] = substr((string) $address['address'], 0, 110);
+            }
+            if ($customer['phone']) {
+                $billing['phone'] = substr($customer['phone'], 0, 25);
+            }
+
+            $response = $service->createMobileOrder($payment, $billing, route('telr.webhook'));
+
+            $links = TelrPaymentService::extractMobileLinks($response);
+            if (! $links) {
+                return null;
+            }
+
+            $ref = data_get($response, 'ref');
+            if (is_string($ref) && $ref !== '') {
+                $payment->update(['transaction_id' => $ref]);
+            }
+
+            return $links;
+        } catch (\Throwable $exception) {
+            Log::error('Telr mobile pending order creation failed.', [
+                'pending_order_id' => $pending->id,
                 'error' => $exception->getMessage(),
             ]);
 

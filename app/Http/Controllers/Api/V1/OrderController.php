@@ -677,6 +677,33 @@ class OrderController extends Controller
     {
         return $this->new_place_order($request);
     }
+
+    public function pending_status(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'pending_order_id' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+        }
+
+        $userId = $request->user ? $request->user->id : $request->guest_id;
+        $pending = \App\Models\PendingOrderCheckout::where('id', $request->pending_order_id)
+            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->first();
+
+        if (! $pending) {
+            return response()->json(['errors' => [['code' => 'pending_order', 'message' => translate('messages.not_found')]]], 404);
+        }
+
+        return response()->json([
+            'pending_order_id' => $pending->id,
+            'status' => $pending->status,
+            'order_id' => $pending->order_id,
+        ], 200);
+    }
+
     public function prescription_place_order(Request $request)
     {
         return $this->new_place_order($request, true);
