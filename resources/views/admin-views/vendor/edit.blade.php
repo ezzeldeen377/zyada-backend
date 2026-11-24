@@ -143,7 +143,7 @@
                                             id="viewer"
                                             data-onerror-image="{{ asset('public/assets/admin/img/upload-img.png') }}"
                                             src="{{ $store->logo_full_url ?? asset('public/assets/admin/img/upload-img.png') }}"
-                                            data-max-size="2mb" alt="logo image" />
+                                            data-max-size="10mb" alt="logo image" />
                                         <div class="icon-file-group">
                                             <div class="icon-file">
                                                 <i class="tio-edit"></i>
@@ -175,7 +175,7 @@
                                                 <input type="file" name="cover_photo" id="coverImageUpload"
                                                     class="custom-file-input"
                                                      accept="{{ IMAGE_EXTENSION }}"
-                                                    data-max-size="2mb">
+                                                    data-max-size="10mb">
                                             </div>
                                         </div>
                                     </label>
@@ -183,7 +183,7 @@
                                 </div>
                             </div>
                             <small class="d-flex fs-10 justify-content-center">
-                                        <span>{{ translate(IMAGE_FORMAT.'. ' . 'Less Than 2MB') }}</span>
+                                        <span>{{ translate(IMAGE_FORMAT.'. ' . 'Less Than 10MB') }}</span>
                                     </small>
                         </div>
                     </div>
@@ -431,7 +431,7 @@
                                             <div>
                                                 <h4 class="mb-1 fz--14px">{{ translate('VAT Certificate') }}</h4>
                                                 <p class="fz-12px mb-0">
-                                                    {{ translate('pdf, doc, jpg. File size : max 2 MB') }}</p>
+                                                    {{ translate('pdf, doc, jpg. File size : max 10 MB') }}</p>
                                             </div>
                                             <div class="d-flex gap-3 align-items-center">
                                                 <button type="button" id="doc_edit_btn"
@@ -882,10 +882,10 @@
                                 return;
                             }
 
-                        const maxSize = 2 * 1024 * 1024; // 2 MB in bytes
+                        const maxSize = 10 * 1024 * 1024; // 10 MB in bytes
                         if (file.size > maxSize) {
                             if (typeof toastr !== 'undefined') {
-                                toastr.error("{{ translate('messages.Image size must be less than 2 MB') }}");
+                                toastr.error("{{ translate('messages.Image size must be less than 10 MB') }}");
                             }
 
                             $(this).val('');

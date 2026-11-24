@@ -30,9 +30,9 @@ class AdvertisementStoreRequest extends FormRequest
             'description.*' => 'nullable|max:65000',
             'dates' => 'required',
             'advertisement_type' => 'required|in:video_promotion,store_promotion',
-            'cover_image' => 'required_if:advertisement_type,store_promotion|image|mimes:jpg,png,jpeg,webp|max:2048',
-            'profile_image' => 'required_if:advertisement_type,store_promotion|image|mimes:jpg,png,jpeg,webp|max:2048',
-            'video_attachment' => 'required_if:advertisement_type,video_promotion|file|mimes:mp4,mkv,webm|max:5120',
+            'cover_image' => 'required_if:advertisement_type,store_promotion|image|mimes:jpg,png,jpeg,webp|max:10240',
+            'profile_image' => 'required_if:advertisement_type,store_promotion|image|mimes:jpg,png,jpeg,webp|max:10240',
+            'video_attachment' => 'required_if:advertisement_type,video_promotion|file|mimes:mp4,mkv,webm|max:10240',
             'title.0' => 'required',
         ];
     }

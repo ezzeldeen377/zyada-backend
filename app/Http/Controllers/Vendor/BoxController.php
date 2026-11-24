@@ -158,7 +158,7 @@ class BoxController extends Controller
             'price' => 'required|numeric|min:0',
             'item_count' => 'required|integer|min:1',
             'available_count' => 'required|integer|min:0',
-            'image' => ($imageRequired ? 'required|' : 'nullable|') . 'image|max:2048',
+            'image' => ($imageRequired ? 'required|' : 'nullable|') . 'image|max:10240',
             'category_id' => [
                 'required',
                 Rule::exists('categories', 'id')->where('module_id', $moduleId),

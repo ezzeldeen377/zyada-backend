@@ -168,7 +168,7 @@
                                                     <input type="file" name="cover_photo" id="coverImageUpload"
                                                         class="custom-file-input"
                                                         accept="{{ IMAGE_EXTENSION }}"
-                                                        data-max-size="2mb">
+                                                        data-max-size="10mb">
                                                 </div>
                                             </div>
                                         </label>
@@ -177,7 +177,7 @@
 
                             </div>
                             <small class="d-flex fs-10 justify-content-center">
-                                     <span>{{ translate(IMAGE_FORMAT.'. ' . 'Less Than 2MB') }}</span>
+                                     <span>{{ translate(IMAGE_FORMAT.'. ' . 'Less Than 10MB') }}</span>
                                  </small>
                         </div>
                     </div>
@@ -451,7 +451,7 @@
                                             <div>
                                                 <h4 class="mb-1 fz--14px">{{ translate('VAT Certificate') }}</h4>
                                                 <p class="fz-12px mb-0">
-                                                    {{ translate('pdf, doc, jpg. File size : max 2 MB') }}</p>
+                                                    {{ translate('pdf, doc, jpg. File size : max 10 MB') }}</p>
                                             </div>
                                             <div class="d-flex gap-3 align-items-center">
                                                 <button type="button" id="doc_edit_btn"
@@ -471,7 +471,7 @@
                                                 <div class="document-upload-wrapper" id="doc-upload-wrapper">
                                                     <input type="file" name="tin_certificate_image"
                                                         class="document_input" accept=".doc, .pdf, .jpg, .png, .jpeg"
-                                                        data-max-size="2mb">
+                                                        data-max-size="10mb">
                                                     <div class="textbox">
                                                         <img width="40" height="40" class="svg"
                                                             src="{{ asset('public/assets/admin/img/doc-uploaded.png') }}"
@@ -827,10 +827,10 @@
                                 return;
                             }
 
-                        const maxSize = 2 * 1024 * 1024; // 2 MB in bytes
+                        const maxSize = 10 * 1024 * 1024; // 10 MB in bytes
                         if (file.size > maxSize) {
                             if (typeof toastr !== 'undefined') {
-                                toastr.error("{{ translate('messages.Image size must be less than 2 MB') }}");
+                                toastr.error("{{ translate('messages.Image size must be less than 10 MB') }}");
                             }
 
                             $(this).val('');

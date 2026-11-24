@@ -11,10 +11,10 @@ class StoreRegistrationDocuments
     {
         $fileRule = $required ? 'required' : 'nullable';
         return [
-            'trade_license' => $fileRule . '|file|mimes:pdf,jpg,jpeg,png,webp|max:2048',
-            'emirates_id' => $fileRule . '|image|max:2048',
-            'passport_copy' => $fileRule . '|image|max:2048',
-            'iban_letter' => $fileRule . '|file|mimes:pdf,jpg,jpeg,png,webp|max:2048',
+            'trade_license' => $fileRule . '|file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
+            'emirates_id' => $fileRule . '|image|max:10240',
+            'passport_copy' => $fileRule . '|image|max:10240',
+            'iban_letter' => $fileRule . '|file|mimes:pdf,jpg,jpeg,png,webp|max:10240',
         ];
     }
 

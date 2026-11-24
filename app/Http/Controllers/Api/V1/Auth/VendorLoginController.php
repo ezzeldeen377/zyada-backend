@@ -159,8 +159,8 @@ class VendorLoginController extends Controller
             'password' => ['required', Password::min(8)->mixedCase()->letters()->numbers()->symbols()->uncompromised()],
             'zone_id' => 'required',
             'module_id' => 'required',
-            'logo' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
-            'cover_photo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+            'logo' => 'required|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+            'cover_photo' => 'nullable|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             'store_contract_accepted' => $contractRequired && $contractTemplate ? 'accepted' : 'nullable|accepted',
         ] + StoreRegistrationDocuments::validationRules(), [
             'password.required' => translate('The password is required'),

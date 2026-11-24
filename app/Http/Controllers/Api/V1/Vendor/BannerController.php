@@ -24,7 +24,7 @@ class BannerController extends Controller
     {
         $validator = Validator::make($request->all(), [
 
-            'image' => 'required|mimes:webp,jpg,jpeg,png,bmp,tiff|max:2048',
+            'image' => 'required|mimes:webp,jpg,jpeg,png,bmp,tiff|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -75,7 +75,7 @@ class BannerController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'id' => 'required',
-            'image' => 'max:2048',
+            'image' => 'max:10240',
         ]);
 
         if ($validator->fails()) {

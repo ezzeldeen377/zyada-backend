@@ -96,9 +96,9 @@ class AdvertisementController extends Controller
             'dates' => 'required',
             'advertisement_type' => 'required|in:video_promotion,store_promotion',
 
-            'cover_image' => 'required_if:advertisement_type,store_promotion|image|mimes:jpg,png,jpeg,webp|max:2048',
-            'profile_image' => 'required_if:advertisement_type,store_promotion|image|mimes:jpg,png,jpeg,webp|max:2048',
-            'video_attachment' => 'required_if:advertisement_type,video_promotion|file|mimes:mp4,mkv,webm|max:5120',
+            'cover_image' => 'required_if:advertisement_type,store_promotion|image|mimes:jpg,png,jpeg,webp|max:10240',
+            'profile_image' => 'required_if:advertisement_type,store_promotion|image|mimes:jpg,png,jpeg,webp|max:10240',
+            'video_attachment' => 'required_if:advertisement_type,video_promotion|file|mimes:mp4,mkv,webm|max:10240',
 
         ], [
             'video_attachment.required_if' => translate('Your_video_attachment_is_missing'),
@@ -193,9 +193,9 @@ class AdvertisementController extends Controller
             'dates' => 'required',
             'advertisement_type' => 'required|in:video_promotion,store_promotion',
 
-            'cover_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:2048',
-            'profile_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:2048',
-            'video_attachment' => 'nullable|file|mimes:mp4,mkv,webm|max:5120',
+            'cover_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:10240',
+            'profile_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:10240',
+            'video_attachment' => 'nullable|file|mimes:mp4,mkv,webm|max:10240',
 
         ]);
 
@@ -375,9 +375,9 @@ class AdvertisementController extends Controller
             'dates' => 'required',
             'advertisement_type' => 'required|in:video_promotion,store_promotion',
 
-            'cover_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:2048',
-            'profile_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:2048',
-            'video_attachment' => 'nullable|file|mimes:mp4,mkv,webm|max:5120',
+            'cover_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:10240',
+            'profile_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:10240',
+            'video_attachment' => 'nullable|file|mimes:mp4,mkv,webm|max:10240',
 
         ]);
         if ($validator->fails()) {

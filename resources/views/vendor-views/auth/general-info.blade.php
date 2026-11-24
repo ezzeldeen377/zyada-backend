@@ -271,7 +271,7 @@
                                                 <div class="lh-1">{{ translate('messages.cover') }}<span
                                                         class="text-danger">*</span></div>
                                                 <div class="fs-12 opacity-70">
-                                                    {{ translate(IMAGE_FORMAT.' ' . 'Less Than 2MB') }}
+                                                    {{ translate(IMAGE_FORMAT.' ' . 'Less Than 10MB') }}
                                                     <strong> {{ translate('(Ratio 2:1)') }}
                                                     </strong>
                                                 </div>
@@ -307,7 +307,7 @@
                                                 <div class="lh-1">{{ translate('messages.logo') }}<span
                                                         class="text-danger">*</span></div>
                                                 <div class="fs-12 opacity-70">
-                                                    {{ translate(IMAGE_FORMAT.' ' . 'Less Than 2MB') }}
+                                                    {{ translate(IMAGE_FORMAT.' ' . 'Less Than 10MB') }}
                                                     <strong> {{ translate('(Ratio 1:1)') }}
                                                     </strong>
                                                 </div>
@@ -431,7 +431,7 @@
                                                     <div>
                                                         <h4 class="mb-2 fz--14px">{{ translate('VAT Certificate') }}</h4>
                                                         <p class="fz-12px mb-0">
-                                                            {{ translate('pdf, doc, jpg. File size : max 2 MB') }}</p>
+                                                            {{ translate('pdf, doc, jpg. File size : max 10 MB') }}</p>
                                                     </div>
                                                     <div class="d-flex gap-3 align-items-center">
                                                         <button type="button" id="doc_edit_btn"
@@ -1157,7 +1157,7 @@
             const cover = $('input[name="cover_photo"]')[0];
             const tin_certificate_image = $('input[name="tin_certificate_image"]')[0];
 
-            const maxFileSize = 2 * 1024 * 1024; // 2MB in bytes
+            const maxFileSize = 10 * 1024 * 1024; // 10MB in bytes
 
             if (!storeContractConfigLoaded) {
                 toastr.error(storeContractMessages.unavailable);
@@ -1184,10 +1184,10 @@
                 toastr.error("{{ translate('Vendor_cover_photo_required') }}");
                 e.preventDefault();
             } else if (logo.files[0].size > maxFileSize) {
-                toastr.error("{{ translate('Vendor_logo_must_be_less_than_2MB') }}");
+                toastr.error("{{ translate('Vendor_logo_must_be_less_than_10MB') }}");
                 e.preventDefault();
             } else if (tin_certificate_image.files.length && tin_certificate_image.files[0].size > maxFileSize) {
-                toastr.error("{{ translate('Tin_certificate_must_be_less_than_2MB') }}");
+                toastr.error("{{ translate('Tin_certificate_must_be_less_than_10MB') }}");
                 e.preventDefault();
             } else if (!$('#trade_license_number').val()) {
                 toastr.error("{{ translate('Trade_license_number_is_required') }}");
@@ -1202,10 +1202,10 @@
                 const input = $('input[name="' + name + '"]')[0];
                 return input && input.files.length && input.files[0].size > maxFileSize;
             })) {
-                toastr.error("{{ translate('Vendor_documents_must_be_less_than_2MB') }}");
+                toastr.error("{{ translate('Vendor_documents_must_be_less_than_10MB') }}");
                 e.preventDefault();
             } else if (cover.files[0].size > maxFileSize) {
-                toastr.error("{{ translate('Vendor_cover_photo_must_be_less_than_2MB') }}");
+                toastr.error("{{ translate('Vendor_cover_photo_must_be_less_than_10MB') }}");
                 e.preventDefault();
             } else if (!$('#choice_zones').val()) {
                 toastr.error("{{ translate('You_must_select_a_zone') }}");
@@ -1324,10 +1324,10 @@
                                 return;
                             }
 
-                        const maxSize = 2 * 1024 * 1024; // 2 MB in bytes
+                        const maxSize = 10 * 1024 * 1024; // 10 MB in bytes
                         if (file.size > maxSize) {
                             if (typeof toastr !== 'undefined') {
-                                toastr.error("{{ translate('messages.Image size must be less than 2 MB') }}");
+                                toastr.error("{{ translate('messages.Image size must be less than 10 MB') }}");
                             }
 
                             $(this).val('');

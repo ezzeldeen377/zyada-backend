@@ -371,7 +371,7 @@ class CustomerController extends Controller
             'name' => 'required',
             'email' => 'required|unique:users,email,' . $request?->user()?->id,
             'phone' => 'required|unique:users,phone,' . $request?->user()?->id,
-            'image' => 'nullable|max:2048',
+            'image' => 'nullable|max:10240',
             'password' => ['nullable', Password::min(8)],
         ]);
 

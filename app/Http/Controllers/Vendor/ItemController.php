@@ -1076,7 +1076,7 @@ class ItemController extends Controller
     public function bulk_import_data(Request $request)
     {
         $request->validate([
-            'products_file' => 'required|max:2048'
+            'products_file' => 'required|max:10240'
         ]);
         $module_id = Helpers::get_store_data()->module->id;
         $module_type = Helpers::get_store_data()->module->module_type;

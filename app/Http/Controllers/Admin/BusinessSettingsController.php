@@ -3479,7 +3479,7 @@ class BusinessSettingsController extends Controller
             $request->validate([
                 'title' => 'required',
                 'sub_title' => 'required',
-                'image' => 'required|image|max:2048|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
+                'image' => 'required|image|max:10240|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
             ]);
             if ($request->title[array_search('default', $request->lang)] == '') {
                 Toastr::error(translate('default_data_is_required'));
@@ -3555,7 +3555,7 @@ class BusinessSettingsController extends Controller
             $request->validate([
                 'title' => 'required',
                 'sub_title' => 'required',
-                'image' => 'required|image|max:2048|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
+                'image' => 'required|image|max:10240|mimes:' . IMAGE_FORMAT_FOR_VALIDATION,
             ]);
             if ($request->title[array_search('default', $request->lang)] == '') {
                 Toastr::error(translate('default_data_is_required'));
@@ -3784,7 +3784,7 @@ class BusinessSettingsController extends Controller
             $earning_seller_image = DataSetting::where('type', 'admin_landing_page')->where('key', 'earning_seller_image')->first();
             if ($earning_seller_image == null) {
                 $request->validate([
-                    'earning_seller_image' => 'required|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+                    'earning_seller_image' => 'required|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
                 ]);
                 $earning_seller_image = new DataSetting;
             }
@@ -3818,7 +3818,7 @@ class BusinessSettingsController extends Controller
             $earning_delivery_image = DataSetting::where('type', 'admin_landing_page')->where('key', 'earning_delivery_image')->first();
             if ($earning_delivery_image == null) {
                 $request->validate([
-                    'earning_delivery_image' => 'required|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+                    'earning_delivery_image' => 'required|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
                 ]);
                 $earning_delivery_image = new DataSetting;
             }
@@ -3892,7 +3892,7 @@ class BusinessSettingsController extends Controller
         } elseif ($tab == 'special-criteria-list') {
             $request->validate([
                 'title' => 'required',
-                'image' => 'required|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+                'image' => 'required|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             ]);
             if ($request->title[array_search('default', $request->lang)] == '') {
                 Toastr::error(translate('default_data_is_required'));
@@ -3939,7 +3939,7 @@ class BusinessSettingsController extends Controller
             $request->validate([
                 'download_user_app_title.0' =>'required',
                 'download_user_app_sub_title.0' => 'required',
-                'image' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION
+                'image' => 'nullable|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION
             ]);
             $download_user_app_title = DataSetting::where('type', 'admin_landing_page')->where('key', 'download_user_app_title')->first();
             if ($download_user_app_title == null) {
@@ -4094,8 +4094,8 @@ class BusinessSettingsController extends Controller
                 'name' => 'required',
                 'designation' => 'required',
                 'review' => 'required',
-                'reviewer_image' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
-                'company_image' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+                'reviewer_image' => 'required|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+                'company_image' => 'required|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             ]);
 
             $testimonial = new AdminTestimonial;
@@ -4130,7 +4130,7 @@ class BusinessSettingsController extends Controller
             $contact_us_image = DataSetting::where('type', 'admin_landing_page')->where('key', 'contact_us_image')->first();
             if ($contact_us_image == null) {
                 $request->validate([
-                    'image' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+                    'image' => 'required|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
                 ]);
                 $contact_us_image = new DataSetting;
             }
@@ -4247,7 +4247,7 @@ class BusinessSettingsController extends Controller
             $available_zone_image = DataSetting::where('type', 'admin_landing_page')->where('key', 'available_zone_image')->first();
             if ($available_zone_image == null) {
                     $request->validate([
-                        'image' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION
+                        'image' => 'required|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION
                     ]);
                 $available_zone_image = new DataSetting;
             }
@@ -4330,7 +4330,7 @@ class BusinessSettingsController extends Controller
             $request->validate([
                 'meta_title' => 'nullable|max:50',
                 'meta_description' => 'nullable|max:200',
-                'image' => 'nullable|max:2048',
+                'image' => 'nullable|max:10240',
             ]);
             if ($request->meta_title[array_search('default', $request->lang)] == '') {
                 Toastr::error(translate('default_data_is_required'));
@@ -4407,7 +4407,7 @@ class BusinessSettingsController extends Controller
         $request->validate([
             'title' => 'required|max:100',
             'sub_title' => 'required',
-            'image' =>  'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION
+            'image' =>  'required|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION
         ]);
 
         if ($request->title[array_search('default', $request->lang)] == '') {
@@ -4520,7 +4520,7 @@ class BusinessSettingsController extends Controller
         $request->validate([
             'title' => 'required|max:100',
             'sub_title' => 'required',
-            'image' =>  'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION
+            'image' =>  'required|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION
         ]);
 
         if ($request->title[array_search('default', $request->lang)] == '') {
@@ -4643,7 +4643,7 @@ class BusinessSettingsController extends Controller
         $criteria->title = $request->title[array_search('default', $request->lang)];
         if ($criteria->image == null){
             $request->validate([
-                'image' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION
+                'image' => 'nullable|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION
             ]);
         }
         $criteria->image = $request->has('image') ? Helpers::update('special_criteria/', $criteria->image, 'png', $request->file('image')) : $criteria->image;
@@ -4731,12 +4731,12 @@ class BusinessSettingsController extends Controller
         $review->review = $request->review;
         if ($review->reviewer_image == null) {
             $request->validate([
-                'reviewer_image' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+                'reviewer_image' => 'required|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             ]);
         }
         if ($review->company_image == null){
             $request->validate([
-                'company_image' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+                'company_image' => 'required|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
             ]);
         }
 
@@ -4901,7 +4901,7 @@ class BusinessSettingsController extends Controller
                 'download_dm_app_title.0' => 'required|max:100',
                 'download_dm_app_sub_title.0' => 'nullable|max:1000',
                 'download_dm_app_button_title.0' => 'required|max:20',
-                'download_dm_app_image' => 'nullable|mimetypes:image/webp,image/jpeg,image/png,image/gif|max:2048',
+                'download_dm_app_image' => 'nullable|mimetypes:image/webp,image/jpeg,image/png,image/gif|max:10240',
             ], [
                 'download_dm_app_title.0.required' => translate('Default_title_is_required'),
                 'download_dm_app_button_title.0.required' => translate('Default_button_title_is_required'),
@@ -4929,7 +4929,7 @@ class BusinessSettingsController extends Controller
                 'download_seller_app_title.0' => 'required|max:100',
                 'download_seller_app_sub_title.0' => 'nullable|max:1000',
                 'download_seller_app_button_title.0' => 'required|max:20',
-                'download_seller_app_image' => 'nullable|mimetypes:image/webp,image/jpeg,image/png,image/gif|max:2048',
+                'download_seller_app_image' => 'nullable|mimetypes:image/webp,image/jpeg,image/png,image/gif|max:10240',
             ], [
                 'download_seller_app_title.0.required' => translate('Default_title_is_required'),
                 'download_seller_app_sub_title.0.required' => translate('Default_sub_title_is_required'),
@@ -5067,7 +5067,7 @@ class BusinessSettingsController extends Controller
                 'highlight_title' => 'required|max:50',
                 'highlight_sub_title' => 'required|max:200',
                 // 'highlight_button_title' => 'required|max:20',
-                'highlight_image' => 'nullable|mimetypes:image/webp,image/jpeg,image/png,image/gif|max:2048',
+                'highlight_image' => 'nullable|mimetypes:image/webp,image/jpeg,image/png,image/gif|max:10240',
             ]);
             if ($request->image_remove == '1') {
                 $image_deleted = $this->imageDelete(dir: 'highlight_section', type: 'react_landing_page', key: 'highlight_image');
@@ -5089,7 +5089,7 @@ class BusinessSettingsController extends Controller
 
         } elseif ($tab == 'banner') {
             $request->validate([
-                'banner' => 'nullable|mimetypes:image/webp,image/jpeg,image/png,image/gif|max:2048',
+                'banner' => 'nullable|mimetypes:image/webp,image/jpeg,image/png,image/gif|max:10240',
             ], [
                 'banner.max' => translate('The file size must be less then 2mb')
             ]);
@@ -5113,7 +5113,7 @@ class BusinessSettingsController extends Controller
             $request->validate([
                 "trust_title_card_$cardNumber.0" => 'required|max:20',
                 "trust_sub_title_card_$cardNumber.0" => 'required|max:30',
-                "trust_image_card_$cardNumber" => 'nullable|image|max:2048',
+                "trust_image_card_$cardNumber" => 'nullable|image|max:10240',
             ], [
                 "trust_title_card_$cardNumber.0.required" => translate('Default_title_is_required'),
                 "trust_sub_title_card_$cardNumber.0.required" => translate('Default_sub_title_is_required')
@@ -5979,7 +5979,7 @@ class BusinessSettingsController extends Controller
             $request->validate([
                 'meta_title' => 'nullable|max:50',
                 'meta_description' => 'nullable|max:200',
-                'image' => 'nullable|max:2048',
+                'image' => 'nullable|max:10240',
             ]);
             if ($request->meta_title[array_search('default', $request->lang)] == '') {
                 Toastr::error(translate('default_data_is_required'));
@@ -6049,7 +6049,7 @@ class BusinessSettingsController extends Controller
         $request->validate([
             'name.0' => 'required',
             'review.0' => 'required|max:200',
-            'reviewer_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'reviewer_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
         ], [
             'name.0.required' => translate('messages.Default_name_is_required'),
             'review.0.required' => translate('messages.Default_review_is_required'),
@@ -7729,7 +7729,7 @@ class BusinessSettingsController extends Controller
     public function react_promotional_banner_store(Request $request)
     {
         $request->validate([
-            'image' => 'required|max:2048',
+            'image' => 'required|max:10240',
         ]);
 
         $react_promotional_banner = new ReactPromotionalBanner();

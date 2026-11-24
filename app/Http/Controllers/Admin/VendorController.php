@@ -82,8 +82,8 @@ class VendorController extends Controller
                     }
                 },],
             'zone_id' => 'required',
-            'logo' => 'required|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
-            'cover_photo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+            'logo' => 'required|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+            'cover_photo' => 'nullable|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
 
         ] + StoreRegistrationDocuments::validationRules(true), [
             'f_name.required' => translate('messages.first_name_is_required'),
@@ -189,8 +189,8 @@ class VendorController extends Controller
                     $fail('The :attribute cannot contain white spaces.');
                 }
             },],
-            'logo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
-            'cover_photo' => 'nullable|image|max:2048|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+            'logo' => 'nullable|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
+            'cover_photo' => 'nullable|image|max:10240|mimes:'.IMAGE_FORMAT_FOR_VALIDATION,
         ] + StoreRegistrationDocuments::validationRules(false), [
             'f_name.required' => translate('messages.first_name_is_required'),
             'name.0.required'=>translate('default_name_is_required'),
@@ -1346,7 +1346,7 @@ class VendorController extends Controller
     public function bulk_import_data(Request $request)
     {
         $request->validate([
-            'products_file'=>'required|max:2048'
+            'products_file'=>'required|max:10240'
         ]);
         try {
             $collections = (new FastExcel)->import($request->file('products_file'));

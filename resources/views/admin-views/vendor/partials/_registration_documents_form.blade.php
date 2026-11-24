@@ -9,7 +9,7 @@
     <div class="card p-20">
         <div class="mb-3">
             <h3 class="mb-1">{{ translate('Vendor Documents') }}</h3>
-            <p class="fs-12 mb-0">{{ translate('All 4 documents are mandatory. Maximum file size: 2 MB each.') }}</p>
+            <p class="fs-12 mb-0">{{ translate('All 4 documents are mandatory. Maximum file size: 10 MB each.') }}</p>
         </div>
         <div class="row g-3">
             @foreach ($registrationDocuments as $document)
@@ -20,7 +20,7 @@
                             <span class="text-danger">*</span>
                         </label>
                         <input id="{{ $document['field'] }}" type="file" name="{{ $document['field'] }}"
-                            class="form-control" accept="{{ $document['accept'] }}" data-max-size="2mb"
+                            class="form-control" accept="{{ $document['accept'] }}" data-max-size="10mb"
                             {{ !isset($store) ? 'required' : '' }}>
                         @if (isset($store) && $store->{$document['field']})
                             @php($documentUrl = $store->{$document['url']})

@@ -31,9 +31,9 @@ class AdvertisementUpdateRequest extends FormRequest
             'store_id' => 'required',
             'dates' => 'required',
             'advertisement_type' => 'required|in:video_promotion,store_promotion',
-            'cover_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:2048',
-            'profile_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:2048',
-            'video_attachment' => 'nullable|file|mimes:mp4,mkv,webm|max:5120',
+            'cover_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:10240',
+            'profile_image' => 'nullable|image|mimes:jpg,png,jpeg,webp|max:10240',
+            'video_attachment' => 'nullable|file|mimes:mp4,mkv,webm|max:10240',
 
 
         ];

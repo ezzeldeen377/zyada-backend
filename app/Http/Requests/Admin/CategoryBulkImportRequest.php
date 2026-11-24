@@ -23,7 +23,7 @@ class CategoryBulkImportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'products_file' => 'required|max:2048'
+            'products_file' => 'required|max:10240'
         ];
     }
 }

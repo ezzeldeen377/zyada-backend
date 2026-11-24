@@ -1322,7 +1322,7 @@ class ItemController extends Controller
     public function bulk_import_data(Request $request)
     {
         $request->validate([
-            'products_file' => 'required|max:2048'
+            'products_file' => 'required|max:10240'
         ]);
         $module_id = Config::get('module.current_module_id');
         $module_type = Config::get('module.current_module_type');
