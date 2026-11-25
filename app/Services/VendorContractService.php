@@ -44,13 +44,6 @@ class VendorContractService
      */
     public function generate(Store $store, Vendor $vendor): string
     {
-        $templatePath = self::getMasterTemplatePath();
-
-        if (!file_exists($templatePath)) {
-            \Log::error("VendorContractService: Master contract template not found at {$templatePath}");
-            throw new \RuntimeException("Contract template not found: " . self::TEMPLATE_FILENAME);
-        }
-
         // Determine vendor legal name and trade license number
         $vendorLegalName = trim(($vendor->f_name ?? '') . ' ' . ($vendor->l_name ?? ''));
         if (!empty($store->name)) {
@@ -89,6 +82,12 @@ class VendorContractService
             ])->render();
             $mpdf->WriteHTML($html);
         } else {
+            $templatePath = self::getMasterTemplatePath();
+            if (!file_exists($templatePath)) {
+                \Log::error("VendorContractService: Master contract template not found at {$templatePath}");
+                throw new \RuntimeException("Contract template not found: " . self::TEMPLATE_FILENAME);
+            }
+
             $pageCount = $mpdf->setSourceFile($templatePath);
 
             for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
